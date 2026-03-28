@@ -21,9 +21,7 @@ jobs:
         run: cd backend && npm install --legacy-peer-deps
 
       - name: Run Backend Tests
-        run: |
-          cd backend
-          npm test -- --passWithNoTests
+        run: cd backend && npm test
         env:
           VITE_SUPABASE_URL: "https://mock.supabase.co"
           VITE_SUPABASE_ANON_KEY: "mock-anon-key"
@@ -42,9 +40,7 @@ jobs:
         run: cd frontend && npm install --legacy-peer-deps
 
       - name: Run Frontend Tests
-        run: |
-          cd frontend
-          npm test -- --passWithNoTests
+        run: cd frontend && npm test
         env:
           VITE_SUPABASE_URL: "https://mock.supabase.co"
           VITE_SUPABASE_ANON_KEY: "mock-anon-key"

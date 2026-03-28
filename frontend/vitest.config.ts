@@ -8,13 +8,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/__tests__/setup.ts'],
-    deps: {
-      optimizer: {
-        web: {
-          enabled: true,
-        },
-      },
-    },
+    passWithNoTests: true,
   },
   resolve: {
     alias: {
