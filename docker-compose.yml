@@ -42,10 +42,13 @@ services:
       - traefik-public
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.despesago-api.rule=Host(`api.despesago.com.br`)"
+      # Configuração para responder em /api com strip do prefixo
+      - "traefik.http.routers.despesago-api.rule=Host(`despesago.com.br`) && PathPrefix(`/api`)"
       - "traefik.http.routers.despesago-api.entrypoints=websecure"
       - "traefik.http.routers.despesago-api.tls=true"
       - "traefik.http.routers.despesago-api.tls.certresolver=le"
+      - "traefik.http.routers.despesago-api.middlewares=despesago-api-strip"
+      - "traefik.http.middlewares.despesago-api-strip.stripprefix.prefixes=/api"
       - "traefik.http.services.despesago-api.loadbalancer.server.port=3000"
 
 networks:

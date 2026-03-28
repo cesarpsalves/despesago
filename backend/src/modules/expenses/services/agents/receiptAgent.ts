@@ -1,4 +1,6 @@
 import sharp from "sharp";
+import { OpenAI } from "openai";
+import config from "../../../../config/env.js";
 import type { ExpenseData } from '../orchestratorService.js';
 
 /**
@@ -25,9 +27,8 @@ async function preprocessImage(base64: string): Promise<string> {
 export const receiptAgent = {
   extract: async (rawImageBase64: string): Promise<ExpenseData> => {
     try {
-      const OpenAI = (await import("openai")).default;
       const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
+        apiKey: config.openai.apiKey
       });
 
       // 1. Clean the image before it touches AI

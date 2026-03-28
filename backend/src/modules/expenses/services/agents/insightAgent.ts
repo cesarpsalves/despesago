@@ -1,3 +1,6 @@
+import { OpenAI } from "openai";
+import config from "../../../../config/env.js";
+
 /**
  * Insight Agent (REAL AI)
  * Logic to generate short human-readable financial insights
@@ -7,9 +10,8 @@ export const insightAgent = {
     if (!history || history.length === 0) return null;
 
     try {
-      const OpenAI = (await import("openai")).default;
       const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
+        apiKey: config.openai.apiKey
       });
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",

@@ -1,6 +1,9 @@
+import config from "../../../config/env.js";
+import { OpenAI } from "openai";
+
 export const asaasService = {
   getHeaders: () => {
-    const apiKey = process.env.ASAAS_API_KEY;
+    const apiKey = config.asaas.apiKey;
     if (!apiKey) throw new Error('ASAAS_API_KEY não configurada no .env');
     return {
       'Content-Type': 'application/json',
@@ -9,7 +12,7 @@ export const asaasService = {
   },
 
   getBaseUrl: () => {
-    return process.env.ASAAS_API_URL || 'https://sandbox.asaas.com/api/v3';
+    return config.asaas.apiUrl;
   },
 
   // Cria um Customer (Cliente) no ASAAS retornando o ID do cliente deles

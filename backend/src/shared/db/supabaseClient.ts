@@ -1,21 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-import path from 'path';
+import config from '../../config/env.js';
 
-// Garante o path independente de onde é chamado
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') }); 
-
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const supabaseUrl = config.supabase.url;
+const supabaseKey = config.supabase.serviceRoleKey || config.supabase.anonKey;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.warn('SUPABASE_URL or SUPABASE_KEY is missing in .env');
+  console.error('❌ ERRO CRÍTICO: Configurações do Supabase ausentes no .env');
 }
 
 // Global Admin Client (CUIDADO: Se a chave for Service Role, ignora o RLS)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
   db: {
-    schema: 'app_expense_b2b'
+    schema: config.supabase.schema
   }
 });
 
@@ -27,7 +23,7 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
 export const createScopedClient = (authHeader: string) => {
   return createClient(supabaseUrl, supabaseKey, {
     db: {
-      schema: 'app_expense_b2b'
+      schema: config.supabase.schema
     },
     global: {
       headers: {
@@ -36,4 +32,3 @@ export const createScopedClient = (authHeader: string) => {
     }
   });
 };
-
