@@ -41,7 +41,7 @@ export default function Landing() {
           >
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl md:text-7xl leading-[1.1]">
               Tire uma foto.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-brand-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-emerald-600">
                 O resto o DespesaGo resolve.
               </span>
             </h1>
@@ -63,7 +63,7 @@ export default function Landing() {
             transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
             className="flex flex-col items-center justify-center mt-10 space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4"
           >
-            <Button size="lg" onClick={() => navigate('/login')} className="w-full sm:w-auto shadow-xl shadow-brand-500/20">
+            <Button size="lg" onClick={() => navigate('/login')} className="w-full sm:w-auto shadow-xl shadow-emerald-500/20">
               Começar Grátis
             </Button>
             <Button variant="outline" size="lg" onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth'})} className="w-full sm:w-auto">
@@ -137,15 +137,15 @@ export default function Landing() {
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3 text-slate-600">
-                  <CheckCircle2 className="w-6 h-6 text-brand-500 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
                   <span className="text-sm sm:text-base font-medium"><strong>Controle total:</strong> Visibilidade em tempo real dos gastos da equipe.</span>
                 </li>
                 <li className="flex items-start gap-3 text-slate-600">
-                  <CheckCircle2 className="w-6 h-6 text-brand-500 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
                   <span className="text-sm sm:text-base font-medium"><strong>Menos fraude:</strong> A IA confere CNPJ, data e valores contra duplicidades.</span>
                 </li>
                 <li className="flex items-start gap-3 text-slate-600">
-                  <CheckCircle2 className="w-6 h-6 text-brand-500 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
                   <span className="text-sm sm:text-base font-medium"><strong>Sem retrabalho:</strong> Dados caem estruturados e categorizados no financeiro.</span>
                 </li>
               </ul>
@@ -192,7 +192,7 @@ export default function Landing() {
             <p className="mt-4 text-lg text-slate-600 max-w-xl mx-auto mb-10 font-medium">
               Crie sua conta estruturada em 30 segundos. Convide sua equipe e nunca mais digite um recibo.
             </p>
-            <Button size="lg" onClick={() => navigate('/login')} className="w-full sm:w-auto text-lg px-12 py-6 shadow-2xl shadow-brand-500/25">
+            <Button size="lg" onClick={() => navigate('/login')} className="w-full sm:w-auto text-lg px-12 py-6 shadow-2xl shadow-emerald-500/25">
               Criar conta em 30 segundos
             </Button>
           </motion.div>
@@ -376,7 +376,7 @@ function Field({ label, value, show, delay, className = "", isTag = false }: { l
               initial={{ opacity: 0, x: -5 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay, duration: 0.3 }}
-              className={isTag ? "bg-brand-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider" : "text-slate-900 font-bold text-base"}
+              className={isTag ? "bg-emerald-500 text-white text-[10px] font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider" : "text-slate-900 font-bold text-base"}
             >
               {value}
             </motion.div>

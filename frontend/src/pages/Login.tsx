@@ -64,8 +64,8 @@ export default function Login() {
           <img src="/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" className="h-6" />
           <span className="text-sm font-bold text-slate-400 group-hover:text-slate-900 transition-colors">Voltar para o site</span>
         </button>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Configure sua equipe</h1>
-        <p className="text-slate-500 mt-2 font-medium">Crie o espaço de trabalho da sua empresa em segundos.</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Acesse sua conta</h1>
+        <p className="text-slate-500 mt-2 font-medium">Insira seu e-mail profissional para entrar no DespesaGo.</p>
       </motion.div>
 
       <motion.div 
@@ -139,10 +139,14 @@ export default function Login() {
             {isPasswordLogin ? 'Voltar para Link Mágico' : 'Entrar com Senha (gestores)'}
           </button>
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-4 flex justify-center scale-90 opacity-70 hover:opacity-100 transition-opacity">
             <Turnstile 
               siteKey={'0x4AAAAAACw_ETlhwO3aqZ9d'} 
               onSuccess={(token) => setCaptchaToken(token)}
+              options={{
+                appearance: 'interaction-only',
+                theme: 'light',
+              }}
             />
           </div>
         </form>
