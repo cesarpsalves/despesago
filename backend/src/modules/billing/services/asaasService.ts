@@ -27,7 +27,7 @@ export const asaasService = {
   },
 
   // Cria uma assinatura recorrente
-  createSubscription: async (customerId: string, value: number, cycle: 'MONTHLY' | 'YEARLY') => {
+  createSubscription: async (customerId: string, value: number, cycle: 'MONTHLY' | 'YEARLY', externalReference?: string) => {
     const nextDueDate = new Date();
     nextDueDate.setDate(nextDueDate.getDate() + 1); // Vence amanha (tempo habil de teste via PIX)
     
@@ -44,6 +44,7 @@ export const asaasService = {
         value,
         cycle,
         description: `Plano PRO (${cycle}) - DespesaGo Expense Tracker`,
+        externalReference: externalReference || `DGO_SUBS_${Date.now()}`
       })
     });
 

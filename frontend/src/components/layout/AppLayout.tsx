@@ -22,11 +22,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           <div className="flex items-center gap-2 sm:gap-4">
             <button 
               onClick={signOut} 
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 transition-all duration-200"
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 transition-all duration-200"
               title="Sair do sistema"
             >
               <LogOut size={16} />
-              <span className={isAdmin ? "" : "hidden md:inline"}>Sair</span>
+              <span>Sair</span>
             </button>
             <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-bold shadow-sm ring-2 ring-white">
               {user?.email?.[0].toUpperCase() || 'U'}

@@ -36,8 +36,13 @@ export const billingController = {
       // 2. Definir Preço Base (Aproximação MVPs SaaS)
       const value = cycle === 'YEARLY' ? 490.00 : 49.90; // Exemplo de preço BRL
 
-      // 3. Criar Subscrição
-      const { subscriptionId, paymentLink } = await asaasService.createSubscription(externalCustomerId, value, cycle);
+      // 3. Criar Subscrição (Com referência única do app + empresa)
+      const { subscriptionId, paymentLink } = await asaasService.createSubscription(
+        externalCustomerId, 
+        value, 
+        cycle, 
+        `DGO_SUBS_${companyId}`
+      );
 
       // 4. Salvar Subscrição no nosso DB como PENDING ainda
       const { error: insertError } = await supabaseAdmin.from('subscriptions').insert({
