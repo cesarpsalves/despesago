@@ -4,8 +4,8 @@ import { supabase } from '../services/supabase.js';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
 
-// Configuração do axios global para mandar o token sempre
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Configuração do axios global para usar o proxy do Vite no desenvolvimento local
+axios.defaults.baseURL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || '/api');
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);

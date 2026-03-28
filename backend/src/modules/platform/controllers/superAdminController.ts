@@ -37,7 +37,8 @@ export const superAdminController = {
 
       // Formata a resposta para facilitar no front
       const formatted = (companies || []).map(c => {
-        const activeSub = (c.subscriptions as any[])?.find((s: any) => s.status === 'active') || (c.subscriptions as any[])?.[0];
+        const activeSub = (c.subscriptions as any[])?.find((s: any) => ['active', 'trialing'].includes(s.status)) 
+          || (c.subscriptions as any[])?.[0];
         return {
           ...c,
           plan: activeSub?.plan || 'free',

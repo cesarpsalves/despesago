@@ -121,14 +121,23 @@ export default function AdminDashboard() {
     <div className="space-y-6 md:space-y-10 pb-10 animate-in fade-in duration-700">
       {/* Banner de Modo Admin Global */}
       {isPlatformAdmin && (
-        <div className="bg-brand-50 border border-brand-100 p-4 rounded-2xl flex items-center gap-3 text-brand-800 mb-6 shadow-sm">
-          <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white shrink-0">
-            <ShieldCheck size={20} />
+        <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex items-center gap-4 text-white mb-8 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-brand-500/20 transition-all duration-1000" />
+          <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-brand-400 shrink-0 border border-white/10">
+            <ShieldCheck size={24} className="animate-pulse" />
           </div>
-          <div>
-            <p className="font-bold text-sm">Modo de Visualização Global</p>
-            <p className="text-xs opacity-80">Você está acessando este painel como Administrador da Plataforma.</p>
+          <div className="flex-1">
+            <p className="font-black text-xs uppercase tracking-widest text-brand-400 mb-0.5">Acesso Negócio (Platform Admin)</p>
+            <p className="font-bold text-sm text-slate-100 italic opacity-90">Visualizando esta empresa com privilégios de gestão total.</p>
           </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/superadmin')}
+            className="hidden sm:flex text-slate-400 hover:text-white hover:bg-white/10 rounded-xl px-4 font-bold text-xs"
+          >
+            Voltar à Gestão
+          </Button>
         </div>
       )}
 
@@ -142,12 +151,23 @@ export default function AdminDashboard() {
             Gerenciando: <span className="text-slate-900 font-bold">{company?.name || 'sua empresa'}</span>
           </p>
         </div>
-        
         <div className="flex items-center gap-2">
-          <div className="px-4 py-2 bg-white border border-slate-200 rounded-2xl flex items-center gap-2 shadow-sm">
-            <div className={`w-2 h-2 rounded-full ${company?.plan === 'pro' || company?.plan === 'platform_admin' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-            <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
-              {company?.plan === 'platform_admin' ? 'Acesso Admin' : (company?.plan === 'pro' ? 'Plano Pro' : 'Plano Free')}
+          <div className={`px-4 py-2 rounded-2xl flex items-center gap-2.5 shadow-sm transition-all duration-500 ${
+            company?.plan === 'pro' || company?.plan === 'platform_admin' 
+              ? 'bg-emerald-50 border border-emerald-100' 
+              : 'bg-white border border-slate-200'
+          }`}>
+            <div className={`w-2.5 h-2.5 rounded-full ${
+              company?.plan === 'pro' || company?.plan === 'platform_admin' 
+                ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' 
+                : 'bg-slate-300'
+            }`} />
+            <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${
+              company?.plan === 'pro' || company?.plan === 'platform_admin' 
+                ? 'text-emerald-700' 
+                : 'text-slate-500'
+            }`}>
+              {company?.plan === 'platform_admin' ? 'Acesso Admin' : (company?.plan === 'pro' ? 'Status: Pro Ativo' : 'Status: Free')}
             </span>
           </div>
           {company?.plan === 'free' && (
@@ -246,37 +266,35 @@ export default function AdminDashboard() {
             Gestão de Equipe
           </h3>
         </div>
-        <div className="overflow-x-auto">
-          <div className="min-w-[500px]">
-            {members.map((member) => (
-              <div key={member.id} className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-sm font-bold text-slate-500">
-                    {member.display_name?.[0] || member.email[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm">{member.display_name || 'Usuário'}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">{member.email}</p>
-                  </div>
+        <div className="divide-y divide-slate-50">
+          {members.map((member) => (
+            <div key={member.id} className="p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-slate-50/50 transition-colors gap-4">
+              <div className="flex gap-4 items-center">
+                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-sm font-bold text-slate-500 shrink-0">
+                  {member.display_name?.[0] || member.email[0].toUpperCase()}
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                    member.role === 'admin' ? 'bg-brand-50 text-brand-700 border-brand-100' : 'bg-slate-50 text-slate-500 border-slate-100'
-                  }`}>
-                    {member.role === 'admin' ? 'Admin' : 'Membro'}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleToggleAdmin(member)}
-                    className="p-2 h-9 w-9 rounded-xl hover:bg-brand-50 hover:text-brand-600"
-                  >
-                    <ShieldCheck className="w-4 h-4 md:w-5 md:h-5" />
-                  </Button>
+                <div className="min-w-0">
+                  <p className="font-bold text-slate-900 text-sm truncate">{member.display_name || 'Usuário'}</p>
+                  <p className="text-[10px] text-slate-400 font-medium truncate">{member.email}</p>
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-0 border-slate-50">
+                <span className={`px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                  member.role === 'admin' ? 'bg-brand-50 text-brand-700 border-brand-100' : 'bg-slate-50 text-slate-500 border-slate-100'
+                }`}>
+                  {member.role === 'admin' ? 'Admin' : 'Membro'}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleToggleAdmin(member)}
+                  className="p-2 h-9 w-9 rounded-xl hover:bg-brand-50 hover:text-brand-600"
+                >
+                  <ShieldCheck className="w-4 h-4 md:w-5 md:h-5" />
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -289,49 +307,47 @@ export default function AdminDashboard() {
           </h3>
           <Button variant="ghost" size="sm" className="text-xs font-bold text-brand-600">Ver Tudo</Button>
         </div>
-        <div className="overflow-x-auto">
-          <div className="min-w-[600px]">
-            {expenses.map(exp => (
-              <div 
-                key={exp.id} 
-                onClick={() => {
-                  setSelectedExpense(exp);
-                  setIsDetailOpen(true);
-                }}
-                className="p-4 px-6 flex items-center justify-between hover:bg-slate-50/80 transition-all cursor-pointer border-b border-slate-50 last:border-0 group"
-              >
-                <div className="flex gap-4 items-center">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg font-bold text-slate-400 group-hover:bg-white group-hover:text-brand-500 transition-all shrink-0">
-                    {exp.merchant?.[0] || 'D'}
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900 text-sm">{exp.merchant}</p>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                      {new Date(exp.date).toLocaleDateString('pt-BR')} <span className="w-1 h-1 bg-slate-200 rounded-full" /> {exp.category || 'Geral'}
-                    </p>
-                  </div>
+        <div className="divide-y divide-slate-50">
+          {expenses.map(exp => (
+            <div 
+              key={exp.id} 
+              onClick={() => {
+                setSelectedExpense(exp);
+                setIsDetailOpen(true);
+              }}
+              className="p-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-slate-50/80 transition-all cursor-pointer group gap-3"
+            >
+              <div className="flex gap-4 items-center">
+                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg font-bold text-slate-400 group-hover:bg-white group-hover:text-brand-500 transition-all shrink-0">
+                  {exp.merchant?.[0] || 'D'}
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-extrabold text-base text-slate-900 tracking-tighter">
-                      R$ {Number(exp.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                    {exp.confidence < 0.8 && (
-                      <span className="inline-flex items-center gap-1 text-[8px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full uppercase">
-                        <AlertCircle className="w-2 h-2"/> Conferir
-                      </span>
-                    )}
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-500 group-hover:translate-x-1 transition-all" />
+                <div className="min-w-0">
+                  <p className="font-bold text-slate-900 text-sm truncate">{exp.merchant}</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2 truncate">
+                    {new Date(exp.date).toLocaleDateString('pt-BR')} <span className="w-1 h-1 bg-slate-200 rounded-full shrink-0" /> {exp.category || 'Geral'}
+                  </p>
                 </div>
               </div>
-            ))}
-            {expenses.length === 0 && (
-              <div className="p-12 text-center text-slate-400 text-sm italic">
-                Nenhuma despesa recente.
+              <div className="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0 border-t sm:border-0 border-slate-50">
+                <div className="text-left sm:text-right">
+                  <p className="font-extrabold text-base text-slate-900 tracking-tighter">
+                    R$ {Number(exp.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                  {exp.confidence < 0.8 && (
+                    <span className="inline-flex items-center gap-1 text-[8px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full uppercase">
+                      <AlertCircle className="w-2 h-2"/> Conferir
+                    </span>
+                  )}
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-500 group-hover:translate-x-1 transition-all" />
               </div>
-            )}
-          </div>
+            </div>
+          ))}
+          {expenses.length === 0 && (
+            <div className="p-12 text-center text-slate-400 text-sm italic">
+              Nenhuma despesa recente.
+            </div>
+          )}
         </div>
       </div>
 

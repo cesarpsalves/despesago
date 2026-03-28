@@ -29,10 +29,10 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           <div className="flex items-center gap-2 sm:gap-4">
             {isPlatformAdmin && (
               <Button 
-                variant="outline" 
+                variant="secondary" 
                 size="sm" 
                 onClick={() => navigate('/superadmin')} 
-                className="text-brand-600 border-brand-200 hover:bg-brand-50 hover:border-brand-300 rounded-xl px-3 font-bold shadow-sm"
+                className="rounded-xl px-4 font-black shadow-lg shadow-brand-500/10 uppercase tracking-wider text-[11px] h-9"
               >
                 <Globe className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Gestão Global</span>

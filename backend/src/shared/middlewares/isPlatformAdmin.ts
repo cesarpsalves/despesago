@@ -26,6 +26,7 @@ export async function isPlatformAdmin(req: Request, res: Response, next: NextFun
 
     // Fallback: Verificar na tabela de usuários do esquema app_expense_b2b
     const { data: userData, error: userError } = await supabase
+      .schema('app_expense_b2b')
       .from('users')
       .select('is_platform_admin')
       .eq('id', user.id)
