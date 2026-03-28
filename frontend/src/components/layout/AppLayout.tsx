@@ -1,5 +1,5 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Camera, LogOut, UserCircle, ShieldCheck, CreditCard } from 'lucide-react';
+import { Home, Camera, LogOut, UserCircle, Globe, CreditCard } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -38,7 +38,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
                     : 'text-slate-600 hover:text-brand-600 hover:bg-brand-50'
                 }`}
               >
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                <Globe className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                 <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Global</span>
               </Button>
             )}
