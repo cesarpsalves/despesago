@@ -16,9 +16,9 @@ export default function NotFound() {
           className="h-16 mx-auto mb-8 opacity-20"
         />
         
-        <h1 className="text-[120px] font-black text-slate-100 leading-none mb-4Selection: none">404</h1>
+        <h1 className="text-[120px] font-black text-slate-200/50 leading-none mb-4 select-none pointer-events-none">404</h1>
         <h2 className="text-3xl font-extrabold text-slate-900 mb-4 tracking-tight">Oops! Caminho perdido.</h2>
-        <p className="text-slate-500 mb-8 text-lg font-medium">
+        <p className="text-slate-600 mb-8 text-lg font-medium">
           A página que você está procurando não existe ou foi movida para um novo endereço.
         </p>
         

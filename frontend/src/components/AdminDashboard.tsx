@@ -45,8 +45,10 @@ export default function AdminDashboard() {
       if (res.data.paymentLink) {
         window.open(res.data.paymentLink, '_blank');
       }
-    } catch (error) {
-      toast.error('Erro ao iniciar assinatura');
+    } catch (err: any) {
+      console.error('Upgrade Error:', err);
+      const msg = err.response?.data?.error || 'Erro ao iniciar assinatura';
+      toast.error(msg);
     }
   };
 
@@ -65,7 +67,7 @@ export default function AdminDashboard() {
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
               placeholder="email@empresa.com" 
-              className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black/5" required 
+              className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-black/5" required 
             />
             <Button type="submit" size="sm" className="px-6">
               {loading ? '...' : 'Convidar'}
@@ -84,7 +86,7 @@ export default function AdminDashboard() {
           <Button 
             variant="secondary"
             onClick={handleUpgrade} 
-            className="mt-4 w-full"
+            className="mt-4 w-full bg-emerald-500 text-white hover:bg-emerald-600 shadow-md shadow-emerald-500/20"
           >
             Fazer Upgrade Agora
           </Button>

@@ -22,7 +22,8 @@ export const billingController = {
       const companyId = adminUser.company_id;
 
       // Usando Admin db client pra ler os dados CNPJ da empresa (que pode estar oculta por scopes restritos caso o RLS fique pesado demais aqui, mas ok)
-      const { data: company } = await supabaseAdmin.from('companies').select('*').eq('id', companyId).single();
+      const { data: company, error: companyErr } = await supabaseAdmin.from('companies').select('*').eq('id', companyId).single();
+      if (companyErr || !company) throw new Error('Dados cadastrais da empresa não encontrados.');
       
       // 1. Criar ou Recuperar o Customer ASAAS
       let externalCustomerId = company.external_customer_id;
