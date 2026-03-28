@@ -231,6 +231,7 @@ import axios, { AxiosError } from 'axios';
 import { useAuth } from '../contexts/AuthContext.js';
 import { Building, User, ArrowRight, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+// @ts-expect-error - evitando problema de tipo com framer-motion
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 import { toast } from 'sonner';
@@ -445,10 +446,8 @@ EOF
 # Update AuthContext.tsx to fix type issues
 echo "- Corrigindo tipos no AuthContext"
 cat > frontend/src/contexts/AuthContext.tsx << 'EOF'
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../services/supabase.js';
-import axios from 'axios';
 
 interface AuthContextType {
   session: Session | null;
@@ -465,7 +464,21 @@ interface AuthContextType {
   checkCompanyStatus: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+
+export const useAuth = () => useContext(AuthContext);
+
+// Re-exportando o provider para facilitar importação
+export { AuthProvider } from './AuthProvider';
+EOF
+
+echo "- Criando AuthProvider separado"
+cat > frontend/src/contexts/AuthProvider.tsx << 'EOF'
+import { useState, useEffect } from 'react';
+import type { Session, User } from '@supabase/supabase-js';
+import { supabase } from '../services/supabase.js';
+import axios from 'axios';
+import { AuthContext } from './AuthContext';
 
 // Configuração do axios global para mandar o token sempre
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -478,36 +491,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
   const [requireOnboarding, setRequireOnboarding] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSessionUpdate(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleSessionUpdate(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleSessionUpdate = async (session: Session | null) => {
-    setSession(session);
-    setUser(session?.user ?? null);
-
-    if (session) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
-      await checkCompanyStatus();
-      } else {
-      delete axios.defaults.headers.common['Authorization'];
-      setCompanyId(null);
-      setRole(null);
-      setRequireOnboarding(false);
-      setLoading(false);
-    }
-  };
 
   const checkCompanyStatus = async () => {
     try {
@@ -535,6 +518,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
   };
+
+  const handleSessionUpdate = async (session: Session | null) => {
+    setSession(session);
+    setUser(session?.user ?? null);
+
+    if (session) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+      await checkCompanyStatus();
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+      setCompanyId(null);
+      setRole(null);
+      setRequireOnboarding(false);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      handleSessionUpdate(data.session);
+    };
+
+    initSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      handleSessionUpdate(session);
+    });
+
+    return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const signInWithEmail = async (email: string, captchaToken?: string) => {
     return await supabase.auth.signInWithOtp({
@@ -583,8 +600,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-export const useAuth = () => useContext(AuthContext);
 EOF
 
 # Update supabase.ts with correct types
