@@ -336,8 +336,12 @@ export const companyController = {
       if (companyRes.error) throw companyRes.error;
 
       // 4. Calcula o Plano Ativo (Prioriza 'active' ou a mais recente)
-      const subscriptions = companyRes.data.subscriptions || [];
-      const activeSubscription = subscriptions.find((s: any) => s.status === 'active') || subscriptions[0];
+      const companyData = companyRes.data || {};
+      const subscriptions = companyData.subscriptions || [];
+      const activeSubscription = Array.isArray(subscriptions) 
+        ? (subscriptions.find((s: any) => s.status === 'active') || subscriptions[0])
+        : subscriptions;
+        
       const plan = activeSubscription?.plan || 'free';
       const subscriptionStatus = activeSubscription?.status || 'inactive';
 
@@ -348,14 +352,14 @@ export const companyController = {
       // 6. Calcula total mensal
       const monthlyTotal = (monthlyTotalRes.data || []).reduce((acc: number, curr: any) => acc + Number(curr.amount), 0);
 
-      return res.status(200).json({
+      return res.json({
         company: {
-          ...companyRes.data,
+          ...companyData,
           plan,
           subscriptionStatus
         },
-        recentExpenses: expensesRes.data || [],
-        members: membersRes.data || [],
+        recentExpenses: Array.isArray(expensesRes.data) ? expensesRes.data : [],
+        members: Array.isArray(membersRes.data) ? membersRes.data : [],
         stats: {
           memberCount: membersCountRes.count || 0,
           monthlyTotal,

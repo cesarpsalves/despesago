@@ -42,22 +42,27 @@ export default function AuthCallback() {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
 
-        if (session) {
-          if (type === "recovery" || next.includes("password") || next.includes("reset")) {
-            setStatus("Acesso recuperado! Redirecionando para definir senha...");
-            setTimeout(() => navigate("/auth/reset-password", { replace: true }), 1500);
-          } else {
-            setStatus("Bem-vindo de volta! Carregando...");
-            setTimeout(() => navigate(next, { replace: true }), 1000);
+        const navigateToTarget = (session: any) => {
+          if (session) {
+            if (type === "recovery" || next.includes("password") || next.includes("reset") || hash.includes("type=recovery")) {
+              setStatus("Acesso recuperado! Redirecionando para definir senha...");
+              setTimeout(() => navigate("/auth/reset-password", { replace: true }), 1000);
+            } else {
+              setStatus("Bem-vindo de volta! Carregando...");
+              setTimeout(() => navigate(next, { replace: true }), 1000);
+            }
           }
+        };
+
+        if (session) {
+          navigateToTarget(session);
         } else {
           // Se não houver sessão nem código, podemos estar em um fluxo de hash (Implicit Flow)
-          // O hook onAuthStateChange deve capturar isso, mas vamos dar um tempo
           setStatus("Verificando credenciais...");
           setTimeout(async () => {
             const { data: { session: retrySession } } = await supabase.auth.getSession();
             if (retrySession) {
-              navigate(next, { replace: true });
+              navigateToTarget(retrySession);
             } else {
               console.warn("Nenhuma sessão encontrada após delay.");
               toast.error("Link expirado ou já utilizado.");

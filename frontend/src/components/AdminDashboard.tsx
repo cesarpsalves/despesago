@@ -30,12 +30,17 @@ export default function AdminDashboard() {
     try {
       // 1. Busca o sumário consolidado (Performance Fix)
       const summaryRes = await axios.get('/company/dashboard/summary');
-      const { company: comp, recentExpenses, stats: dashboardStats, members: dashboardMembers } = summaryRes.data;
+      const { 
+        company: comp = {}, 
+        recentExpenses = [], 
+        stats: dashboardStats = { consumedCount: 0, limit: 50, monthlyTotal: 0 }, 
+        members: dashboardMembers = [] 
+      } = summaryRes.data;
       
       setCompany(comp);
-      setExpenses(recentExpenses);
+      setExpenses(Array.isArray(recentExpenses) ? recentExpenses : []);
       setStats(dashboardStats);
-      setMembers(dashboardMembers || []);
+      setMembers(Array.isArray(dashboardMembers) ? dashboardMembers : []);
 
       // 2. Busca dados de plataforma SE for admin (em paralelo)
       if (isPlatformAdmin) {
