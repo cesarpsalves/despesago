@@ -68,7 +68,7 @@ echo "- Corrigindo arquivos de configuração"
 echo "- Substituindo Dockerfile do frontend"
 cat > frontend/Dockerfile << 'EOF'
 # Build Stage
-FROM node:16-alpine AS builder
+FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Copiar apenas os arquivos de definição de pacotes
@@ -102,7 +102,7 @@ EOF
 # Replace backend Dockerfile completely
 echo "- Substituindo Dockerfile do backend"
 cat > backend/Dockerfile << 'EOF'
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
