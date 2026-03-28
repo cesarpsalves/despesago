@@ -27,9 +27,28 @@ export const config = {
     webhookKey: process.env.ASAAS_WEBHOOK_KEY || '',
     apiUrl: process.env.ASAAS_API_URL || 'https://sandbox.asaas.com/api/v3',
   },
+  smtp: {
+    host: process.env.SMTP_HOST || '',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.SMTP_FROM || 'contato@despesago.com.br',
+    secure: process.env.SMTP_SECURE === 'true',
+  },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   apiUrl: process.env.VITE_API_URL || 'http://localhost:3000',
   isProduction: process.env.NODE_ENV === 'production',
+};
+
+// Shorthand for internal use
+export const env = {
+  ...config,
+  SMTP_HOST: config.smtp.host,
+  SMTP_PORT: config.smtp.port,
+  SMTP_USER: config.smtp.user,
+  SMTP_PASS: config.smtp.pass,
+  SMTP_FROM: config.smtp.from,
+  SMTP_SECURE: config.smtp.secure ? 'true' : 'false',
 };
 
 // Validação básica para ajudar no debug

@@ -1,5 +1,7 @@
 import type { Request, Response } from 'express';
 import { supabaseAdmin, createScopedClient } from '../../../shared/db/supabaseClient.js';
+import { emailService } from '../../../shared/services/emailService.js';
+import { config } from '../../../config/env.js';
 
 export const companyController = {
   // 1. O primeiro acesso pós login mágico no app. Cria a empresa e vincula o fundador.
@@ -111,7 +113,19 @@ export const companyController = {
         balance: 0.00
       }]);
 
-      return res.status(200).json({ success: true, message: `Um link mágico de acesso foi enviado para ${email}.` });
+      // Busca o nome da empresa para o email
+      const { data: companyData } = await supabaseAdmin
+        .from('companies')
+        .select('name')
+        .eq('id', companyId)
+        .single();
+
+      // Envia o email profissional via nosso serviço
+      // Se não houver SMTP configurado, ele apenas logará no console (mock)
+      const inviteLink = `${config.frontendUrl}/login`; // O funcionário usará o login (Magic Link ou Senha se já tiver)
+      await emailService.sendInviteEmail(email, companyData?.name || 'Sua Empresa', inviteLink);
+
+      return res.status(200).json({ success: true, message: `O convite profissional foi enviado para ${email}.` });
     } catch (error: any) {
       console.error('Invite Error:', error.message);
       return res.status(400).json({ error: error.message });

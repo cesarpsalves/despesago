@@ -96,9 +96,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    return await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`,
-    });
+    try {
+      // Agora usamos nossa API profissional que manda email via nosso serviço (Premium)
+      await axios.post('/auth/reset-password/request', { email });
+      return { error: null };
+    } catch (error: any) {
+      return { error: error.response?.data?.error || error.message || 'Erro desconhecido' };
+    }
   };
 
   const signOut = async () => {
