@@ -10,16 +10,17 @@ export const companyController = {
     try {
       const { companyName, document, userName } = req.body;
       const authHeader = req.headers.authorization;
-      if (!authHeader) return res.status(401).json({ error: 'Missing auth header' });
+      if (!authHeader) return res.status(401).json({ error: 'Cabeçalho de autenticação ausente' });
 
       // Obter ID do auth.users a partir do token recebido pelo backend (seguro)
       const supabaseScoped = createScopedClient(authHeader);
       const { data: { user }, error: authError } = await supabaseScoped.auth.getUser();
       
-      if (authError || !user) throw new Error('Invalid authentication token');
+      if (authError || !user) throw new Error('Token de autenticação inválido');
 
       // Verifica se o usuário já está atrelado a uma empresa (impede dupla empresa no mesmo email)
       const { data: existingUser } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id')
         .eq('id', user.id)
@@ -31,6 +32,7 @@ export const companyController = {
 
       // Cria Banco da Empresa (Elevating to Admin client as RLS blocks unassociated user)
       const { data: company, error: companyError } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('companies')
         .insert([{ 
           name: companyName, 
@@ -43,6 +45,7 @@ export const companyController = {
 
       // Vincula o usuário fundador como Admin da empresa
       const { error: userError } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('users')
         .insert([{
           id: user.id,
@@ -55,7 +58,9 @@ export const companyController = {
       if (userError) throw userError;
 
       // Inicializar Carteira Zerada
-      await supabaseAdmin.from('wallets').insert([{
+      await supabaseAdmin
+        .schema('app_expense_b2b')
+        .from('wallets').insert([{
         company_id: company.id,
         user_id: user.id,
         balance: 0.00
@@ -80,6 +85,7 @@ export const companyController = {
       // Obter os dados da empresa do Admin enviando a requisição 
       // (.single() usa RLS para pegar exatamente o Auth do token)
       const { data: adminUser, error: adminError } = await supabaseScoped
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id, role')
         .single();
@@ -119,6 +125,7 @@ export const companyController = {
 
       // 3. Caso sucesso no convite, cria a presença no espaço da empresa (App User) se não existir
       const { error: insertError } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('users')
         .upsert([{
           id: invitedUserId,
@@ -132,13 +139,16 @@ export const companyController = {
       
       // Inicializa a carteira corporativa do funcionário convidado se não existir
       const { data: existingWallet } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('wallets')
         .select('id')
         .eq('user_id', invitedUserId)
         .single();
 
       if (!existingWallet) {
-        await supabaseAdmin.from('wallets').insert([{
+        await supabaseAdmin
+          .schema('app_expense_b2b')
+          .from('wallets').insert([{
           company_id: companyId,
           user_id: invitedUserId,
           balance: 0.00
@@ -147,6 +157,7 @@ export const companyController = {
 
       // Busca o nome da empresa para o email
       const { data: companyData } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('companies')
         .select('name')
         .eq('id', companyId)
@@ -171,6 +182,7 @@ export const companyController = {
 
       // RLS filtra automaticamente apenas pro company_id logado
       const { data, error } = await supabaseScoped
+        .schema('app_expense_b2b')
         .from('cost_centers')
         .select('*')
         .order('name');
@@ -190,6 +202,7 @@ export const companyController = {
       const supabaseScoped = createScopedClient(authHeader);
 
       const { data: adminUser, error: adminError } = await supabaseScoped
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id, role')
         .single();
@@ -198,6 +211,7 @@ export const companyController = {
       if (adminUser.role !== 'admin') throw new Error('Apenas gestores/admins podem criar Centro de Custo.');
 
       const { data, error } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('cost_centers')
         .insert([{
           company_id: adminUser.company_id,
@@ -222,6 +236,7 @@ export const companyController = {
 
       // 1. Pega os dados do usuário para achar o company_id
       const { data: user, error: userError } = await supabaseScoped
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id, role')
         .single();
@@ -230,6 +245,7 @@ export const companyController = {
 
       // 2. Busca os detalhes da empresa e da assinatura
       const { data: company, error: companyError } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('companies')
         .select('*, subscriptions(plan, status, billing_cycle)')
         .eq('id', user.company_id)
@@ -238,10 +254,14 @@ export const companyController = {
       if (companyError || !company) throw new Error('Empresa não encontrada');
 
       // Formata a resposta
+      const activeSubscription = Array.isArray(company.subscriptions) 
+        ? company.subscriptions.find((s: any) => ['active', 'trialing'].includes(s.status))
+        : (['active', 'trialing'].includes((company.subscriptions as any)?.status) ? company.subscriptions : null);
+      
       const response = {
         ...company,
-        plan: company.subscriptions?.[0]?.plan || 'free',
-        subscriptionStatus: company.subscriptions?.[0]?.status || 'inactive'
+        plan: activeSubscription?.plan || 'free',
+        subscriptionStatus: activeSubscription?.status || 'inactive'
       };
 
       return res.status(200).json(response);
@@ -259,6 +279,7 @@ export const companyController = {
 
       // 1. Identifica usuário e empresa
       const { data: user, error: userError } = await supabaseScoped
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id, role')
         .maybeSingle();
@@ -300,6 +321,7 @@ export const companyController = {
       const [companyRes, expensesRes, membersCountRes, monthlyTotalRes, membersRes] = await Promise.all([
         // Detalhes da Empresa e Assinatura
         supabaseAdmin
+          .schema('app_expense_b2b')
           .from('companies')
           .select('*, subscriptions(plan, status)')
           .eq('id', companyId)
@@ -307,6 +329,7 @@ export const companyController = {
         
         // Últimas 10 despesas (RLS garantido pelo scoped client)
         supabaseScoped
+          .schema('app_expense_b2b')
           .from('expenses')
           .select('*')
           .order('date', { ascending: false })
@@ -314,12 +337,14 @@ export const companyController = {
         
         // Contagem de membros
         supabaseAdmin
+          .schema('app_expense_b2b')
           .from('users')
           .select('id', { count: 'exact', head: true })
           .eq('company_id', companyId),
 
         // Total do mês atual
         supabaseScoped
+          .schema('app_expense_b2b')
           .from('expenses')
           .select('amount')
           .gte('date', firstDay)
@@ -327,6 +352,7 @@ export const companyController = {
         
         // Lista completa de membros (para gestão de equipe)
         supabaseAdmin
+          .schema('app_expense_b2b')
           .from('users')
           .select('*')
           .eq('company_id', companyId)
@@ -335,12 +361,12 @@ export const companyController = {
 
       if (companyRes.error) throw companyRes.error;
 
-      // 4. Calcula o Plano Ativo (Prioriza 'active' ou a mais recente)
+      // 4. Calcula o Plano Ativo (Idêntico ao billingController.status)
       const companyData = companyRes.data || {};
-      const subscriptions = companyData.subscriptions || [];
+      const subscriptions = (companyData as any).subscriptions || [];
       const activeSubscription = Array.isArray(subscriptions) 
-        ? (subscriptions.find((s: any) => s.status === 'active') || subscriptions[0])
-        : subscriptions;
+        ? (subscriptions.find((s: any) => ['active', 'trialing'].includes(s.status)))
+        : (['active', 'trialing'].includes((subscriptions as any)?.status) ? subscriptions : null);
         
       const plan = activeSubscription?.plan || 'free';
       const subscriptionStatus = activeSubscription?.status || 'inactive';

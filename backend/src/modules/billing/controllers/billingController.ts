@@ -13,6 +13,7 @@ export const billingController = {
 
       // Usando o Scoped pra confirmar as credenciais
       const { data: adminUser, error: adminError } = await supabaseScoped
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id, role, name, email')
         .single();
@@ -22,8 +23,13 @@ export const billingController = {
 
       const companyId = adminUser.company_id;
 
-      // Usando Admin db client pra ler os dados CNPJ da empresa (que pode estar oculta por scopes restritos caso o RLS fique pesado demais aqui, mas ok)
-      const { data: company, error: companyErr } = await supabaseAdmin.from('companies').select('*').eq('id', companyId).single();
+      // Usando Admin db client pra ler os dados CNPJ da empresa
+      const { data: company, error: companyErr } = await supabaseAdmin
+        .schema('app_expense_b2b')
+        .from('companies')
+        .select('*')
+        .eq('id', companyId)
+        .single();
       if (companyErr || !company) throw new Error('Dados cadastrais da empresa não encontrados.');
       
       // 1. Criar ou Recuperar o Customer ASAAS
@@ -31,7 +37,11 @@ export const billingController = {
       if (!externalCustomerId) {
         externalCustomerId = await asaasService.createCustomer(company.name, adminUser.email, company.document || undefined);
         // Atualiza a tabela com o reference do Asaas
-        await supabaseAdmin.from('companies').update({ external_customer_id: externalCustomerId }).eq('id', companyId);
+        await supabaseAdmin
+          .schema('app_expense_b2b')
+          .from('companies')
+          .update({ external_customer_id: externalCustomerId })
+          .eq('id', companyId);
       }
 
       // 2. Definir Preço Base (Aproximação MVPs SaaS)
@@ -46,15 +56,18 @@ export const billingController = {
       );
 
       // 4. Salvar Subscrição no nosso DB como PENDING ainda
-      const { error: insertError } = await supabaseAdmin.from('subscriptions').insert({
-        company_id: companyId,
-        asaas_customer_id: externalCustomerId,
-        plan: 'pro',
-        status: 'pending',
-        billing_cycle: cycle.toLowerCase(),
-        external_subscription_id: subscriptionId,
-        current_period_end: new Date(new Date().setMonth(new Date().getMonth() + 1))
-      });
+      const { error: insertError } = await supabaseAdmin
+        .schema('app_expense_b2b')
+        .from('subscriptions')
+        .insert({
+          company_id: companyId,
+          asaas_customer_id: externalCustomerId,
+          plan: 'pro',
+          status: 'pending',
+          billing_cycle: cycle.toLowerCase(),
+          external_subscription_id: subscriptionId,
+          current_period_end: new Date(new Date().setMonth(new Date().getMonth() + 1))
+        });
 
       if (insertError) {
         console.error('Insert Subs Error:', insertError);
@@ -91,7 +104,9 @@ export const billingController = {
         const nextMonth = new Date();
         nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-        await supabaseAdmin.from('subscriptions')
+        await supabaseAdmin
+          .schema('app_expense_b2b')
+          .from('subscriptions')
           .update({ 
             status: 'active', 
             current_period_end: nextMonth.toISOString()
@@ -99,12 +114,16 @@ export const billingController = {
           .eq('external_subscription_id', subscriptionId);
           console.log(`Subscrição ${subscriptionId} ativada/confirmada!`);
       } else if (event === 'PAYMENT_OVERDUE') {
-        await supabaseAdmin.from('subscriptions')
+        await supabaseAdmin
+          .schema('app_expense_b2b')
+          .from('subscriptions')
           .update({ status: 'past_due' })
           .eq('external_subscription_id', subscriptionId);
           console.log(`Subscrição ${subscriptionId} inadimplente!`);
       } else if (event === 'PAYMENT_DELETED') {
-        await supabaseAdmin.from('subscriptions')
+        await supabaseAdmin
+          .schema('app_expense_b2b')
+          .from('subscriptions')
           .update({ status: 'canceled' })
           .eq('external_subscription_id', subscriptionId);
           console.log(`Subscrição ${subscriptionId} removida/cancelada!`);
@@ -131,14 +150,23 @@ export const billingController = {
       if (userError || !user) throw new Error('Não autorizado');
       const companyId = user.company_id;
 
-      // 1. Pegar Assinatura Atual
-      const { data: subscription, error: subsError } = await supabaseAdmin
+      // 1. Pegar Assinaturas
+      const { data: subscriptions, error: subsError } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('subscriptions')
         .select('*')
         .eq('company_id', companyId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+        .order('created_at', { ascending: false });
+
+      // 4. Calcula o Plano Ativo (Idêntico ao companyController.summary)
+      const activeSubscription = Array.isArray(subscriptions) 
+        ? (subscriptions.find((s: any) => ['active', 'trialing'].includes(s.status)))
+        : (['active', 'trialing'].includes((subscriptions as any)?.status) ? subscriptions : null);
+        
+      const plan = activeSubscription?.plan || 'free';
+      const subscriptionStatus = activeSubscription?.status || 'inactive';
+
+      if (subsError) console.error('Subs Error:', subsError);
 
       // 2. Calcular Uso do Mês Atual (Recibos Escaneados)
       const firstDayOfMonth = new Date();
@@ -146,6 +174,7 @@ export const billingController = {
       firstDayOfMonth.setHours(0, 0, 0, 0);
 
       const { count: usageCount, error: countError } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('expenses')
         .select('*', { count: 'exact', head: true })
         .eq('company_id', companyId)
@@ -155,18 +184,19 @@ export const billingController = {
 
       // 3. Obter dados da empresa (external_customer_id)
       const { data: company } = await supabaseAdmin
+        .schema('app_expense_b2b')
         .from('companies')
         .select('name, external_customer_id')
         .eq('id', companyId)
         .single();
 
       return res.status(200).json({
-        plan: subscription?.plan || 'free',
-        status: subscription?.status || 'active',
-        current_period_end: subscription?.current_period_end,
+        plan,
+        status: subscriptionStatus,
+        current_period_end: activeSubscription?.current_period_end,
         usage: {
           current: usageCount || 0,
-          limit: subscription?.plan === 'pro' ? 5000 : 50 // Limites exemplares
+          limit: plan === 'pro' ? 5000 : 50 // Limites exemplares
         },
         company: {
           name: company?.name,

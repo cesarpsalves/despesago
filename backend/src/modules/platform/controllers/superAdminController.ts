@@ -9,6 +9,7 @@ export const superAdminController = {
     try {
       // Busca empresas e suas assinaturas
       const { data: companies, error } = await supabase
+        .schema('app_expense_b2b')
         .from('companies')
         .select('*, subscriptions(plan, status)')
         .order('created_at', { ascending: false });
@@ -17,11 +18,13 @@ export const superAdminController = {
 
       // Busca contagem de usuários para todas as empresas em paralelo para ser rápido
       const { data: userCounts } = await supabase
+        .schema('app_expense_b2b')
         .rpc('count_users_per_company'); 
         // Se a RPC não existir, usaremos uma query alternativa ou simularemos.
         // Vamos usar uma query direta para garantir compatibilidade inicial:
       
       const { data: allUsers } = await supabase
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id');
 
@@ -33,12 +36,15 @@ export const superAdminController = {
       });
 
       // Formata a resposta para facilitar no front
-      const formatted = (companies || []).map(c => ({
-        ...c,
-        plan: c.subscriptions?.[0]?.plan || 'free',
-        status: c.subscriptions?.[0]?.status || 'inactive',
-        user_count: countMap[c.id] || 0
-      }));
+      const formatted = (companies || []).map(c => {
+        const activeSub = (c.subscriptions as any[])?.find((s: any) => s.status === 'active') || (c.subscriptions as any[])?.[0];
+        return {
+          ...c,
+          plan: activeSub?.plan || 'free',
+          status: activeSub?.status || 'inactive',
+          user_count: countMap[c.id] || 0
+        };
+      });
 
       return res.json(formatted);
     } catch (error: any) {
@@ -56,6 +62,7 @@ export const superAdminController = {
     try {
       // 1. Verifica se já existe assinatura
       const { data: existingSub } = await supabase
+        .schema('app_expense_b2b')
         .from('subscriptions')
         .select('*')
         .eq('company_id', companyId)
@@ -64,24 +71,26 @@ export const superAdminController = {
       if (existingSub) {
         // Upgrade da assinatura existente
         const { error } = await supabase
+          .schema('app_expense_b2b')
           .from('subscriptions')
           .update({ 
             plan: 'pro', 
             status: 'active',
             updated_at: new Date().toISOString()
           })
-          .eq('id', existingSub.id);
+          .eq('id', (existingSub as any).id);
         
         if (error) throw error;
       } else {
         // Cria nova assinatura cortesia
         const { error } = await supabase
+          .schema('app_expense_b2b')
           .from('subscriptions')
           .insert([{
             company_id: companyId,
             plan: 'pro',
             status: 'active',
-            billing_cycle: 'MONTHLY' // Padrão
+            billing_cycle: 'MONTHLY'
           }]);
         
         if (error) throw error;
@@ -100,6 +109,7 @@ export const superAdminController = {
   async listAllUsers(req: Request, res: Response) {
     try {
       const { data: users, error } = await supabase
+        .schema('app_expense_b2b')
         .from('users')
         .select(`
           *,

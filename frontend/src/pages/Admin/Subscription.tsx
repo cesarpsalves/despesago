@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { CreditCard, CheckCircle2, ArrowRight, Activity, Zap, ExternalLink } from 'lucide-react';
-import { AppLayout } from '../../components/layout/AppLayout.js';
+import { AppLayout } from '../../components/layout/AppLayout';
 import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
 
@@ -99,12 +99,12 @@ export default function Subscription() {
               <p className={`text-xs font-bold uppercase tracking-[0.2em] mb-2 ${isPro ? 'text-brand-400' : 'text-slate-400'}`}>
                 Seu Plano Atual
               </p>
-              <h2 className="text-4xl font-extrabold tracking-tighter mb-2">
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tighter mb-2">
                 {isPro ? 'Plano Pro' : 'Plano Gratuito'}
               </h2>
               <div className="flex items-center gap-2">
-                <CheckCircle2 size={16} className={isPro ? 'text-emerald-400' : 'text-slate-300'} />
-                <span className={`text-sm font-medium ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
+                <CheckCircle2 size={16} className={isPro ? 'text-emerald-400' : 'text-slate-300 shrink-0'} />
+                <span className={`text-xs sm:text-sm font-medium ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
                   {isPro ? 'Renovação automática ativa' : 'Limitado a 50 escaneamentos/mês'}
                 </span>
               </div>
@@ -158,7 +158,7 @@ export default function Subscription() {
              initial={{ opacity: 0, x: -10 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.1 }}
-             className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-brand-200 transition-all shadow-sm"
+             className="bg-white p-4 sm:p-6 rounded-3xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-brand-200 transition-all shadow-sm"
              onClick={() => {
                 if (data?.company?.has_external_id) {
                     // Direcionar para o portal do Asaas (exemplo de comportamento)
@@ -203,7 +203,7 @@ export default function Subscription() {
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className={`p-6 rounded-3xl flex items-center justify-between group cursor-pointer transition-all shadow-lg ${
+              className={`p-4 sm:p-6 rounded-3xl flex items-center justify-between group cursor-pointer transition-all shadow-lg ${
                 subscribing 
                   ? 'bg-slate-400 cursor-not-allowed' 
                   : 'bg-brand-600 hover:bg-brand-700 shadow-brand-600/20'

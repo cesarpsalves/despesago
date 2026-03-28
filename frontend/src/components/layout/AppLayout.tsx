@@ -1,5 +1,6 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Camera, LogOut, CreditCard, ShieldCheck } from 'lucide-react';
+import { Home, Camera, LogOut, UserCircle, ShieldCheck, CreditCard } from 'lucide-react';
+import { Button } from '../ui/Button';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -25,41 +26,36 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           
           <div className="flex items-center gap-2 sm:gap-4">
             {isPlatformAdmin && (
-              <button 
+              <Button 
+                variant="ghost" 
+                size="sm" 
                 onClick={() => navigate('/superadmin')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm border ${
-                  isActive('/superadmin') 
-                    ? 'bg-indigo-600 text-white border-indigo-700 shadow-indigo-200' 
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600'
-                }`}
+                className="text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl"
               >
-                <ShieldCheck size={18} />
-                <span className="hidden xs:inline">Gestão Global</span>
-              </button>
+                <ShieldCheck className="w-5 h-5 sm:mr-2" />
+                <span className="hidden sm:inline">Gestão Global</span>
+              </Button>
             )}
             
-            <button 
+            <Button 
+              variant="ghost" 
+              size="sm" 
               onClick={() => navigate('/app/profile')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm border ${
-                isActive('/app/profile')
-                  ? 'bg-brand-600 text-white border-brand-700 shadow-brand-200'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-brand-400 hover:text-brand-600'
-              }`}
+              className="text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl"
             >
-              <div className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 overflow-hidden border border-slate-200">
-                {user?.user_metadata?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
-              </div>
+              <UserCircle className="w-5 h-5 sm:mr-2" />
               <span className="hidden sm:inline">Meus Dados</span>
-            </button>
+            </Button>
 
-            <button 
+            <Button 
+              variant="ghost" 
+              size="sm" 
               onClick={signOut}
-              className="p-2.5 sm:p-2 sm:px-4 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
-              title="Sair"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
             >
-              <LogOut size={20} />
-              <span className="hidden sm:inline ml-2 text-sm font-bold">Sair</span>
-            </button>
+              <LogOut className="w-5 h-5 sm:mr-2" />
+              <span className="hidden sm:inline">Sair</span>
+            </Button>
           </div>
         </div>
       </header>
