@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  # DespesaGo Frontend (React SPA)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      # Redirection HTTP -> HTTPS
+      - "traefik.http.routers.despesago-http.rule=Host(`despesago.com.br`)"
+      - "traefik.http.routers.despesago-http.entrypoints=web"
+      - "traefik.http.routers.despesago-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectScheme.scheme=https"
+      # HTTPS Router
+      - "traefik.http.routers.despesago.rule=Host(`despesago.com.br`)"
+      - "traefik.http.routers.despesago.entrypoints=websecure"
+      - "traefik.http.routers.despesago.tls=true"
+      - "traefik.http.routers.despesago.tls.certresolver=le"
+      - "traefik.http.services.despesago.loadbalancer.server.port=80"
+
+  # DespesaGo Backend (OCR & Multi-agent API)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ASAAS_API_KEY=${ASAAS_API_KEY}
+    networks:
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.despesago-api.rule=Host(`api.despesago.com.br`)"
+      - "traefik.http.routers.despesago-api.entrypoints=websecure"
+      - "traefik.http.routers.despesago-api.tls=true"
+      - "traefik.http.routers.despesago-api.tls.certresolver=le"
+      - "traefik.http.services.despesago-api.loadbalancer.server.port=3000"
+
+networks:
+  traefik-public:
+    external: true
