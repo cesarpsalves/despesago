@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState('');
   const [company, setCompany] = useState<any>(null);
+  const [subscribing, setSubscribing] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -46,14 +47,20 @@ export default function AdminDashboard() {
 
   const handleUpgrade = async () => {
     try {
+      setSubscribing(true);
       const res = await axios.post('/billing/subscribe', { cycle: 'MONTHLY' });
       if (res.data.paymentLink) {
-        window.open(res.data.paymentLink, '_blank');
+        toast.success('Link de pagamento gerado! Redirecionando...');
+        setTimeout(() => {
+          window.open(res.data.paymentLink, '_blank');
+          setSubscribing(false);
+        }, 1500);
       }
     } catch (err: any) {
       console.error('Upgrade Error:', err);
       const msg = err.response?.data?.error || 'Erro ao iniciar assinatura';
       toast.error(msg);
+      setSubscribing(false);
     }
   };
 
@@ -121,9 +128,21 @@ export default function AdminDashboard() {
           <Button 
             variant="secondary"
             onClick={handleUpgrade} 
-            className="w-full bg-slate-900 text-white hover:bg-black rounded-2xl h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+            disabled={subscribing}
+            className={`w-full rounded-2xl h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] ${
+              subscribing 
+                ? 'bg-slate-400 cursor-not-allowed opacity-50' 
+                : 'bg-slate-900 text-white hover:bg-black'
+            }`}
           >
-            Fazer Upgrade Agora
+            {subscribing ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Processando...</span>
+              </div>
+            ) : (
+              'Fazer Upgrade Agora'
+            )}
           </Button>
         </div>
       </div>

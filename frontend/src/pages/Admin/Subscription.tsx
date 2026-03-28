@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 export default function Subscription() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [subscribing, setSubscribing] = useState(false);
 
   const fetchStatus = async () => {
     try {
@@ -18,6 +19,26 @@ export default function Subscription() {
       console.error('Failed to fetch billing status:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpgrade = async (cycle: 'MONTHLY' | 'YEARLY' = 'MONTHLY') => {
+    try {
+      setSubscribing(true);
+      const res = await axios.post('/billing/subscribe', { cycle });
+      
+      if (res.data.paymentLink) {
+        toast.success('Link de pagamento gerado! Redirecionando...');
+        // Pequeno delay para o usuário ler o toast
+        setTimeout(() => {
+          window.open(res.data.paymentLink, '_blank');
+          setSubscribing(false);
+        }, 1500);
+      }
+    } catch (err: any) {
+      console.error('Failed to subscribe:', err);
+      toast.error(err.response?.data?.error || 'Erro ao processar assinatura.');
+      setSubscribing(false);
     }
   };
 
@@ -163,22 +184,31 @@ export default function Subscription() {
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-brand-600 p-6 rounded-3xl flex items-center justify-between group cursor-pointer hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/20"
-              onClick={() => {
-                // Trigger upgrade flow logic
-                window.location.href = '/app'; // Back to home for upgrade
-              }}
+              className={`p-6 rounded-3xl flex items-center justify-between group cursor-pointer transition-all shadow-lg ${
+                subscribing 
+                  ? 'bg-slate-400 cursor-not-allowed' 
+                  : 'bg-brand-600 hover:bg-brand-700 shadow-brand-600/20'
+              }`}
+              onClick={() => !subscribing && handleUpgrade('MONTHLY')}
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white">
-                  <Zap size={20} className="fill-white" />
+                <div className={`w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white ${subscribing ? 'animate-pulse' : ''}`}>
+                  {subscribing ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Zap size={20} className="fill-white" />
+                  )}
                 </div>
                 <div>
-                  <h4 className="font-bold text-white leading-tight">Seja Ilimitado</h4>
-                  <p className="text-xs text-white/70 font-medium">Faça upgrade para recursos Pro</p>
+                  <h4 className="font-bold text-white leading-tight">
+                    {subscribing ? 'Gerando Link...' : 'Seja Ilimitado'}
+                  </h4>
+                  <p className="text-xs text-white/70 font-medium">
+                    {subscribing ? 'Aguarde um momento' : 'Faça upgrade para recursos Pro'}
+                  </p>
                 </div>
               </div>
-              <ArrowRight size={20} className="text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+              {!subscribing && <ArrowRight size={20} className="text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />}
             </motion.div>
           )}
         </section>

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { asaasService } from '../services/asaasService.js';
 import { supabaseAdmin, createScopedClient } from '../../../shared/db/supabaseClient.js';
+import config from '../../../config/env.js';
 
 export const billingController = {
   // Chamada via Painel do Gestor para contratar plano PRO
@@ -47,8 +48,10 @@ export const billingController = {
       // 4. Salvar Subscrição no nosso DB como PENDING ainda
       const { error: insertError } = await supabaseAdmin.from('subscriptions').insert({
         company_id: companyId,
+        asaas_customer_id: externalCustomerId,
         plan: 'pro',
         status: 'pending',
+        billing_cycle: cycle.toLowerCase(),
         external_subscription_id: subscriptionId,
         current_period_end: new Date(new Date().setMonth(new Date().getMonth() + 1))
       });
@@ -67,17 +70,24 @@ export const billingController = {
   // Rota de Escuta (POST webhook ASAAS) NÃO deve usar Auth JWT
   webhook: async (req: Request, res: Response) => {
     try {
+      // 1. Validação de Segurança (Token do Asaas)
+      const asaasToken = req.headers['asaas-access-token'];
+      if (asaasToken !== config.asaas.webhookKey) {
+        console.warn('⚠️ Tentativa de Webhook não autorizado detectada.');
+        return res.status(401).json({ error: 'Não autorizado' });
+      }
+
       const { event, payment } = req.body;
       console.log('--- ASAAS WEBHOOK RECEBIDO ---', event);
 
-      if (!payment || !payment.subscription) {
-        return res.status(200).send('Ignored - not subscription');
+      if (!payment || (!payment.subscription && event !== 'PAYMENT_RECEIVED')) {
+        return res.status(200).send('Ignored - not subscription related');
       }
 
       const subscriptionId = payment.subscription;
 
       // Eventos de Pagamento
-      if (event === 'PAYMENT_RECEIVED') {
+      if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
         const nextMonth = new Date();
         nextMonth.setMonth(nextMonth.getMonth() + 1);
 
@@ -87,12 +97,17 @@ export const billingController = {
             current_period_end: nextMonth.toISOString()
           })
           .eq('external_subscription_id', subscriptionId);
-          console.log(`Subscrição ${subscriptionId} ativada!`);
+          console.log(`Subscrição ${subscriptionId} ativada/confirmada!`);
       } else if (event === 'PAYMENT_OVERDUE') {
         await supabaseAdmin.from('subscriptions')
           .update({ status: 'past_due' })
           .eq('external_subscription_id', subscriptionId);
           console.log(`Subscrição ${subscriptionId} inadimplente!`);
+      } else if (event === 'PAYMENT_DELETED') {
+        await supabaseAdmin.from('subscriptions')
+          .update({ status: 'canceled' })
+          .eq('external_subscription_id', subscriptionId);
+          console.log(`Subscrição ${subscriptionId} removida/cancelada!`);
       }
 
       return res.status(200).send('OK');
