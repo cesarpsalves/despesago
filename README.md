@@ -8,6 +8,31 @@
 
 DespesaGo is a modern, enterprise-grade B2B SaaS platform designed to streamline corporate expense tracking and reimbursement using Artificial Intelligence (OCR). Built with a secure **Multi-tenant Architecture**, it ensures complete data isolation for multiple companies while providing a "Zero Friction" experience for employees.
 
+
+## 📸 Visual Showcase
+
+### 🏠 Landing Page
+A modern, conversion-focused landing page explaining the B2B value proposition.
+![Landing Page](docs/screenshots/landing_page.png)
+
+### 🔐 Secure Authentication
+Integrated with Cloudflare Turnstile to ensure high-quality traffic and prevent automated attacks. Supports Magic Links and Password-based login for admins.
+![Login Page](docs/screenshots/login_page.png)
+
+### 📊 Admin & Employee Dashboard
+Clean, intuitive management interface for companies and a "Zero Friction" mobile-first scanner for employees.
+<div align="center">
+  <img src="docs/screenshots/dashboard.png" width="800" alt="Desktop Dashboard" />
+  <br />
+  <em>Desktop Admin View</em>
+</div>
+
+<div align="center">
+  <img src="docs/screenshots/dashboard_mobile.png" width="300" alt="Mobile Dashboard" />
+  <br />
+  <em>Mobile Scanner View</em>
+</div>
+
 ---
 
 ## ✨ Key Features
