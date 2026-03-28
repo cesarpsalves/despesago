@@ -125,7 +125,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-2xl font-bold text-slate-900">Olá! 👋</h1>
             {isPlatformAdmin && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-200">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-brand-100 text-brand-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-brand-200">
                 <ShieldCheck className="w-3 h-3" /> Super Admin
               </span>
             )}
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
           </p>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
           <div className="px-3 md:px-4 py-2 bg-white border border-slate-200 rounded-xl md:rounded-2xl flex items-center gap-2 shadow-sm">
             <div className={`w-2 h-2 rounded-full ${company?.plan === 'pro' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
             <span className="text-[10px] md:text-xs font-bold text-slate-600 uppercase tracking-wider">
