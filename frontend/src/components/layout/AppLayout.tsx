@@ -22,20 +22,20 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
               <img src="/logo/favicon.png" alt="DG" className="w-full h-full brightness-0 invert" />
             </div>
             <span className="font-bold tracking-tight text-slate-900 hidden xs:inline-block">
-              {title || (location.pathname.startsWith('/superadmin') ? 'Administração SaaS' : 'Painel da Empresa')}
+              {title || (location.pathname.startsWith('/platform') ? 'Painel Global' : 'Painel da Empresa')}
             </span>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
             {isPlatformAdmin && (
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={() => navigate('/superadmin')} 
-                className="rounded-xl px-4 font-black shadow-lg shadow-brand-500/10 uppercase tracking-wider text-[11px] h-9"
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-full flex items-center justify-center gap-2 bg-slate-900 border-none hover:bg-slate-800 text-white shadow-xl shadow-brand-500/10 h-10 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+                onClick={() => navigate('/platform')}
               >
-                <Globe className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Gestão Global</span>
+                <Globe className="w-3.5 h-3.5 text-brand-400" />
+                Painel Global
               </Button>
             )}
             

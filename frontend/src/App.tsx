@@ -65,7 +65,7 @@ export default function App() {
             } 
           />
           <Route 
-            path="/superadmin" 
+            path="/platform" 
             element={
               <PrivateRoute>
                 <SuperAdmin />
