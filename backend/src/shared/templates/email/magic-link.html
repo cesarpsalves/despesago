@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seu Acesso ao DespesaGo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FAFAFA;
+            color: #0F172A;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 40px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .logo {
+            margin-bottom: 32px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+        .logo-despesa { color: #10B981; } /* Emerald-500 */
+        .logo-lupa { color: #2563EB; }   /* Blue-600 */
+        
+        h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 24px;
+            color: #475569;
+            margin-bottom: 32px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #0F172A; /* Slate-900 */
+            color: #FFFFFF !important;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid #E2E8F0;
+            font-size: 14px;
+            color: #94A3B8;
+        }
+        .code-block {
+            margin-top: 32px;
+            padding: 16px;
+            background: #F1F5F9;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #0F172A;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            {{ if eq .SiteURL "https://despesago.com.br" }}
+                <span class="logo-despesa">DespesaGo</span>
+            {{ else if eq .SiteURL "https://lupasolucoes.com" }}
+                <span class="logo-lupa">Lupa Soluções</span>
+            {{ else }}
+                <span style="color: #0F172A">Paulo Alves</span>
+            {{ end }}
+        </div>
+
+        <h1>Link de Acesso Inteligente</h1>
+        
+        <p>Olá,</p>
+        <p>Você solicitou um link para entrar na sua conta. Clique no botão abaixo para acessar o painel com segurança:</p>
+        
+        <a href="{{ .ConfirmationURL }}" class="button">Entrar no Aplicativo</a>
+
+        <p style="margin-top: 32px; font-size: 14px;">Ou, se preferir, use este código de confirmação:</p>
+        <div class="code-block">{{ .Token }}</div>
+
+        <p style="margin-top: 32px; font-size: 14px; color: #94A3B8;">
+            Este link expira em breve. Se você não solicitou este acesso, pode ignorar este e-mail.
+        </p>
+
+        <div class="footer">
+            Atenciosamente,<br>
+            Equipe {{ if eq .SiteURL "https://despesago.com.br" }}DespesaGo{{ else }}Suporte Profissional{{ end }}
+        </div>
+    </div>
+</body>
+</html>

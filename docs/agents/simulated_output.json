@@ -1,0 +1,13 @@
+{
+  "expense": {
+    "id": "06fbc002-8ea2-486f-8c02-e6763b2e77b3",
+    "amount": 45.90,
+    "date": "2026-03-26",
+    "merchant": "Uber",
+    "category": "Transport",
+    "confidence": 0.95,
+    "created_at": "2026-03-27T02:58:33.317Z"
+  },
+  "insight": "You spent more on transport this week.",
+  "alert": null
+}

@@ -1,0 +1,31 @@
+# Dependency directories
+node_modules/
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git
+.git/
+
+# Backend specific
+backend/node_modules/
+backend/dist/
+backend/.env
+
+# Supabase folders if any
+.supabase/

@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-slate-900 antialiased;
+  }
+  
+  ::selection {
+    @apply bg-emerald-500/20 text-emerald-900;
+  }
+}
