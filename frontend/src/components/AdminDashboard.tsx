@@ -14,6 +14,7 @@ export default function AdminDashboard() {
   const [subscribing, setSubscribing] = useState(false);
   const [viewMode, setViewMode] = useState<'company' | 'platform'>('company');
   const [platformData, setPlatformData] = useState<{ companies: any[], users: any[] }>({ companies: [], users: [] });
+  const [members, setMembers] = useState<any[]>([]);
 
   const fetchData = async () => {
     try {
@@ -28,6 +29,9 @@ export default function AdminDashboard() {
         const platformRes = await axios.get('/platform/companies');
         setPlatformData(prev => ({ ...prev, companies: platformRes.data }));
       }
+
+      const membersRes = await axios.get('/company/members');
+      setMembers(membersRes.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -39,6 +43,50 @@ export default function AdminDashboard() {
     fetchData();
   }, [isPlatformAdmin]);
 
+
+  const handleToggleAdmin = (member: any) => {
+    const isCurrentlyAdmin = member.role === 'admin';
+    
+    toast.custom((t) => (
+      <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-2xl flex flex-col gap-4 max-w-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600">
+            <ShieldCheck size={20} />
+          </div>
+          <div>
+            <h4 className="font-bold text-slate-900 text-sm">Alterar Privilégios</h4>
+            <p className="text-xs text-slate-500">{isCurrentlyAdmin ? 'Remover' : 'Conceder'} acesso de administrador para {member.display_name || member.email}?</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            className="flex-1 rounded-xl h-10 text-xs font-bold"
+            onClick={async () => {
+              try {
+                await axios.patch(`/company/members/${member.id}`, { 
+                  role: isCurrentlyAdmin ? 'employee' : 'admin' 
+                });
+                toast.dismiss(t);
+                toast.success('Privilégios atualizados!');
+                fetchData();
+              } catch (err: any) {
+                toast.error('Erro ao atualizar');
+              }
+            }}
+          >
+            Confirmar
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="flex-1 rounded-xl h-10 text-xs font-bold"
+            onClick={() => toast.dismiss(t)}
+          >
+            Cancelar
+          </Button>
+        </div>
+      </div>
+    ), { duration: 5000 });
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -239,6 +287,61 @@ export default function AdminDashboard() {
             </div>
           </div>
         </>
+      )}
+
+
+      {/* Gestão de Equipe */}
+      {viewMode === 'company' && (
+        <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden mb-8">
+          <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
+            <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
+              Gestão de Equipe
+              <span className="px-2 py-0.5 bg-brand-50 text-brand-700 text-[10px] rounded-full uppercase tracking-tighter">Membros Ativos</span>
+            </h3>
+          </div>
+          <div className="divide-y divide-slate-50">
+            {members.map((member) => (
+              <div key={member.id} className="p-8 flex items-center justify-between hover:bg-slate-50/50 transition-all group">
+                <div className="flex gap-4 items-center">
+                  <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-lg font-bold text-slate-400">
+                    {member.display_name?.[0] || member.email[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 text-base">{member.display_name || 'Usuário'}</p>
+                    <p className="text-xs text-slate-400 font-medium">
+                      {member.email}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                    member.role === 'admin' 
+                      ? 'bg-brand-50 text-brand-700 border-brand-100' 
+                      : 'bg-slate-50 text-slate-500 border-slate-100'
+                  }`}>
+                    {member.role === 'admin' ? 'Administrador' : 'Colaborador'}
+                  </span>
+                  
+                  {/* Botão de Toggle - Só habilitado se for Administrador */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleToggleAdmin(member)}
+                    className="p-2 h-10 w-10 rounded-2xl hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                    title={member.role === 'admin' ? "Remover privilégios" : "Tornar administrador"}
+                  >
+                    <ShieldCheck size={20} />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {members.length === 0 && (
+              <div className="p-8 text-center text-slate-400 text-sm italic">
+                Nenhum membro encontrado.
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
 

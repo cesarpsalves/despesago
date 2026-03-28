@@ -164,7 +164,26 @@ export default function Subscription() {
                     // Direcionar para o portal do Asaas (exemplo de comportamento)
                     window.open('https://asaas.com', '_blank');
                 } else {
-                    toast.info('Nenhuma fatura encontrada ainda.');
+                    toast.custom((t) => (
+                      <div className="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-2xl flex flex-col gap-4 border border-slate-800">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white">
+                            <CreditCard size={24} />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-base">Sem faturas pendentes</h4>
+                            <p className="text-xs text-white/50">Não encontramos faturas emitidas para este período.</p>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="secondary" 
+                          className="w-full rounded-2xl h-12 text-xs font-bold bg-white text-slate-900 border-none hover:bg-slate-100 transition-all hover:scale-[1.02]"
+                          onClick={() => toast.dismiss(t)}
+                        >
+                          Entendido
+                        </Button>
+                      </div>
+                    ), { duration: 4000 });
                 }
              }}
           >
