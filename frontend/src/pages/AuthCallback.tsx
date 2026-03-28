@@ -15,10 +15,12 @@ export default function AuthCallback() {
         return;
       }
 
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next') || '/app';
+
       if (data.session) {
-        // Redireciona para o dashboard principal
-        // O AuthContext cuidará de verificar o status da empresa (onboarding)
-        navigate("/app");
+        // Redireciona para o destino desejado ou o dashboard principal
+        navigate(next);
       } else {
         navigate("/login");
       }

@@ -167,5 +167,42 @@ export const companyController = {
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
+  },
+
+  // 5. Retorna dados da empresa vinculada ao usuário logado
+  getMe: async (req: Request, res: Response) => {
+    try {
+      const authHeader = req.headers.authorization || '';
+      const supabaseScoped = createScopedClient(authHeader);
+
+      // 1. Pega os dados do usuário para achar o company_id
+      const { data: user, error: userError } = await supabaseScoped
+        .from('users')
+        .select('company_id, role')
+        .single();
+
+      if (userError || !user) throw new Error('Usuário não identificado ou sem empresa');
+
+      // 2. Busca os detalhes da empresa e da assinatura
+      const { data: company, error: companyError } = await supabaseAdmin
+        .from('companies')
+        .select('*, subscriptions(plan, status, billing_cycle)')
+        .eq('id', user.company_id)
+        .single();
+
+      if (companyError || !company) throw new Error('Empresa não encontrada');
+
+      // Formata a resposta
+      const response = {
+        ...company,
+        plan: company.subscriptions?.[0]?.plan || 'free',
+        subscriptionStatus: company.subscriptions?.[0]?.status || 'inactive'
+      };
+
+      return res.status(200).json(response);
+    } catch (error: any) {
+      console.error('GetCompanyMe Error:', error.message);
+      return res.status(400).json({ error: error.message });
+    }
   }
 };

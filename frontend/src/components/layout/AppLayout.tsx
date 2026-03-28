@@ -27,14 +27,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
             {isPlatformAdmin && (
               <button 
                 onClick={() => navigate('/superadmin')}
-                className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm border ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm border ${
                   isActive('/superadmin') 
                     ? 'bg-indigo-600 text-white border-indigo-700 shadow-indigo-200' 
                     : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600'
                 }`}
               >
                 <ShieldCheck size={18} />
-                <span>Gestão Global</span>
+                <span className="hidden xs:inline">Gestão Global</span>
               </button>
             )}
             
