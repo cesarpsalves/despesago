@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, CreditCard, AlertCircle, ShieldCheck, Globe, Building, LayoutDashboard } from 'lucide-react';
+import { Users, CreditCard, AlertCircle, ShieldCheck, Globe, Building, LayoutDashboard, ChevronRight } from 'lucide-react';
 import { Button } from './ui/Button';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
+import { Skeleton } from './ui/Skeleton';
+import { GettingStarted } from './dashboard/GettingStarted';
 
 export default function AdminDashboard() {
   const { isPlatformAdmin } = useAuth();
@@ -16,6 +18,9 @@ export default function AdminDashboard() {
   const [viewMode, setViewMode] = useState<'company' | 'platform'>('company');
   const [platformData, setPlatformData] = useState<{ companies: any[], users: any[] }>({ companies: [], users: [] });
   const [members, setMembers] = useState<any[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return localStorage.getItem('despesago_onboarding_dismissed') !== 'true';
+  });
 
   const fetchData = async () => {
     try {
@@ -185,6 +190,16 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Guia de Onboarding Premium */}
+      {viewMode === 'company' && showOnboarding && (
+        <GettingStarted 
+          onDismiss={() => {
+            setShowOnboarding(false);
+            localStorage.setItem('despesago_onboarding_dismissed', 'true');
+          }} 
+        />
+      )}
+
       {viewMode === 'platform' ? (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -242,29 +257,37 @@ export default function AdminDashboard() {
           {/* Cards de Ação */}
           {/* Cards de Ação & Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow relative overflow-hidden group">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
-                  <LayoutDashboard className="text-indigo-500 w-6 h-6" />
+                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+                  <LayoutDashboard className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900">Total do Mês</h3>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Consolidado Equipe</p>
                 </div>
               </div>
-              <p className="text-3xl font-black text-slate-900 tracking-tighter">
-                R$ {stats?.monthlyTotal?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
-              </p>
+              {loading ? (
+                <Skeleton width="140px" height="36px" className="mt-2" />
+              ) : (
+                <p className="text-3xl font-black text-slate-900 tracking-tighter">
+                  R$ {stats?.monthlyTotal?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+                </p>
+              )}
             </div>
 
-            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
-                  <Users className="text-blue-500 w-6 h-6" />
+                <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                  <Users className="w-6 h-6" />
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900">Convidar Equipe</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{stats?.memberCount || 0} membros ativos</p>
+                  {loading ? (
+                    <Skeleton width="80px" height="12px" className="mt-1" />
+                  ) : (
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{stats?.memberCount || 0} membros ativos</p>
+                  )}
                 </div>
               </div>
               <form onSubmit={handleInvite} className="flex gap-2">
