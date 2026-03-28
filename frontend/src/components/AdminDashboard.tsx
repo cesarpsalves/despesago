@@ -119,31 +119,39 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 md:space-y-10 pb-10 animate-in fade-in duration-700">
+      {/* Banner de Modo Admin Global */}
+      {isPlatformAdmin && (
+        <div className="bg-brand-50 border border-brand-100 p-4 rounded-2xl flex items-center gap-3 text-brand-800 mb-6 shadow-sm">
+          <div className="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white shrink-0">
+            <ShieldCheck size={20} />
+          </div>
+          <div>
+            <p className="font-bold text-sm">Modo de Visualização Global</p>
+            <p className="text-xs opacity-80">Você está acessando este painel como Administrador da Plataforma.</p>
+          </div>
+        </div>
+      )}
+
       {/* Header de Boas-Vindas */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold text-slate-900">Olá! 👋</h1>
-            {isPlatformAdmin && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-brand-100 text-brand-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-brand-200">
-                <ShieldCheck className="w-3 h-3" /> Super Admin
-              </span>
-            )}
-          </div>
-          <p className="text-slate-500 font-medium">
-            Gerencie as despesas da <span className="text-slate-900 font-bold">{company?.name || 'sua empresa'}</span>
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">
+            Painel da Empresa 👋
+          </h1>
+          <p className="text-slate-500 font-medium text-sm">
+            Gerenciando: <span className="text-slate-900 font-bold">{company?.name || 'sua empresa'}</span>
           </p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-2 md:gap-3">
-          <div className="px-3 md:px-4 py-2 bg-white border border-slate-200 rounded-xl md:rounded-2xl flex items-center gap-2 shadow-sm">
-            <div className={`w-2 h-2 rounded-full ${company?.plan === 'pro' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-            <span className="text-[10px] md:text-xs font-bold text-slate-600 uppercase tracking-wider">
-              {company?.plan === 'pro' ? 'Plano Pro' : 'Plano Free'}
+        <div className="flex items-center gap-2">
+          <div className="px-4 py-2 bg-white border border-slate-200 rounded-2xl flex items-center gap-2 shadow-sm">
+            <div className={`w-2 h-2 rounded-full ${company?.plan === 'pro' || company?.plan === 'platform_admin' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
+              {company?.plan === 'platform_admin' ? 'Acesso Admin' : (company?.plan === 'pro' ? 'Plano Pro' : 'Plano Free')}
             </span>
           </div>
-          {company?.plan !== 'pro' && (
-            <Button size="sm" onClick={() => navigate('/app/subscription')} className="text-[10px] px-4 font-bold h-9">
+          {company?.plan === 'free' && (
+            <Button size="sm" onClick={() => navigate('/app/subscription')} className="font-bold shadow-lg shadow-brand-500/20">
               Upgrade
             </Button>
           )}
@@ -179,9 +187,9 @@ export default function AdminDashboard() {
         </div>
 
         {/* Convite */}
-        <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+        <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow group flex flex-col justify-between">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform shrink-0">
               <Users size={20} />
             </div>
             <div>
@@ -189,16 +197,16 @@ export default function AdminDashboard() {
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{members.length} membros ativos</p>
             </div>
           </div>
-          <form onSubmit={handleInvite} className="flex gap-2">
+          <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-2 mt-auto">
             <input 
               type="email" 
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
               placeholder="E-mail" 
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-brand-500 transition-all" 
+              className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-brand-500 transition-all" 
               required 
             />
-            <Button type="submit" size="sm" className="px-4 rounded-xl font-bold">Ok</Button>
+            <Button type="submit" size="sm" className="px-6 rounded-xl font-bold whitespace-nowrap">Convidar</Button>
           </form>
         </div>
 

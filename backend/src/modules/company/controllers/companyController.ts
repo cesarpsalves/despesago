@@ -254,9 +254,10 @@ export const companyController = {
       if (companyError || !company) throw new Error('Empresa não encontrada');
 
       // Formata a resposta
-      const activeSubscription = Array.isArray(company.subscriptions) 
-        ? company.subscriptions.find((s: any) => ['active', 'trialing'].includes(s.status))
-        : (['active', 'trialing'].includes((company.subscriptions as any)?.status) ? company.subscriptions : null);
+      const subscriptions = company.subscriptions || [];
+      const activeSubscription = Array.isArray(subscriptions) 
+        ? subscriptions.find((s: any) => ['active', 'trialing'].includes(s.status))
+        : (['active', 'trialing'].includes((subscriptions as any)?.status) ? subscriptions : null);
       
       const response = {
         ...company,

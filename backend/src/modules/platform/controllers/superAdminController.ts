@@ -58,17 +58,24 @@ export const superAdminController = {
    */
   async grantProCourtesy(req: Request, res: Response) {
     const { companyId } = req.params;
+    console.log(`[SuperAdmin] Iniciando upgrade de cortesia para empresa: ${companyId}`);
 
     try {
-      // 1. Verifica se já existe assinatura
-      const { data: existingSub } = await supabase
+      // 1. Verifica se já existe assinatura registrada
+      const { data: existingSub, error: fetchError } = await supabase
         .schema('app_expense_b2b')
         .from('subscriptions')
         .select('*')
         .eq('company_id', companyId)
         .maybeSingle();
 
+      if (fetchError) {
+        console.error('[SuperAdmin] Erro ao buscar assinatura:', fetchError);
+        throw fetchError;
+      }
+
       if (existingSub) {
+        console.log(`[SuperAdmin] Atualizando assinatura existente: ${existingSub.id}`);
         // Upgrade da assinatura existente
         const { error } = await supabase
           .schema('app_expense_b2b')
@@ -76,12 +83,18 @@ export const superAdminController = {
           .update({ 
             plan: 'pro', 
             status: 'active',
+            users_limit: 100,
+            expenses_limit: 5000,
             updated_at: new Date().toISOString()
           })
           .eq('id', (existingSub as any).id);
         
-        if (error) throw error;
+        if (error) {
+          console.error('[SuperAdmin] Erro no update da assinatura:', error);
+          throw error;
+        }
       } else {
+        console.log('[SuperAdmin] Criando nova assinatura de cortesia');
         // Cria nova assinatura cortesia
         const { error } = await supabase
           .schema('app_expense_b2b')
@@ -90,16 +103,24 @@ export const superAdminController = {
             company_id: companyId,
             plan: 'pro',
             status: 'active',
-            billing_cycle: 'MONTHLY'
+            billing_cycle: 'monthly',
+            users_limit: 100,
+            expenses_limit: 5000
           }]);
         
-        if (error) throw error;
+        if (error) {
+          console.error('[SuperAdmin] Erro no insert da assinatura:', error);
+          throw error;
+        }
       }
 
       return res.json({ success: true, message: 'Cortesia PRO concedida com sucesso!' });
     } catch (error: any) {
-      console.error('Erro ao conceder cortesia (SuperAdmin):', error);
-      return res.status(500).json({ error: 'Erro ao processar upgrade de cortesia' });
+      console.error('[SuperAdmin] Erro fatal em grantProCourtesy:', error);
+      return res.status(500).json({ 
+        error: 'Erro ao processar upgrade de cortesia', 
+        details: error.message 
+      });
     }
   },
 

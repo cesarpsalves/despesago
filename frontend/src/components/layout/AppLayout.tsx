@@ -17,23 +17,29 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
       {/* Top Header */}
       <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-4xl mx-auto flex justify-between items-center px-4 sm:px-6 h-16">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/app')}>
-            <img src="/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" className="h-6 opacity-90" />
-            <span className="font-semibold tracking-tight text-slate-800 hidden sm:inline-block">
-              {title || (isAdmin ? 'Painel Admin' : 'Painel')}
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/app')}>
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center p-1.5 group-hover:bg-brand-600 transition-colors shrink-0">
+              <img src="/logo/favicon.png" alt="DG" className="w-full h-full brightness-0 invert" />
+            </div>
+            <span className="font-bold tracking-tight text-slate-900 hidden xs:inline-block">
+              {title || (location.pathname.startsWith('/superadmin') ? 'Administração SaaS' : 'Painel da Empresa')}
             </span>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
             {isPlatformAdmin && (
               <Button 
-                variant="ghost" 
+                variant={isActive('/superadmin') ? 'primary' : 'ghost'} 
                 size="sm" 
                 onClick={() => navigate('/superadmin')}
-                className="text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl"
+                className={`rounded-xl h-9 sm:h-10 transition-all ${
+                  isActive('/superadmin') 
+                    ? 'bg-slate-900 text-white shadow-lg' 
+                    : 'text-slate-600 hover:text-brand-600 hover:bg-brand-50'
+                }`}
               >
-                <ShieldCheck className="w-5 h-5 sm:mr-2" />
-                <span className="hidden sm:inline">Gestão Global</span>
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Global</span>
               </Button>
             )}
             
