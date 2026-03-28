@@ -24,6 +24,7 @@ export const config = {
   },
   asaas: {
     apiKey: process.env.ASAAS_API_KEY || '',
+    webhookKey: process.env.ASAAS_WEBHOOK_KEY || '',
     apiUrl: process.env.ASAAS_API_URL || 'https://sandbox.asaas.com/api/v3',
   },
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
