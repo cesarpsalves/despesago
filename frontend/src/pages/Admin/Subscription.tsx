@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CreditCard, CheckCircle2, ArrowRight, Activity, Zap, ExternalLink } from 'lucide-react';
 import { AppLayout } from '../../components/layout/AppLayout.js';
 import { Button } from '../../components/ui/Button';
+import { toast } from 'sonner';
 
 export default function Subscription() {
   const [data, setData] = useState<any>(null);
@@ -142,7 +143,7 @@ export default function Subscription() {
                     // Direcionar para o portal do Asaas (exemplo de comportamento)
                     window.open('https://asaas.com', '_blank');
                 } else {
-                    alert('Nenhuma fatura encontrada ainda.');
+                    toast.info('Nenhuma fatura encontrada ainda.');
                 }
              }}
           >

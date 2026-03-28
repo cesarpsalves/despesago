@@ -39,14 +39,14 @@ export default function Onboarding() {
         setTimeout(async () => {
           try {
             await checkCompanyStatus();
-            navigate('/');
+            navigate('/set-password');
           } catch (error) {
             const statusError = error as Error;
             console.error('Erro ao verificar status da empresa:', statusError.message);
             // Mesmo com erro, tentamos redirecionar
-            navigate('/');
+            navigate('/set-password');
           }
-        }, 2000);
+        }, 1500);
       } catch (error) {
       console.error('Erro no onboarding:', error);
 

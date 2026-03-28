@@ -27,36 +27,39 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
             {isPlatformAdmin && (
               <button 
                 onClick={() => navigate('/superadmin')}
-                className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${
-                  isActive('/superadmin') ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50'
+                className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm border ${
+                  isActive('/superadmin') 
+                    ? 'bg-indigo-600 text-white border-indigo-700 shadow-indigo-200' 
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600'
                 }`}
               >
-                <ShieldCheck size={16} />
+                <ShieldCheck size={18} />
                 <span>Gestão Global</span>
               </button>
             )}
-            {isAdmin && (
-              <button 
-                onClick={() => navigate('/app/subscription')}
-                className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
-                  isActive('/app/subscription') ? 'bg-brand-50 text-brand-700' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50'
-                }`}
-              >
-                <CreditCard size={16} />
-                <span>Minha Assinatura</span>
-              </button>
-            )}
+            
             <button 
-              onClick={signOut} 
-              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 transition-all duration-200"
-              title="Sair do sistema"
+              onClick={() => navigate('/app/profile')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 shadow-sm border ${
+                isActive('/app/profile')
+                  ? 'bg-brand-600 text-white border-brand-700 shadow-brand-200'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-brand-400 hover:text-brand-600'
+              }`}
             >
-              <LogOut size={16} />
-              <span>Sair</span>
+              <div className="w-5 h-5 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500 overflow-hidden border border-slate-200">
+                {user?.user_metadata?.full_name?.[0] || user?.email?.[0]?.toUpperCase()}
+              </div>
+              <span className="hidden sm:inline">Meus Dados</span>
             </button>
-            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-bold shadow-sm ring-2 ring-white cursor-pointer" onClick={() => navigate('/app')}>
-              {user?.email?.[0].toUpperCase() || 'U'}
-            </div>
+
+            <button 
+              onClick={signOut}
+              className="p-2.5 sm:p-2 sm:px-4 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200"
+              title="Sair"
+            >
+              <LogOut size={20} />
+              <span className="hidden sm:inline ml-2 text-sm font-bold">Sair</span>
+            </button>
           </div>
         </div>
       </header>

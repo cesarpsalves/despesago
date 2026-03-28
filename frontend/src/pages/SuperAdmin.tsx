@@ -5,6 +5,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Building2, Users, CreditCard, ShieldCheck, Globe } from 'lucide-react';
 import { AppLayout } from '../components/layout/AppLayout';
+import { toast } from 'sonner';
 
 interface CompanyStats {
   id: string;
@@ -58,9 +59,9 @@ export default function SuperAdminDashboard() {
       .update({ plan: 'pro', status: 'active' })
       .eq('company_id', companyId);
     
-    if (error) alert(error.message);
+    if (error) toast.error(error.message);
     else {
-      alert("Empresa atualizada para PRO com sucesso!");
+      toast.success("Empresa atualizada para PRO!");
       fetchData();
     }
   };

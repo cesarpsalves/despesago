@@ -105,6 +105,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const updateUser = async (data: { password?: string; data?: any }) => {
+    return await supabase.auth.updateUser(data);
+  };
+
   return (
     <AuthContext.Provider value={{
       session,
@@ -117,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signInWithPassword,
       resetPassword,
       signOut,
+      updateUser,
       requireOnboarding,
       checkCompanyStatus
     }}>

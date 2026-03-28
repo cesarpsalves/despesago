@@ -13,6 +13,7 @@ interface AuthContextType {
   signInWithPassword: (email: string, password: string, captchaToken?: string) => Promise<{ error: Error | null }>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  updateUser: (data: { password?: string; data?: any }) => Promise<{ error: any }>;
   requireOnboarding: boolean;
   checkCompanyStatus: () => Promise<void>;
 }

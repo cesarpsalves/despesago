@@ -10,6 +10,9 @@ import SuperAdmin from './pages/SuperAdmin';
 import NotFound from './pages/NotFound';
 import ResetPassword from './pages/ResetPassword';
 import Subscription from './pages/Admin/Subscription';
+import SetPassword from './pages/SetPassword';
+import Profile from './pages/Profile';
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { session, loading, requireOnboarding } = useAuth();
   
@@ -66,6 +69,22 @@ export default function App() {
             element={
               <PrivateRoute>
                 <SuperAdmin />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/set-password" 
+            element={
+              <PrivateRoute>
+                <SetPassword />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/app/profile" 
+            element={
+              <PrivateRoute>
+                <Profile />
               </PrivateRoute>
             } 
           />
