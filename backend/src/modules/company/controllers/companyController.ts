@@ -261,9 +261,35 @@ export const companyController = {
       const { data: user, error: userError } = await supabaseScoped
         .from('users')
         .select('company_id, role')
-        .single();
+        .maybeSingle();
 
-      if (userError || !user) throw new Error('Usuário não identificado ou sem empresa');
+      if (userError) throw userError;
+
+      // Se o usuário não existe no perfil da app_expense_b2b ou não tem empresa
+      if (!user || !user.company_id) {
+        // Verifica se é um usuário Admin do Supabase (Super Admin)
+        const { data: { user: authUser } } = await supabaseScoped.auth.getUser();
+        
+        // Se for Super Admin, retorna um estado de visualização de plataforma
+        return res.status(200).json({
+          company: {
+            name: 'Plataforma DespesaGo',
+            plan: 'platform_admin',
+            subscriptionStatus: 'active'
+          },
+          recentExpenses: [],
+          members: [],
+          stats: {
+            memberCount: 0,
+            monthlyTotal: 0,
+            consumedCount: 0,
+            limit: 999999,
+            currency: 'BRL'
+          },
+          isPlatformAdmin: true
+        });
+      }
+
       const companyId = user.company_id;
 
       // 2. Busca tudo em paralelo para performance máxima

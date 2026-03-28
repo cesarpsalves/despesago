@@ -19,11 +19,12 @@ export default function AuthCallback() {
         
         // Detectar o tipo de ação (recovery, magic link, signup)
         let type = url.searchParams.get("type");
-        if (!type && (url.hash.includes("type=recovery") || url.searchParams.get("next")?.includes("password"))) {
+        const next = url.searchParams.get("next") || "/app";
+        const hash = window.location.hash;
+
+        if (!type && (hash.includes("type=recovery") || next.includes("password") || hash.includes("error_code=401"))) {
           type = "recovery";
         }
-        
-        const next = url.searchParams.get("next") || "/app";
 
         console.log("AuthCallback: Processing...", { type, next, hasCode: !!code });
 

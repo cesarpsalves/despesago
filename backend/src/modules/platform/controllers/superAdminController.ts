@@ -6,6 +6,7 @@ export const superAdminController = {
    * Lista todas as empresas da plataforma (apenas para Platform Admin)
    */
   async listAllCompanies(req: Request, res: Response) {
+    try {
       // Busca empresas e suas assinaturas
       const { data: companies, error } = await supabase
         .from('companies')
@@ -58,7 +59,7 @@ export const superAdminController = {
         .from('subscriptions')
         .select('*')
         .eq('company_id', companyId)
-        .single();
+        .maybeSingle();
 
       if (existingSub) {
         // Upgrade da assinatura existente

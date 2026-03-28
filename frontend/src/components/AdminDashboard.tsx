@@ -41,6 +41,11 @@ export default function AdminDashboard() {
       if (isPlatformAdmin) {
         const { data: companies } = await axios.get('/platform/companies');
         setPlatformData(prev => ({ ...prev, companies }));
+        
+        // Se a resposta do sumário indicar que somos platform admin puro (sem empresa), muda a view
+        if (summaryRes.data.isPlatformAdmin) {
+          setViewMode('platform');
+        }
       }
     } catch (err) {
       console.error('FetchData Error:', err);
@@ -328,8 +333,8 @@ export default function AdminDashboard() {
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div 
                     className={`h-full rounded-full transition-all duration-1000 ${
-                      (stats?.consumedCount / stats?.limit) > 0.9 ? 'bg-rose-500' : 
-                      (stats?.consumedCount / stats?.limit) > 0.7 ? 'bg-amber-500' : 'bg-emerald-500'
+                      ((stats?.consumedCount || 0) / (stats?.limit || 50)) > 0.9 ? 'bg-rose-500' : 
+                      ((stats?.consumedCount || 0) / (stats?.limit || 50)) > 0.7 ? 'bg-amber-500' : 'bg-emerald-500'
                     }`}
                     style={{ width: `${Math.min(100, ((stats?.consumedCount || 0) / (stats?.limit || 50)) * 100)}%` }}
                   />

@@ -28,7 +28,7 @@ export const config = {
     apiUrl: process.env.ASAAS_API_URL || 'https://sandbox.asaas.com/api/v3',
   },
   resend: {
-    apiKey: process.env.RESEND_API_KEY || 're_QKzExJKn_NJQN6QyaWZUrSHGJs9bgrKcY',
+    apiKey: process.env.RESEND_API_KEY || '',
     from: process.env.RESEND_FROM || 'DespesaGo <onboarding@resend.dev>',
   },
   smtp: {
