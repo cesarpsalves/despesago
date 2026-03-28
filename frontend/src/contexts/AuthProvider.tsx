@@ -18,17 +18,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkCompanyStatus = async () => {
     try {
-      // Usando o supabase client seguro pelo RLS pra ver se achamos a empresa do usuário logado
-      const { data } = await supabase
-        .from('users')
-        .select('company_id, role, is_platform_admin')
-        .single();
+      // Agora usamos nossa API centralizada que consulta o esquema correto (app_expense_b2b)
+      // e retorna todos os metadados necessários de uma vez.
+      const res = await axios.get('/auth/me');
+      const data = res.data;
 
       if (data) {
-        setCompanyId(data.company_id);
+        setCompanyId(data.companyId || null);
         setRole(data.role as 'admin' | 'employee' | null);
-        setIsPlatformAdmin(!!data.is_platform_admin);
-        setRequireOnboarding(!data.company_id);
+        setIsPlatformAdmin(!!data.isPlatformAdmin);
+        setRequireOnboarding(!!data.requireOnboarding);
       } else {
         setCompanyId(null);
         setRole(null);
@@ -36,7 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setRequireOnboarding(true);
       }
     } catch (err) {
-      console.error('Erro ao verificar status da empresa:', err);
+      console.error('Erro ao verificar status da empresa via API:', err);
+      setCompanyId(null);
+      setRole(null);
+      setIsPlatformAdmin(false);
       setRequireOnboarding(true);
     } finally {
       setLoading(false);

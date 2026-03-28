@@ -133,7 +133,7 @@ export default function AdminDashboard() {
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => navigate('/superadmin')}
+            onClick={() => navigate('/platform')}
             className="hidden sm:flex text-slate-400 hover:text-white hover:bg-white/10 rounded-xl px-4 font-bold text-xs"
           >
             Voltar à Gestão

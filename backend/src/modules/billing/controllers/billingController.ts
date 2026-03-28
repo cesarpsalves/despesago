@@ -143,6 +143,7 @@ export const billingController = {
       const supabaseScoped = createScopedClient(authHeader);
 
       const { data: user, error: userError } = await supabaseScoped
+        .schema('app_expense_b2b')
         .from('users')
         .select('company_id, role')
         .single();

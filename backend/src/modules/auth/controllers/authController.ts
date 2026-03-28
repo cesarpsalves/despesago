@@ -96,5 +96,78 @@ export const authController = {
       console.error('Auth signInWithMagicLink Error:', error.message);
       return res.status(500).json({ error: 'Falha interna ao processar login.' });
     }
+  },
+
+  /**
+   * Retorna os metadados do usuário logado (Perfil Completo)
+   */
+  async getMe(req: Request, res: Response) {
+    try {
+      // O authMiddleware apenas garante que o token existe.
+      // Precisamos do ID do usuário do Supabase Auth.
+      const authHeader = req.headers.authorization!;
+      const token = authHeader.replace('Bearer ', '');
+      
+      const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+      
+      if (authError || !user) {
+        return res.status(401).json({ error: 'Sessão inválida ou expirada' });
+      }
+
+      // Consulta os metadados no esquema do app
+      const { data: userData, error: userError } = await supabaseAdmin
+        .schema('app_expense_b2b')
+        .from('users')
+        .select(`
+          id,
+          email,
+          role,
+          company_id,
+          is_platform_admin,
+          company:companies(
+            id,
+            name,
+            plan
+          )
+        `)
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (userError) {
+        console.error('Error fetching user metadata:', userError);
+        // Mesmo sem metadados no app, retornamos o básico do auth
+        return res.json({ 
+          id: user.id, 
+          email: user.email,
+          requireOnboarding: true 
+        });
+      }
+
+      // Se não achar o usuário no esquema app, ele precisa de onboarding
+      if (!userData) {
+        return res.json({ 
+          id: user.id, 
+          email: user.email,
+          requireOnboarding: true 
+        });
+      }
+
+      // Busca o plano real (verificando assinaturas ativas se necessário)
+      // Como o campo 'plan' na tabela companies é um cache, vamos confiar nele por enquanto
+      // para performance, ou buscar na tabela subscriptions se preferir.
+      
+      return res.json({
+        id: userData.id,
+        email: userData.email,
+        role: userData.role,
+        companyId: userData.company_id,
+        isPlatformAdmin: !!userData.is_platform_admin,
+        company: userData.company,
+        requireOnboarding: !userData.company_id
+      });
+    } catch (error: any) {
+      console.error('Auth getMe Error:', error.message);
+      return res.status(500).json({ error: 'Erro ao carregar perfil do usuário.' });
+    }
   }
 };

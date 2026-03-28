@@ -5,8 +5,10 @@ import { CreditCard, CheckCircle2, ArrowRight, Activity, Zap, ExternalLink } fro
 import { AppLayout } from '../../components/layout/AppLayout';
 import { Button } from '../../components/ui/Button';
 import { toast } from 'sonner';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function Subscription() {
+  const { isPlatformAdmin } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
@@ -100,7 +102,7 @@ export default function Subscription() {
                 Seu Plano Atual
               </p>
               <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tighter mb-2">
-                {isPro ? 'Plano Pro' : 'Plano Gratuito'}
+                {isPlatformAdmin ? 'Administrador da Plataforma' : (isPro ? 'Plano Pro Ativo' : 'Plano Gratuito')}
               </h2>
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className={isPro ? 'text-emerald-400' : 'text-slate-300 shrink-0'} />

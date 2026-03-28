@@ -43,27 +43,27 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/app/profile')}
-              className="text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl"
+              className="text-slate-600 hover:text-brand-600 hover:bg-brand-50/80 rounded-xl border border-transparent hover:border-brand-100 px-3 sm:px-4 transition-all"
             >
               <UserCircle className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline">Meus Dados</span>
+              <span className="hidden sm:inline font-bold text-xs uppercase tracking-tight">Meus Dados</span>
             </Button>
 
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={signOut}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl"
+              className="text-slate-400 hover:text-red-600 hover:bg-red-50/80 rounded-xl border border-transparent hover:border-red-100 px-3 transition-all"
             >
               <LogOut className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline">Sair</span>
+              <span className="hidden sm:inline font-bold text-xs uppercase tracking-tight">Sair</span>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto w-full px-4 sm:px-6 pt-6">
+      {/* Main Content Area */}
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-24 pb-24 md:pb-12 max-w-7xl mx-auto w-full transition-all duration-300">
         {children}
       </main>
 
