@@ -38,6 +38,9 @@ services:
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ASAAS_API_KEY=${ASAAS_API_KEY}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - RESEND_FROM=${RESEND_FROM}
+      - FRONTEND_URL=${FRONTEND_URL}
     networks:
       - traefik-public
     labels:
