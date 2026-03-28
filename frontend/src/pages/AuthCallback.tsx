@@ -7,6 +7,11 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleAuth = async () => {
+      // Check for recovery type in URL hash or params
+      const hash = window.location.hash;
+      const params = new URLSearchParams(window.location.search);
+      const isRecovery = hash.includes('type=recovery') || params.get('type') === 'recovery';
+
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
@@ -15,11 +20,9 @@ export default function AuthCallback() {
         return;
       }
 
-      const params = new URLSearchParams(window.location.search);
-      const next = params.get('next') || '/app';
+      const next = params.get('next') || (isRecovery ? '/set-password' : '/app');
 
       if (data.session) {
-        // Redireciona para o destino desejado ou o dashboard principal
         navigate(next);
       } else {
         navigate("/login");

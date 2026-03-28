@@ -27,6 +27,10 @@ export const config = {
     webhookKey: process.env.ASAAS_WEBHOOK_KEY || '',
     apiUrl: process.env.ASAAS_API_URL || 'https://sandbox.asaas.com/api/v3',
   },
+  resend: {
+    apiKey: process.env.RESEND_API_KEY || 're_QKzExJKn_NJQN6QyaWZUrSHGJs9bgrKcY',
+    from: process.env.RESEND_FROM || 'DespesaGo <onboarding@resend.dev>',
+  },
   smtp: {
     host: process.env.SMTP_HOST || '',
     port: parseInt(process.env.SMTP_PORT || '587', 10),
@@ -43,6 +47,8 @@ export const config = {
 // Shorthand for internal use
 export const env = {
   ...config,
+  RESEND_API_KEY: config.resend.apiKey,
+  RESEND_FROM: config.resend.from,
   SMTP_HOST: config.smtp.host,
   SMTP_PORT: config.smtp.port,
   SMTP_USER: config.smtp.user,
@@ -50,6 +56,7 @@ export const env = {
   SMTP_FROM: config.smtp.from,
   SMTP_SECURE: config.smtp.secure ? 'true' : 'false',
 };
+
 
 // Validação básica para ajudar no debug
 if (!config.supabase.url || !config.supabase.serviceRoleKey) {

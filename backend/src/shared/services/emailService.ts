@@ -1,53 +1,37 @@
-import nodemailer from 'nodemailer';
-import { env } from '../../../config/env.js';
+import { Resend } from 'resend';
+import { env } from '../../config/env.js';
 
-// Configuração do transportador (SMTP)
-// Por padrão, se as variáveis não existirem, usará um comportamento de log ou falha silenciosa segura.
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST || 'smtp.example.com',
-  port: Number(env.SMTP_PORT) || 587,
-  secure: env.SMTP_SECURE === 'true',
-  auth: {
-    user: env.SMTP_USER || '',
-    pass: env.SMTP_PASS || '',
-  },
-});
+// Configuração do Resend
+const resend = new Resend(env.RESEND_API_KEY);
+
+const htmlFooter = `
+  <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
+    <p>Este é um e-mail automático do DespesaGo. Por favor, não responda.</p>
+    <p>&copy; ${new Date().getFullYear()} DespesaGo - Gestão de Despesas Inteligente</p>
+  </div>
+`;
 
 export const emailService = {
   /**
-   * Envia um email de convite com layout profissional
+   * Envia e-mail de convite para funcionário
    */
-  sendInviteEmail: async (toEmail: string, companyName: string, inviteLink: string) => {
-    const htmlHeader = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f0f0f0; border-radius: 24px; color: #1e293b;">
-        <img src="https://despesago.com.br/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" style="height: 32px; margin-bottom: 32px;" />
-    `;
-
-    const htmlFooter = `
-        <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
-          © ${new Date().getFullYear()} DespesaGo — Gestão Corporativa de Despesas Inteligente.
-        </div>
-      </div>
-    `;
-
+  async sendInviteEmail(toEmail: string, companyName: string, inviteLink: string): Promise<boolean> {
     const body = `
-      ${htmlHeader}
-      <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.025em;">Você foi convidado! 🚀</h1>
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-        A empresa <strong>${companyName}</strong> convidou você para gerenciar despesas corporativas no DespesaGo.
-      </p>
-      <a href="${inviteLink}" style="display: inline-block; background-color: #10b981; color: white; padding: 16px 32px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
-        Aceitar Convite e Entrar
-      </a>
-      <p style="margin-top: 32px; font-size: 14px; color: #64748b;">
-        Se o botão acima não funcionar, copie e cole este link no seu navegador:<br/>
-        <span style="word-break: break-all; color: #10b981;">${inviteLink}</span>
-      </p>
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 8px;">
+        <h2 style="color: #4f46e5;">Olá!</h2>
+        <p>Você foi convidado para participar da empresa <strong>${companyName}</strong> no DespesaGo.</p>
+        <p>Para aceitar o convite e configurar seu acesso, clique no botão abaixo:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${inviteLink}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Aceitar Convite</a>
+        </div>
+        <p style="color: #666; font-size: 14px;">Se o botão não funcionar, copie e cole o link abaixo no seu navegador:</p>
+        <p style="color: #666; font-size: 14px; word-break: break-all;">${inviteLink}</p>
+      </div>
       ${htmlFooter}
     `;
 
     try {
-      if (!env.SMTP_USER || !env.SMTP_PASS) {
+      if (!env.RESEND_API_KEY) {
         console.log('--- MOCK EMAIL BEGIN ---');
         console.log(`Para: ${toEmail}`);
         console.log(`Assunto: Convite DespesaGo - ${companyName}`);
@@ -56,12 +40,13 @@ export const emailService = {
         return true;
       }
 
-      await transporter.sendMail({
-        from: `"DespesaGo" <${env.SMTP_FROM || 'contato@despesago.com.br'}>`,
+      await resend.emails.send({
+        from: env.RESEND_FROM,
         to: toEmail,
         subject: `Você foi convidado para a empresa ${companyName} no DespesaGo`,
         html: body,
       });
+
       return true;
     } catch (error) {
       console.error('Erro ao enviar email de convite:', error);
@@ -70,40 +55,26 @@ export const emailService = {
   },
 
   /**
-   * Envia email de recuperação de senha
+   * Envia e-mail de recuperação de senha
    */
-  sendPasswordResetEmail: async (toEmail: string, resetLink: string) => {
-    const htmlHeader = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f0f0f0; border-radius: 24px; color: #1e293b;">
-        <img src="https://despesago.com.br/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" style="height: 32px; margin-bottom: 32px;" />
-    `;
-
-    const htmlFooter = `
-        <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8;">
-          Se você não solicitou este e-mail, pode ignorá-lo com segurança.<br/><br/>
-          © ${new Date().getFullYear()} DespesaGo — Gestão Corporativa de Despesas Inteligente.
-        </div>
-      </div>
-    `;
-
+  async sendPasswordResetEmail(toEmail: string, resetLink: string): Promise<boolean> {
     const body = `
-      ${htmlHeader}
-      <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.025em;">Recuperação de Senha 🔒</h1>
-      <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-        Recebemos uma solicitação para redefinir a senha da sua conta no DespesaGo. Clique no botão abaixo para escolher uma nova senha.
-      </p>
-      <a href="${resetLink}" style="display: inline-block; background-color: #0f172a; color: white; padding: 16px 32px; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 16px; shadow: 0 4px 12px rgba(15, 23, 42, 0.2);">
-        Redefinir Minha Senha
-      </a>
-      <p style="margin-top: 32px; font-size: 14px; color: #64748b;">
-        Este link expira em 24 horas. Se o botão não funcionar, use o link abaixo:<br/>
-        <span style="word-break: break-all; color: #0f172a;">${resetLink}</span>
-      </p>
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 8px;">
+        <h2 style="color: #4f46e5;">Recuperação de Senha</h2>
+        <p>Recebemos uma solicitação para redefinir a senha da sua conta no DespesaGo.</p>
+        <p>Clique no botão abaixo para criar uma nova senha:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Redefinir Senha</a>
+        </div>
+        <p style="color: #666; font-size: 14px;">Este link expirará em breve por motivos de segurança.</p>
+        <p style="color: #666; font-size: 14px;">Se você não solicitou a redefinição, pode ignorar este e-mail com segurança.</p>
+        <p style="color: #666; font-size: 14px; word-break: break-all;">${resetLink}</p>
+      </div>
       ${htmlFooter}
     `;
 
     try {
-      if (!env.SMTP_USER || !env.SMTP_PASS) {
+      if (!env.RESEND_API_KEY) {
         console.log('--- MOCK RESET EMAIL BEGIN ---');
         console.log(`Para: ${toEmail}`);
         console.log(`Link: ${resetLink}`);
@@ -111,16 +82,17 @@ export const emailService = {
         return true;
       }
 
-      await transporter.sendMail({
-        from: `"DespesaGo" <${env.SMTP_FROM || 'contato@despesago.com.br'}>`,
+      await resend.emails.send({
+        from: env.RESEND_FROM,
         to: toEmail,
         subject: `Recuperação de senha - DespesaGo`,
         html: body,
       });
+
       return true;
     } catch (error) {
       console.error('Erro ao enviar email de reset:', error);
       return false;
     }
-  }
+  },
 };
