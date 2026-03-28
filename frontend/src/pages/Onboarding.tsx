@@ -17,18 +17,33 @@ export default function Onboarding() {
     e.preventDefault();
     setLoading(true);
     try {
-      console.log('Enviando dados de onboarding:', form);
-      const response = await axios.post('/company/onboarding', form);
-      console.log('Resposta do onboarding:', response.data);
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      console.log('API URL:', apiUrl);
 
-      // Aguarde um pouco antes de verificar o status da empresa
+      // Url completa para o endpoint de onboarding
+      const onboardingUrl = `${apiUrl}/company/onboarding`;
+      console.log('Enviando dados de onboarding para:', onboardingUrl);
+      console.log('Dados:', form);
+
+      const response = await axios.post(onboardingUrl, form, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 20000 // Aumentar timeout para 20s
+      });
+
+      console.log('Resposta do onboarding:', response.data);
+      toast.success('Empresa criada com sucesso!');
+
+      // Aguardar um pouco antes de verificar o status
       setTimeout(async () => {
         try {
           await checkCompanyStatus();
           navigate('/');
         } catch (statusError: any) {
           console.error('Erro ao verificar status da empresa:', statusError);
-          toast.error('Empresa criada, mas houve um erro ao verificar o status.');
+          // Mesmo com erro, tentamos redirecionar
+          navigate('/');
         }
       }, 2000);
     } catch (error: any) {
@@ -39,12 +54,20 @@ export default function Onboarding() {
           data: error.response.data,
           headers: error.response.headers
         });
+      } else if (error.request) {
+        // A requisição foi feita mas não houve resposta
+        console.error('Sem resposta do servidor:', error.request);
+        toast.error('Tempo de espera esgotado. O servidor pode estar indisponível.');
+      } else {
+        // Erro ao configurar a requisição
+        console.error('Erro ao configurar requisição:', error.message);
       }
+
       toast.error(
         error.response?.data?.error ||
         error.response?.data?.message ||
         error.message ||
-        'Erro interno ao provisionar ambiente.'
+        'Erro interno ao provisionar ambiente. Por favor, tente novamente.'
       );
     } finally {
       setLoading(false);
