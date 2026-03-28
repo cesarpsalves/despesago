@@ -44,7 +44,7 @@ export default function SuperAdminDashboard() {
 
     const loadingToast = toast.loading("Processando ativação...");
     try {
-      await axios.post(`/platform/companies/${companyId}/grant-courtesy`);
+      await axios.post(`/platform/companies/${companyId}/grant-pro`);
       toast.success("Plano PRO concedido com sucesso!", { id: loadingToast });
       fetchData();
     } catch (err: any) {

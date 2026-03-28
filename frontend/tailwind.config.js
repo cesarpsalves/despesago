@@ -9,6 +9,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
       },
+      screens: {
+        'xs': '480px',
+      },
       colors: {
         brand: {
           50: '#ecfdf5',

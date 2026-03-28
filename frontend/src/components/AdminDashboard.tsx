@@ -197,16 +197,16 @@ export default function AdminDashboard() {
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{members.length} membros ativos</p>
             </div>
           </div>
-          <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-2 mt-auto">
+          <form onSubmit={handleInvite} className="flex flex-col gap-3 mt-auto w-full">
             <input 
               type="email" 
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
-              placeholder="E-mail" 
-              className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-brand-500 transition-all" 
+              placeholder="E-mail do time" 
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-all" 
               required 
             />
-            <Button type="submit" size="sm" className="px-6 rounded-xl font-bold whitespace-nowrap">Convidar</Button>
+            <Button type="submit" size="sm" className="w-full rounded-xl font-bold">Convidar</Button>
           </form>
         </div>
 

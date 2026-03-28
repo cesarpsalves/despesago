@@ -12,6 +12,6 @@ router.get('/companies', authMiddleware, superAdminController.listAllCompanies);
 router.get('/users', authMiddleware, superAdminController.listAllUsers);
 
 // Ações Administrativas de Assinatura
-router.post('/companies/:companyId/grant-courtesy', authMiddleware, superAdminController.grantProCourtesy);
+router.post('/companies/:companyId/grant-pro', authMiddleware, superAdminController.grantProCourtesy);
 
 export default router;

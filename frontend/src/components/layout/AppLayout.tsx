@@ -15,8 +15,8 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900 font-sans pb-24 md:pb-0 text-left">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/50">
-        <div className="max-w-4xl mx-auto flex justify-between items-center px-4 sm:px-6 h-16">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 transition-all">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 h-16">
           <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/app')}>
             <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center p-1.5 group-hover:bg-brand-600 transition-colors shrink-0">
               <img src="/logo/favicon.png" alt="DG" className="w-full h-full brightness-0 invert" />
@@ -29,17 +29,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           <div className="flex items-center gap-2 sm:gap-4">
             {isPlatformAdmin && (
               <Button 
-                variant={isActive('/superadmin') ? 'primary' : 'ghost'} 
+                variant="outline" 
                 size="sm" 
-                onClick={() => navigate('/superadmin')}
-                className={`rounded-xl h-9 sm:h-10 transition-all ${
-                  isActive('/superadmin') 
-                    ? 'bg-slate-900 text-white shadow-lg' 
-                    : 'text-slate-600 hover:text-brand-600 hover:bg-brand-50'
-                }`}
+                onClick={() => navigate('/superadmin')} 
+                className="text-brand-600 border-brand-200 hover:bg-brand-50 hover:border-brand-300 rounded-xl px-3 font-bold shadow-sm"
               >
-                <Globe className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-                <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Global</span>
+                <Globe className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Gestão Global</span>
               </Button>
             )}
             
