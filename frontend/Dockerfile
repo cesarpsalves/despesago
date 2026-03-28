@@ -1,11 +1,15 @@
 # Build Stage
-FROM node:18-alpine AS builder
 
-# Instalar versões específicas dos pacotes para evitar problemas de compatibilidade
-RUN npm install -g npm@9.8.1
+FROM node:18-alpine AS builder
 WORKDIR /app
+
+# Copiar apenas os arquivos de definição de pacotes
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps --silent
+
+# Instalar dependências com configurações mais permissivas
+RUN npm install --no-fund --no-audit --legacy-peer-deps
+
+# Copiar o restante dos arquivos
 COPY . .
 
 # Pass build arguments as environment variables for Vite
@@ -16,6 +20,7 @@ ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 ENV VITE_API_URL=$VITE_API_URL
 
+# Build
 RUN npm run build
 
 # Production Stage

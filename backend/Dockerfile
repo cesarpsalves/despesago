@@ -1,10 +1,10 @@
-FROM node:18-alpine
+FROM node:16-alpine
 
 WORKDIR /app
 
 # Instalar dependências primeiro para cache eficiente
 COPY package*.json ./
-RUN npm ci --silent
+RUN npm install --no-fund --no-audit --legacy-peer-deps
 
 # Copiar restante do código
 COPY . .

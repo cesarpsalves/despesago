@@ -64,11 +64,64 @@ export COMMIT_SHA
 # --- Ajustes nos arquivos antes do build ---
 echo "- Corrigindo arquivos de configuração"
 
-# Ensure we have the correct Node.js version in Dockerfiles
-echo "- Ajustando versões do Node.js nos Dockerfiles"
-sed -i 's/FROM node:20-alpine/FROM node:18-alpine/g' frontend/Dockerfile backend/Dockerfile
-sed -i 's/FROM node:20-alpine AS builder/FROM node:18-alpine AS builder\n\n# Instalar versões específicas dos pacotes para evitar problemas de compatibilidade\nRUN npm install -g npm@9.8.1/g' frontend/Dockerfile
-sed -i 's/RUN npm ci --silent/RUN npm ci --legacy-peer-deps --silent/g' frontend/Dockerfile backend/Dockerfile
+# Replace frontend Dockerfile completely
+echo "- Substituindo Dockerfile do frontend"
+cat > frontend/Dockerfile << 'EOF'
+# Build Stage
+FROM node:16-alpine AS builder
+WORKDIR /app
+
+# Copiar apenas os arquivos de definição de pacotes
+COPY package*.json ./
+
+# Instalar dependências com configurações mais permissivas
+RUN npm install --no-fund --no-audit --legacy-peer-deps
+
+# Copiar o restante dos arquivos
+COPY . .
+
+# Pass build arguments as environment variables for Vite
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_API_URL
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_API_URL=$VITE_API_URL
+
+# Build
+RUN npm run build
+
+# Production Stage
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+EOF
+
+# Replace backend Dockerfile completely
+echo "- Substituindo Dockerfile do backend"
+cat > backend/Dockerfile << 'EOF'
+FROM node:16-alpine
+
+WORKDIR /app
+
+# Instalar dependências primeiro para cache eficiente
+COPY package*.json ./
+RUN npm install --no-fund --no-audit --legacy-peer-deps
+
+# Copiar restante do código
+COPY . .
+
+# Build do TypeScript
+RUN npm run build
+
+# Porta do serviço OCR
+EXPOSE 3000
+
+# Rodar a aplicação
+CMD ["npm", "start"]
+EOF
 
 # Fix package versions in package.json
 echo "- Ajustando versões das dependências no package.json"
@@ -80,13 +133,14 @@ sed -i 's/"@types\/react-dom": "\^19.2.3",/"@types\/react-dom": "\^18.2.3",/g' f
 
 # Fix Vite and related versions
 echo "- Ajustando versões do Vite e relacionados"
-sed -i 's/"vite": "\^8.0.1",/"vite": "\^4.5.1",/g' frontend/package.json
-sed -i 's/"vitest": "\^4.1.2"/"vitest": "\^0.34.6"/g' frontend/package.json
-sed -i 's/"@vitejs\/plugin-react": "\^6.0.1",/"@vitejs\/plugin-react": "\^4.2.1",/g' frontend/package.json
-sed -i 's/"typescript": "~5.9.3",/"typescript": "~5.0.2",/g' frontend/package.json
-
-# Melhorar o tratamento de erros no Onboarding
-echo "- Melhorando o tratamento de erros na página de onboarding"
+sed -i 's/"vite": "\^8.0.1",/"vite": "\^3.2.7",/g' frontend/package.json
+sed -i 's/"vite": "\^4.5.1",/"vite": "\^3.2.7",/g' frontend/package.json
+sed -i 's/"vitest": "\^4.1.2"/"vitest": "\^0.25.8"/g' frontend/package.json
+sed -i 's/"vitest": "\^0.34.6"/"vitest": "\^0.25.8"/g' frontend/package.json
+sed -i 's/"@vitejs\/plugin-react": "\^6.0.1",/"@vitejs\/plugin-react": "\^2.2.0",/g' frontend/package.json
+sed -i 's/"@vitejs\/plugin-react": "\^4.2.1",/"@vitejs\/plugin-react": "\^2.2.0",/g' frontend/package.json
+sed -i 's/"typescript": "~5.9.3",/"typescript": "~4.9.5",/g' frontend/package.json
+sed -i 's/"typescript": "~5.0.2",/"typescript": "~4.9.5",/g' frontend/package.json
 
 # --- Build all services ---
 echo "- Iniciando build de todos os serviços"
