@@ -1,8 +1,14 @@
 import { Resend } from 'resend';
 import { env } from '../../config/env.js';
 
-// Configuração do Resend
-const resend = new Resend(env.RESEND_API_KEY);
+// Lazy-loading do Resend para evitar crash no carregamento do módulo
+let _resend: Resend | null = null;
+const getResend = () => {
+  if (!_resend && env.RESEND_API_KEY) {
+    _resend = new Resend(env.RESEND_API_KEY);
+  }
+  return _resend;
+};
 
 const htmlFooter = `
   <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #f1f5f9; color: #94a3b8; font-size: 12px; text-align: center;">
@@ -56,12 +62,13 @@ export const emailService = {
     `;
 
     try {
-      if (!env.RESEND_API_KEY) {
+      const resendClient = getResend();
+      if (!resendClient) {
         console.log(`[Email Mock] Convite enviado para ${toEmail}`);
         return true;
       }
 
-      await resend.emails.send({
+      await resendClient.emails.send({
         from: env.RESEND_FROM,
         to: toEmail,
         subject: `Convite Aceito: Junte-se a ${companyName} no DespesaGo`,
@@ -108,12 +115,13 @@ export const emailService = {
     `;
 
     try {
-      if (!env.RESEND_API_KEY) {
+      const resendClient = getResend();
+      if (!resendClient) {
         console.log(`[Email Mock] Reset Link enviado para ${toEmail}: ${resetLink}`);
         return true;
       }
 
-      await resend.emails.send({
+      await resendClient.emails.send({
         from: env.RESEND_FROM,
         to: toEmail,
         subject: `Recuperação de Acesso - DespesaGo`,
@@ -160,12 +168,13 @@ export const emailService = {
     `;
 
     try {
-      if (!env.RESEND_API_KEY) {
+      const resendClient = getResend();
+      if (!resendClient) {
         console.log(`[Email Mock] Magic Link enviado para ${toEmail}: ${magicLink}`);
         return true;
       }
 
-      await resend.emails.send({
+      await resendClient.emails.send({
         from: env.RESEND_FROM,
         to: toEmail,
         subject: `Link de Acesso - DespesaGo`,

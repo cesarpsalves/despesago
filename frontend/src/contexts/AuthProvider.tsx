@@ -102,7 +102,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await axios.post('/auth/reset-password/request', { email });
       return { error: null };
     } catch (error: any) {
-      return { error: error.response?.data?.error || error.message || 'Erro desconhecido' };
+      const errorMessage = error.response?.data?.error || error.message || 'Erro ao processar solicitação de senha.';
+      return { error: new Error(errorMessage) };
     }
   };
 

@@ -37,7 +37,11 @@ export const authController = {
       const resetLink = data.properties.action_link;
 
       // 3. Envia o email profissional usando nosso serviço de email (Nodemailer)
-      await emailService.sendPasswordResetEmail(email, resetLink);
+      const emailSent = await emailService.sendPasswordResetEmail(email, resetLink);
+
+      if (!emailSent) {
+        return res.status(500).json({ error: 'Erro ao enviar e-mail de recuperação. Verifique a configuração do servidor.' });
+      }
 
       return res.status(200).json({
         success: true,
@@ -78,7 +82,11 @@ export const authController = {
       const magicLink = data.properties.action_link;
 
       // 3. Envia o email profissional
-      await emailService.sendMagicLinkEmail(email, magicLink);
+      const emailSent = await emailService.sendMagicLinkEmail(email, magicLink);
+
+      if (!emailSent) {
+        return res.status(500).json({ error: 'Erro ao enviar link de acesso. Verifique a configuração do servidor.' });
+      }
 
       return res.status(200).json({
         success: true,

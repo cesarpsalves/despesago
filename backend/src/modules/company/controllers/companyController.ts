@@ -370,7 +370,7 @@ export const companyController = {
       });
     } catch (error: any) {
       console.error('DashboardSummary Error:', error.message);
-      return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: 'Erro ao processar resumo do dashboard: ' + error.message });
     }
   }
 };
