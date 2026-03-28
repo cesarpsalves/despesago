@@ -77,14 +77,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const signInWithEmail = async (email: string, captchaToken?: string) => {
-    return await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        captchaToken,
-      }
-    });
+  const signInWithEmail = async (email: string) => {
+    try {
+      // Agora usamos nossa API profissional para Magic Link (Premium)
+      await axios.post('/auth/magic-link', { email });
+      return { error: null };
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || error.message || 'Erro ao enviar link de acesso.';
+      return { error: new Error(errorMessage) };
+    }
   };
 
   const signInWithPassword = async (email: string, password: string, captchaToken?: string) => {

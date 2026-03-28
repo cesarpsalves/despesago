@@ -89,30 +89,61 @@ export const companyController = {
 
       const companyId = adminUser.company_id;
 
-      // Dispara o email mágico de convite pelo Supabase Admin
-      // Observação: Isso requer que no painel do Supabase a URL de redirecionamento do invite esteja configurada
-      const { data: invitedAuth, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email);
-      if (inviteError) throw inviteError;
+      // 1. Verifica se o usuário já existe no Auth para evitar duplicidade
+      const { data: existingAuth } = await supabaseAdmin.auth.admin.listUsers();
+      const userExists = existingAuth.users.find(u => u.email === email);
 
-      // Caso sucesso no convite, cria a presença no espaço da empresa (App User)
+      let invitedUserId: string;
+
+      if (!userExists) {
+        // Cria o usuário no Auth sem enviar email automático (Passwordless Inicial)
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email,
+          email_confirm: true, // Já confirmamos para facilitar o primeiro acesso
+          user_metadata: { name, invited_by: companyId }
+        });
+        if (createError) throw createError;
+        invitedUserId = newUser.user.id;
+      } else {
+        invitedUserId = userExists.id;
+      }
+
+      // 2. Gera um link de login (Magic Link) para o usuário convidado
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: { redirectTo: `${config.frontendUrl}/app` }
+      });
+
+      if (linkError) throw linkError;
+
+      // 3. Caso sucesso no convite, cria a presença no espaço da empresa (App User) se não existir
       const { error: insertError } = await supabaseAdmin
         .from('users')
-        .insert([{
-          id: invitedAuth.user.id,
+        .upsert([{
+          id: invitedUserId,
           company_id: companyId,
           role: role || 'employee',
           name: name || email.split('@')[0],
           email
-        }]);
+        }], { onConflict: 'id' });
 
       if (insertError) throw insertError;
       
-      // Inicializa a carteira corporativa do funcionário convidado
-      await supabaseAdmin.from('wallets').insert([{
-        company_id: companyId,
-        user_id: invitedAuth.user.id,
-        balance: 0.00
-      }]);
+      // Inicializa a carteira corporativa do funcionário convidado se não existir
+      const { data: existingWallet } = await supabaseAdmin
+        .from('wallets')
+        .select('id')
+        .eq('user_id', invitedUserId)
+        .single();
+
+      if (!existingWallet) {
+        await supabaseAdmin.from('wallets').insert([{
+          company_id: companyId,
+          user_id: invitedUserId,
+          balance: 0.00
+        }]);
+      }
 
       // Busca o nome da empresa para o email
       const { data: companyData } = await supabaseAdmin
@@ -122,8 +153,7 @@ export const companyController = {
         .single();
 
       // Envia o email profissional via nosso serviço
-      // Se não houver SMTP configurado, ele apenas logará no console (mock)
-      const inviteLink = `${config.frontendUrl}/login`; // O funcionário usará o login (Magic Link ou Senha se já tiver)
+      const inviteLink = linkData.properties.action_link;
       await emailService.sendInviteEmail(email, companyData?.name || 'Sua Empresa', inviteLink);
 
       return res.status(200).json({ success: true, message: `O convite profissional foi enviado para ${email}.` });
@@ -241,7 +271,7 @@ export const companyController = {
       const firstDay = startOfMonth(now).toISOString();
       const lastDay = endOfMonth(now).toISOString();
 
-      const [companyRes, expensesRes, membersCountRes, monthlyTotalRes] = await Promise.all([
+      const [companyRes, expensesRes, membersCountRes, monthlyTotalRes, membersRes] = await Promise.all([
         // Detalhes da Empresa e Assinatura
         supabaseAdmin
           .from('companies')
@@ -267,24 +297,44 @@ export const companyController = {
           .from('expenses')
           .select('amount')
           .gte('date', firstDay)
-          .lte('date', lastDay)
+          .lte('date', lastDay),
+        
+        // Lista completa de membros (para gestão de equipe)
+        supabaseAdmin
+          .from('users')
+          .select('*')
+          .eq('company_id', companyId)
+          .order('name')
       ]);
 
       if (companyRes.error) throw companyRes.error;
 
-      // Calcula total mensal
+      // 4. Calcula o Plano Ativo (Prioriza 'active' ou a mais recente)
+      const subscriptions = companyRes.data.subscriptions || [];
+      const activeSubscription = subscriptions.find((s: any) => s.status === 'active') || subscriptions[0];
+      const plan = activeSubscription?.plan || 'free';
+      const subscriptionStatus = activeSubscription?.status || 'inactive';
+
+      // 5. Calcula limites de uso baseados no plano
+      const usageLimit = plan === 'pro' ? 5000 : 50;
+      const consumedCount = (monthlyTotalRes.data || []).length;
+
+      // 6. Calcula total mensal
       const monthlyTotal = (monthlyTotalRes.data || []).reduce((acc: number, curr: any) => acc + Number(curr.amount), 0);
 
       return res.status(200).json({
         company: {
           ...companyRes.data,
-          plan: companyRes.data.subscriptions?.[0]?.plan || 'free',
-          subscriptionStatus: companyRes.data.subscriptions?.[0]?.status || 'inactive'
+          plan,
+          subscriptionStatus
         },
         recentExpenses: expensesRes.data || [],
+        members: membersRes.data || [],
         stats: {
           memberCount: membersCountRes.count || 0,
           monthlyTotal,
+          consumedCount,
+          limit: usageLimit,
           currency: 'BRL'
         }
       });

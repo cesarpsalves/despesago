@@ -16,8 +16,16 @@ export default function AuthCallback() {
       try {
         const url = new URL(window.location.href);
         const code = url.searchParams.get("code");
+        
+        // Detectar o tipo de ação (recovery, magic link, signup)
+        let type = url.searchParams.get("type");
+        if (!type && (url.hash.includes("type=recovery") || url.searchParams.get("next")?.includes("password"))) {
+          type = "recovery";
+        }
+        
         const next = url.searchParams.get("next") || "/app";
-        const type = url.searchParams.get("type") || url.hash.includes("type=recovery") ? "recovery" : "signup";
+
+        console.log("AuthCallback: Processing...", { type, next, hasCode: !!code });
 
         // Se o Supabase enviou um código (PKCE Flow), trocamos pela sessão
         if (code) {
@@ -26,29 +34,40 @@ export default function AuthCallback() {
           if (error) throw error;
         }
 
+        // Aguarda um pequeno delay para o listener do AuthContext capturar a sessão
+        setStatus("Sessão confirmada! Preparando seu ambiente...");
+        
         // Verifica se agora temos uma sessão ativa
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) throw sessionError;
 
         if (session) {
-          // Se for recuperação de senha, redirecionamos para definir a nova senha
-          if (type === "recovery" || next.includes("reset-password") || next.includes("set-password")) {
+          if (type === "recovery" || next.includes("password") || next.includes("reset")) {
             setStatus("Acesso recuperado! Redirecionando para definir senha...");
-            // Usamos setTimeout pequeno para o usuário ler a mensagem de sucesso (UX)
-            setTimeout(() => navigate(next || "/set-password"), 1000);
+            setTimeout(() => navigate("/auth/reset-password", { replace: true }), 1500);
           } else {
-            navigate(next);
+            setStatus("Bem-vindo de volta! Carregando...");
+            setTimeout(() => navigate(next, { replace: true }), 1000);
           }
         } else {
-          // Se não houver sessão nem código, algo deu errado (ex: link expirado)
-          console.warn("Nenhuma sessão encontrada no callback.");
-          toast.error("Link expirado ou inválido. Tente novamente.");
-          navigate("/login");
+          // Se não houver sessão nem código, podemos estar em um fluxo de hash (Implicit Flow)
+          // O hook onAuthStateChange deve capturar isso, mas vamos dar um tempo
+          setStatus("Verificando credenciais...");
+          setTimeout(async () => {
+            const { data: { session: retrySession } } = await supabase.auth.getSession();
+            if (retrySession) {
+              navigate(next, { replace: true });
+            } else {
+              console.warn("Nenhuma sessão encontrada após delay.");
+              toast.error("Link expirado ou já utilizado.");
+              navigate("/login", { replace: true });
+            }
+          }, 2000);
         }
       } catch (err: any) {
         console.error("Auth callback error:", err.message);
-        toast.error("Falha na autenticação. Verifique o link enviado.");
-        navigate("/login");
+        toast.error("Falha na autenticação. Tente gerar um novo link.");
+        navigate("/login", { replace: true });
       }
     };
 

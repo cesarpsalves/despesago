@@ -126,4 +126,56 @@ export const emailService = {
       return false;
     }
   },
+
+  /**
+   * Envia e-mail de Magic Link (Premium Design)
+   */
+  async sendMagicLinkEmail(toEmail: string, magicLink: string): Promise<boolean> {
+    const body = `
+      <div style="${premiumStyles}">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Acesse sua conta</h1>
+          <p style="font-size: 16px; color: #64748b; margin: 0;">Login seguro e sem senha.</p>
+        </div>
+        
+        <p style="font-size: 15px; line-height: 1.6; text-align: center; color: #475569; margin-bottom: 32px;">
+          Clique no botão abaixo para entrar instantaneamente no DespesaGo. 
+          Este link é pessoal e não deve ser compartilhado.
+        </p>
+
+        <div style="text-align: center; margin-bottom: 32px;">
+          <a href="${magicLink}" style="background-color: #000000; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 14px; font-weight: 700; font-size: 16px; display: inline-block;">
+            Fazer Login Agora
+          </a>
+        </div>
+
+        <div style="padding: 16px; background-color: #f0fdf4; border-radius: 12px; border: 1px solid #dcfce7; margin-bottom: 32px;">
+          <p style="color: #166534; font-size: 13px; text-align: center; margin: 0;">
+             Este link é válido por apenas 1 hora e funciona apenas uma vez.
+          </p>
+        </div>
+
+        ${htmlFooter}
+      </div>
+    `;
+
+    try {
+      if (!env.RESEND_API_KEY) {
+        console.log(`[Email Mock] Magic Link enviado para ${toEmail}: ${magicLink}`);
+        return true;
+      }
+
+      await resend.emails.send({
+        from: env.RESEND_FROM,
+        to: toEmail,
+        subject: `Link de Acesso - DespesaGo`,
+        html: body,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Erro ao enviar email de magic link:', error);
+      return false;
+    }
+  },
 };

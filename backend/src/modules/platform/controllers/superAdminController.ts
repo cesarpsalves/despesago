@@ -6,7 +6,7 @@ export const superAdminController = {
    * Lista todas as empresas da plataforma (apenas para Platform Admin)
    */
   async listAllCompanies(req: Request, res: Response) {
-    try {
+      // Busca empresas e suas assinaturas
       const { data: companies, error } = await supabase
         .from('companies')
         .select('*, subscriptions(plan, status)')
@@ -14,11 +14,29 @@ export const superAdminController = {
 
       if (error) throw error;
 
+      // Busca contagem de usuários para todas as empresas em paralelo para ser rápido
+      const { data: userCounts } = await supabase
+        .rpc('count_users_per_company'); 
+        // Se a RPC não existir, usaremos uma query alternativa ou simularemos.
+        // Vamos usar uma query direta para garantir compatibilidade inicial:
+      
+      const { data: allUsers } = await supabase
+        .from('users')
+        .select('company_id');
+
+      const countMap: Record<string, number> = {};
+      allUsers?.forEach(u => {
+        if (u.company_id) {
+          countMap[u.company_id] = (countMap[u.company_id] || 0) + 1;
+        }
+      });
+
       // Formata a resposta para facilitar no front
       const formatted = (companies || []).map(c => ({
         ...c,
         plan: c.subscriptions?.[0]?.plan || 'free',
-        status: c.subscriptions?.[0]?.status || 'inactive'
+        status: c.subscriptions?.[0]?.status || 'inactive',
+        user_count: countMap[c.id] || 0
       }));
 
       return res.json(formatted);

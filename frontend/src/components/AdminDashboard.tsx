@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { Skeleton } from './ui/Skeleton';
 import { GettingStarted } from './dashboard/GettingStarted';
+import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
+import { ExpenseDetailModal } from './ui/ExpenseDetailModal';
 
 export default function AdminDashboard() {
   const { isPlatformAdmin } = useAuth();
@@ -21,33 +23,25 @@ export default function AdminDashboard() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return localStorage.getItem('despesago_onboarding_dismissed') !== 'true';
   });
+  const [selectedExpense, setSelectedExpense] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const fetchData = async () => {
     try {
       // 1. Busca o sumário consolidado (Performance Fix)
       const summaryRes = await axios.get('/company/dashboard/summary');
-      const { company: comp, recentExpenses, stats: dashboardStats } = summaryRes.data;
+      const { company: comp, recentExpenses, stats: dashboardStats, members: dashboardMembers } = summaryRes.data;
       
       setCompany(comp);
       setExpenses(recentExpenses);
       setStats(dashboardStats);
+      setMembers(dashboardMembers || []);
 
-      // 2. Busca dados de plataforma se for admin (em paralelo)
-      const secondaryTasks = [];
-      
+      // 2. Busca dados de plataforma SE for admin (em paralelo)
       if (isPlatformAdmin) {
-        secondaryTasks.push(
-          axios.get('/platform/companies').then(res => 
-            setPlatformData(prev => ({ ...prev, companies: res.data }))
-          )
-        );
+        const { data: companies } = await axios.get('/platform/companies');
+        setPlatformData(prev => ({ ...prev, companies }));
       }
-
-      secondaryTasks.push(
-        axios.get('/company/members').then(res => setMembers(res.data))
-      );
-
-      await Promise.all(secondaryTasks);
     } catch (err) {
       console.error('FetchData Error:', err);
       toast.error('Erro ao carregar dados do dashboard');
@@ -139,8 +133,12 @@ export default function AdminDashboard() {
     }
   };
 
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-8 pb-10 animate-in fade-in duration-700">
       {/* Header de Boas-Vindas */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -267,13 +265,9 @@ export default function AdminDashboard() {
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Consolidado Equipe</p>
                 </div>
               </div>
-              {loading ? (
-                <Skeleton width="140px" height="36px" className="mt-2" />
-              ) : (
-                <p className="text-3xl font-black text-slate-900 tracking-tighter">
-                  R$ {stats?.monthlyTotal?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
-                </p>
-              )}
+              <p className="text-3xl font-black text-slate-900 tracking-tighter">
+                R$ {stats?.monthlyTotal?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+              </p>
             </div>
 
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
@@ -283,11 +277,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900">Convidar Equipe</h3>
-                  {loading ? (
-                    <Skeleton width="80px" height="12px" className="mt-1" />
-                  ) : (
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{stats?.memberCount || 0} membros ativos</p>
-                  )}
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{stats?.memberCount || 0} membros ativos</p>
                 </div>
               </div>
               <form onSubmit={handleInvite} className="flex gap-2">
@@ -305,24 +295,55 @@ export default function AdminDashboard() {
               </form>
             </div>
 
-            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
-                  <CreditCard className="text-emerald-500 w-6 h-6" />
+            <div className={`bg-white p-8 rounded-[2rem] shadow-sm border ${company?.plan === 'pro' ? 'border-emerald-100 bg-emerald-50/10' : 'border-slate-100'} flex flex-col justify-between hover:shadow-md transition-all group`}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 ${company?.plan === 'pro' ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'} rounded-2xl flex items-center justify-center transition-colors group-hover:scale-110`}>
+                    <CreditCard className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900">
+                      {company?.plan === 'pro' ? 'Assinatura PRO' : 'Plano Free'}
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                      {company?.plan === 'pro' ? 'Recursos ativos' : 'Limites do plano'}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-slate-900">Assinatura PRO</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recursos ilimitados</p>
+                {company?.plan === 'pro' && (
+                  <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm shadow-emerald-200">
+                    Ativo
+                  </span>
+                )}
+              </div>
+
+              {/* Barra de Progresso de IA */}
+              <div className="mb-6">
+                <div className="flex justify-between items-end mb-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Uso de IA (Mês)</span>
+                  <span className="text-xs font-black text-slate-900">
+                    {stats?.consumedCount || 0} de {stats?.limit || 50}
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ${
+                      (stats?.consumedCount / stats?.limit) > 0.9 ? 'bg-rose-500' : 
+                      (stats?.consumedCount / stats?.limit) > 0.7 ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`}
+                    style={{ width: `${Math.min(100, ((stats?.consumedCount || 0) / (stats?.limit || 50)) * 100)}%` }}
+                  />
                 </div>
               </div>
+
               <Button 
                 variant="secondary"
                 onClick={handleUpgrade} 
                 disabled={subscribing || company?.plan === 'pro'}
                 className={`w-full rounded-2xl h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] ${
                   subscribing || company?.plan === 'pro'
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
-                    : 'bg-slate-900 text-white hover:bg-black'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-none' 
+                    : 'bg-slate-900 text-white hover:bg-black shadow-lg shadow-slate-200'
                 }`}
               >
                 {subscribing ? (
@@ -331,9 +352,9 @@ export default function AdminDashboard() {
                     <span>Processando...</span>
                   </div>
                 ) : company?.plan === 'pro' ? (
-                  'Plano Ativo'
+                  'Plano Profissional'
                 ) : (
-                  'Ativar Pro'
+                  'Fazer Upgrade Agora'
                 )}
               </Button>
             </div>
@@ -423,27 +444,37 @@ export default function AdminDashboard() {
           ) : (
             <>
               {expenses.map(exp => (
-                <div key={exp.id} className="p-8 flex items-center justify-between hover:bg-slate-50/50 transition-all cursor-pointer group">
+                <div 
+                  key={exp.id} 
+                  onClick={() => {
+                    setSelectedExpense(exp);
+                    setIsDetailOpen(true);
+                  }}
+                  className="p-8 flex items-center justify-between hover:bg-slate-50/80 transition-all cursor-pointer group active:scale-[0.99] border-l-4 border-l-transparent hover:border-l-brand-500"
+                >
                   <div className="flex gap-4 items-center">
-                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-lg font-bold text-slate-400 group-hover:bg-white group-hover:shadow-sm transition-all">
+                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-lg font-bold text-slate-400 group-hover:bg-white group-hover:shadow-sm transition-all group-hover:text-brand-500">
                       {exp.merchant?.[0] || 'D'}
                     </div>
                     <div>
                       <p className="font-bold text-slate-900 text-base">{exp.merchant}</p>
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
-                        {new Date(exp.date).toLocaleDateString('pt-BR')} • {exp.category || 'Geral'}
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                        {new Date(exp.date).toLocaleDateString('pt-BR')} <span className="w-1 h-1 bg-slate-200 rounded-full" /> {exp.category || 'Geral'}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-extrabold text-xl text-slate-900 tracking-tighter">
-                      R$ {Number(exp.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                    {exp.confidence < 0.8 && (
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-1 rounded-full mt-1.5 uppercase tracking-tighter">
-                        <AlertCircle className="w-3 h-3"/> Baixa Confiança
-                      </span>
-                    )}
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <p className="font-extrabold text-xl text-slate-900 tracking-tighter">
+                        R$ {Number(exp.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                      {exp.confidence < 0.8 && (
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-1 rounded-full mt-1.5 uppercase tracking-tighter">
+                          <AlertCircle className="w-3 h-3"/> Conferir
+                        </span>
+                      )}
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-brand-500 group-hover:translate-x-1 transition-all" />
                   </div>
                 </div>
               ))}
@@ -478,6 +509,11 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+      <ExpenseDetailModal 
+        isOpen={isDetailOpen} 
+        onClose={() => setIsDetailOpen(false)} 
+        expense={selectedExpense} 
+      />
     </div>
   );
 }
