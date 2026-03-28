@@ -29,7 +29,10 @@ export const companyController = {
       // Cria Banco da Empresa (Elevating to Admin client as RLS blocks unassociated user)
       const { data: company, error: companyError } = await supabaseAdmin
         .from('companies')
-        .insert([{ name: companyName, document }])
+        .insert([{ 
+          name: companyName, 
+          document: document?.trim() || null 
+        }])
         .select()
         .single();
         

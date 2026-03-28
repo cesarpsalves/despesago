@@ -25,7 +25,7 @@ describe('Login Authentication Flow', () => {
       </BrowserRouter>
     );
     
-    expect(screen.getByText('Configure sua equipe')).toBeInTheDocument();
+    expect(screen.getByText('Acesse sua conta')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('voce@suaempresa.com')).toBeInTheDocument();
   });
 

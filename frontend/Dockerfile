@@ -1,5 +1,8 @@
 # Build Stage
-FROM node:20-alpine AS builder
+FROM node:18-alpine AS builder
+
+# Instalar versões específicas dos pacotes para evitar problemas de compatibilidade
+RUN npm install -g npm@9.8.1
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps --silent

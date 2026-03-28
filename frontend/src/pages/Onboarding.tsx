@@ -17,11 +17,35 @@ export default function Onboarding() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('/company/onboarding', form);
-      await checkCompanyStatus(); 
-      navigate('/');
+      console.log('Enviando dados de onboarding:', form);
+      const response = await axios.post('/company/onboarding', form);
+      console.log('Resposta do onboarding:', response.data);
+
+      // Aguarde um pouco antes de verificar o status da empresa
+      setTimeout(async () => {
+        try {
+          await checkCompanyStatus();
+          navigate('/');
+        } catch (statusError: any) {
+          console.error('Erro ao verificar status da empresa:', statusError);
+          toast.error('Empresa criada, mas houve um erro ao verificar o status.');
+        }
+      }, 2000);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Erro interno ao provisionar ambiente.');
+      console.error('Erro no onboarding:', error);
+      if (error.response) {
+        console.error('Detalhes da resposta de erro:', {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+      }
+      toast.error(
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Erro interno ao provisionar ambiente.'
+      );
     } finally {
       setLoading(false);
     }
@@ -29,7 +53,7 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-4 relative">
-      <button 
+      <button
         onClick={signOut}
         className="absolute top-6 right-6 flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors"
       >
@@ -37,13 +61,13 @@ export default function Onboarding() {
         Sair da conta
       </button>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-8"
       >
-        <button 
-          onClick={() => window.location.href = '/'} 
+        <button
+          onClick={() => window.location.href = '/'}
           className="group flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-100 transition-all mb-4"
         >
           <img src="/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" className="h-6" />
@@ -53,7 +77,7 @@ export default function Onboarding() {
         <p className="text-slate-500 mt-2 font-medium">Crie o espaço de trabalho da sua empresa em segundos.</p>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
@@ -64,8 +88,8 @@ export default function Onboarding() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Nome da Empresa</label>
             <div className="relative">
               <Building className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={form.companyName}
                 onChange={e => setForm({ ...form, companyName: e.target.value })}
                 required
@@ -79,8 +103,8 @@ export default function Onboarding() {
             <label className="block text-sm font-medium text-slate-700 mb-1">Seu Nome Completo</label>
             <div className="relative">
               <User className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={form.userName}
                 onChange={e => setForm({ ...form, userName: e.target.value })}
                 required
@@ -90,13 +114,13 @@ export default function Onboarding() {
             </div>
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={loading}
             fullWidth
             className="mt-4"
           >
-            {loading ? 'Criando espaço...' : 'Ir para o Dashboard'} 
+            {loading ? 'Criando espaço...' : 'Ir para o Dashboard'}
             {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
           </Button>
         </form>
