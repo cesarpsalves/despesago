@@ -18,4 +18,7 @@ router.post('/cost-centers', authMiddleware, companyController.createCostCenter)
 // Identificação da Empresa vinculada
 router.get('/me', authMiddleware, companyController.getMe);
 
+// Dashboard consolidado (Novo: Premium Performance)
+router.get('/dashboard/summary', authMiddleware, companyController.dashboardSummary);
+
 export default router;

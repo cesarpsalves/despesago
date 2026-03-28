@@ -5,45 +5,66 @@ import { env } from '../../config/env.js';
 const resend = new Resend(env.RESEND_API_KEY);
 
 const htmlFooter = `
-  <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
-    <p>Este é um e-mail automático do DespesaGo. Por favor, não responda.</p>
-    <p>&copy; ${new Date().getFullYear()} DespesaGo - Gestão de Despesas Inteligente</p>
+  <div style="margin-top: 48px; padding-top: 24px; border-top: 1px solid #f1f5f9; color: #94a3b8; font-size: 12px; text-align: center;">
+    <p style="margin-bottom: 8px;">Este é um e-mail automático do <strong>DespesaGo</strong>. Por favor, não responda.</p>
+    <p style="margin-bottom: 0;">&copy; ${new Date().getFullYear()} DespesaGo • Gestão de Despesas Inteligente</p>
   </div>
+`;
+
+const premiumStyles = `
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 24px;
+  color: #1e293b;
 `;
 
 export const emailService = {
   /**
-   * Envia e-mail de convite para funcionário
+   * Envia e-mail de convite para funcionário (Premium Design)
    */
   async sendInviteEmail(toEmail: string, companyName: string, inviteLink: string): Promise<boolean> {
     const body = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 8px;">
-        <h2 style="color: #4f46e5;">Olá!</h2>
-        <p>Você foi convidado para participar da empresa <strong>${companyName}</strong> no DespesaGo.</p>
-        <p>Para aceitar o convite e configurar seu acesso, clique no botão abaixo:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${inviteLink}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Aceitar Convite</a>
+      <div style="${premiumStyles}">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Você foi convidado!</h1>
+          <p style="font-size: 16px; color: #64748b; margin: 0;">Junte-se à equipe da <strong>${companyName}</strong> no DespesaGo.</p>
         </div>
-        <p style="color: #666; font-size: 14px;">Se o botão não funcionar, copie e cole o link abaixo no seu navegador:</p>
-        <p style="color: #666; font-size: 14px; word-break: break-all;">${inviteLink}</p>
+        
+        <div style="background-color: #f8fafc; padding: 24px; border-radius: 16px; margin-bottom: 32px; border: 1px solid #f1f5f9;">
+          <p style="font-size: 14px; line-height: 1.6; margin: 0; color: #475569;">
+            O DespesaGo ajuda você e sua equipe a gerenciar despesas de forma inteligente.
+            Com seu novo acesso, você poderá capturar recibos com IA e acompanhar seus reembolsos em tempo real.
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 32px;">
+          <a href="${inviteLink}" style="background-color: #000000; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 14px; font-weight: 700; font-size: 16px; display: inline-block; transition: transform 0.2s;">
+            Configurar meu Acesso
+          </a>
+        </div>
+
+        <p style="color: #94a3b8; font-size: 13px; text-align: center; margin-bottom: 0;">
+          Se o botão acima não funcionar, utilize este link:<br>
+          <a href="${inviteLink}" style="color: #6366f1; text-decoration: none; word-break: break-all;">${inviteLink}</a>
+        </p>
+
+        ${htmlFooter}
       </div>
-      ${htmlFooter}
     `;
 
     try {
       if (!env.RESEND_API_KEY) {
-        console.log('--- MOCK EMAIL BEGIN ---');
-        console.log(`Para: ${toEmail}`);
-        console.log(`Assunto: Convite DespesaGo - ${companyName}`);
-        console.log(`Link: ${inviteLink}`);
-        console.log('--- MOCK EMAIL END ---');
+        console.log(`[Email Mock] Convite enviado para ${toEmail}`);
         return true;
       }
 
       await resend.emails.send({
         from: env.RESEND_FROM,
         to: toEmail,
-        subject: `Você foi convidado para a empresa ${companyName} no DespesaGo`,
+        subject: `Convite Aceito: Junte-se a ${companyName} no DespesaGo`,
         html: body,
       });
 
@@ -55,37 +76,47 @@ export const emailService = {
   },
 
   /**
-   * Envia e-mail de recuperação de senha
+   * Envia e-mail de recuperação de senha (Premium Design)
    */
   async sendPasswordResetEmail(toEmail: string, resetLink: string): Promise<boolean> {
     const body = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e1e1; border-radius: 8px;">
-        <h2 style="color: #4f46e5;">Recuperação de Senha</h2>
-        <p>Recebemos uma solicitação para redefinir a senha da sua conta no DespesaGo.</p>
-        <p>Clique no botão abaixo para criar uma nova senha:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetLink}" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Redefinir Senha</a>
+      <div style="${premiumStyles}">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Recupere sua Senha</h1>
+          <p style="font-size: 16px; color: #64748b; margin: 0;">Redefina seu acesso de forma segura.</p>
         </div>
-        <p style="color: #666; font-size: 14px;">Este link expirará em breve por motivos de segurança.</p>
-        <p style="color: #666; font-size: 14px;">Se você não solicitou a redefinição, pode ignorar este e-mail com segurança.</p>
-        <p style="color: #666; font-size: 14px; word-break: break-all;">${resetLink}</p>
+        
+        <p style="font-size: 15px; line-height: 1.6; text-align: center; color: #475569; margin-bottom: 32px;">
+          Recebemos uma solicitação para redefinir a senha da sua conta no DespesaGo. 
+          Clique no botão abaixo para prosseguir com a criação da sua nova senha.
+        </p>
+
+        <div style="text-align: center; margin-bottom: 32px;">
+          <a href="${resetLink}" style="background-color: #000000; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 14px; font-weight: 700; font-size: 16px; display: inline-block;">
+            Redefinir minha Senha
+          </a>
+        </div>
+
+        <div style="padding: 16px; background-color: #fff7ed; border-radius: 12px; border: 1px solid #ffedd5; margin-bottom: 32px;">
+          <p style="color: #9a3412; font-size: 13px; text-align: center; margin: 0;">
+             Este link é válido por apenas 1 hora. Se você não solicitou esta alteração, pode ignorar este e-mail.
+          </p>
+        </div>
+
+        ${htmlFooter}
       </div>
-      ${htmlFooter}
     `;
 
     try {
       if (!env.RESEND_API_KEY) {
-        console.log('--- MOCK RESET EMAIL BEGIN ---');
-        console.log(`Para: ${toEmail}`);
-        console.log(`Link: ${resetLink}`);
-        console.log('--- MOCK RESET EMAIL END ---');
+        console.log(`[Email Mock] Reset Link enviado para ${toEmail}: ${resetLink}`);
         return true;
       }
 
       await resend.emails.send({
         from: env.RESEND_FROM,
         to: toEmail,
-        subject: `Recuperação de senha - DespesaGo`,
+        subject: `Recuperação de Acesso - DespesaGo`,
         html: body,
       });
 

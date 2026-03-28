@@ -7,20 +7,71 @@ export const superAdminController = {
    */
   async listAllCompanies(req: Request, res: Response) {
     try {
-      // O RLS já deve estar configurado para permitir isso se for platform_admin,
-      // mas vamos reforçar a busca via service_role ou verificar o metadado no backend.
-      
       const { data: companies, error } = await supabase
         .from('companies')
-        .select('*')
+        .select('*, subscriptions(plan, status)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      return res.json(companies);
+      // Formata a resposta para facilitar no front
+      const formatted = (companies || []).map(c => ({
+        ...c,
+        plan: c.subscriptions?.[0]?.plan || 'free',
+        status: c.subscriptions?.[0]?.status || 'inactive'
+      }));
+
+      return res.json(formatted);
     } catch (error: any) {
       console.error('Erro ao listar empresas (SuperAdmin):', error);
       return res.status(500).json({ error: 'Erro ao carregar empresas da plataforma' });
+    }
+  },
+
+  /**
+   * Concede cortesia PRO para uma empresa específica
+   */
+  async grantProCourtesy(req: Request, res: Response) {
+    const { companyId } = req.params;
+
+    try {
+      // 1. Verifica se já existe assinatura
+      const { data: existingSub } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('company_id', companyId)
+        .single();
+
+      if (existingSub) {
+        // Upgrade da assinatura existente
+        const { error } = await supabase
+          .from('subscriptions')
+          .update({ 
+            plan: 'pro', 
+            status: 'active',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingSub.id);
+        
+        if (error) throw error;
+      } else {
+        // Cria nova assinatura cortesia
+        const { error } = await supabase
+          .from('subscriptions')
+          .insert([{
+            company_id: companyId,
+            plan: 'pro',
+            status: 'active',
+            billing_cycle: 'MONTHLY' // Padrão
+          }]);
+        
+        if (error) throw error;
+      }
+
+      return res.json({ success: true, message: 'Cortesia PRO concedida com sucesso!' });
+    } catch (error: any) {
+      console.error('Erro ao conceder cortesia (SuperAdmin):', error);
+      return res.status(500).json({ error: 'Erro ao processar upgrade de cortesia' });
     }
   },
 

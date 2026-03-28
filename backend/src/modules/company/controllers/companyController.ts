@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { supabaseAdmin, createScopedClient } from '../../../shared/db/supabaseClient.js';
 import { emailService } from '../../../shared/services/emailService.js';
 import { config } from '../../../config/env.js';
+import { startOfMonth, endOfMonth } from 'date-fns';
 
 export const companyController = {
   // 1. O primeiro acesso pós login mágico no app. Cria a empresa e vincula o fundador.
@@ -216,6 +217,79 @@ export const companyController = {
       return res.status(200).json(response);
     } catch (error: any) {
       console.error('GetCompanyMe Error:', error.message);
+      return res.status(400).json({ error: error.message });
+    }
+  },
+
+  // 6. Retorna um sumário completo para o dashboard (Premium Performance)
+  dashboardSummary: async (req: Request, res: Response) => {
+    try {
+      const authHeader = req.headers.authorization || '';
+      const supabaseScoped = createScopedClient(authHeader);
+
+      // 1. Identifica usuário e empresa
+      const { data: user, error: userError } = await supabaseScoped
+        .from('users')
+        .select('company_id, role')
+        .single();
+
+      if (userError || !user) throw new Error('Usuário não identificado ou sem empresa');
+      const companyId = user.company_id;
+
+      // 2. Busca tudo em paralelo para performance máxima
+      const now = new Date();
+      const firstDay = startOfMonth(now).toISOString();
+      const lastDay = endOfMonth(now).toISOString();
+
+      const [companyRes, expensesRes, membersCountRes, monthlyTotalRes] = await Promise.all([
+        // Detalhes da Empresa e Assinatura
+        supabaseAdmin
+          .from('companies')
+          .select('*, subscriptions(plan, status)')
+          .eq('id', companyId)
+          .single(),
+        
+        // Últimas 10 despesas (RLS garantido pelo scoped client)
+        supabaseScoped
+          .from('expenses')
+          .select('*')
+          .order('date', { ascending: false })
+          .limit(10),
+        
+        // Contagem de membros
+        supabaseAdmin
+          .from('users')
+          .select('id', { count: 'exact', head: true })
+          .eq('company_id', companyId),
+
+        // Total do mês atual
+        supabaseScoped
+          .from('expenses')
+          .select('amount')
+          .gte('date', firstDay)
+          .lte('date', lastDay)
+      ]);
+
+      if (companyRes.error) throw companyRes.error;
+
+      // Calcula total mensal
+      const monthlyTotal = (monthlyTotalRes.data || []).reduce((acc: number, curr: any) => acc + Number(curr.amount), 0);
+
+      return res.status(200).json({
+        company: {
+          ...companyRes.data,
+          plan: companyRes.data.subscriptions?.[0]?.plan || 'free',
+          subscriptionStatus: companyRes.data.subscriptions?.[0]?.status || 'inactive'
+        },
+        recentExpenses: expensesRes.data || [],
+        stats: {
+          memberCount: membersCountRes.count || 0,
+          monthlyTotal,
+          currency: 'BRL'
+        }
+      });
+    } catch (error: any) {
+      console.error('DashboardSummary Error:', error.message);
       return res.status(400).json({ error: error.message });
     }
   }

@@ -11,6 +11,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState('');
   const [company, setCompany] = useState<any>(null);
+  const [stats, setStats] = useState<any>(null);
   const [subscribing, setSubscribing] = useState(false);
   const [viewMode, setViewMode] = useState<'company' | 'platform'>('company');
   const [platformData, setPlatformData] = useState<{ companies: any[], users: any[] }>({ companies: [], users: [] });
@@ -18,22 +19,33 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [expRes, compRes] = await Promise.all([
-        axios.get('/expenses'),
-        axios.get('/company/me')
-      ]);
-      setExpenses(expRes.data);
-      setCompany(compRes.data);
+      // 1. Busca o sumário consolidado (Performance Fix)
+      const summaryRes = await axios.get('/company/dashboard/summary');
+      const { company: comp, recentExpenses, stats: dashboardStats } = summaryRes.data;
+      
+      setCompany(comp);
+      setExpenses(recentExpenses);
+      setStats(dashboardStats);
 
+      // 2. Busca dados de plataforma se for admin (em paralelo)
+      const secondaryTasks = [];
+      
       if (isPlatformAdmin) {
-        const platformRes = await axios.get('/platform/companies');
-        setPlatformData(prev => ({ ...prev, companies: platformRes.data }));
+        secondaryTasks.push(
+          axios.get('/platform/companies').then(res => 
+            setPlatformData(prev => ({ ...prev, companies: res.data }))
+          )
+        );
       }
 
-      const membersRes = await axios.get('/company/members');
-      setMembers(membersRes.data);
+      secondaryTasks.push(
+        axios.get('/company/members').then(res => setMembers(res.data))
+      );
+
+      await Promise.all(secondaryTasks);
     } catch (err) {
-      console.error(err);
+      console.error('FetchData Error:', err);
+      toast.error('Erro ao carregar dados do dashboard');
     } finally {
       setLoading(false);
     }
@@ -228,7 +240,23 @@ export default function AdminDashboard() {
       ) : (
         <>
           {/* Cards de Ação */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Cards de Ação & Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
+                  <LayoutDashboard className="text-indigo-500 w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900">Total do Mês</h3>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Consolidado Equipe</p>
+                </div>
+              </div>
+              <p className="text-3xl font-black text-slate-900 tracking-tighter">
+                R$ {stats?.monthlyTotal?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+              </p>
+            </div>
+
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
@@ -236,7 +264,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900">Convidar Equipe</h3>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-tight">Adicione colaboradores</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{stats?.memberCount || 0} membros ativos</p>
                 </div>
               </div>
               <form onSubmit={handleInvite} className="flex gap-2">
@@ -248,8 +276,8 @@ export default function AdminDashboard() {
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm text-slate-900 outline-none focus:ring-4 focus:ring-brand-500/5 focus:border-brand-500 transition-all" 
                   required 
                 />
-                <Button type="submit" size="sm" className="px-8 rounded-2xl h-12 shadow-lg shadow-brand-500/10">
-                  {loading ? '...' : 'Enviar'}
+                <Button type="submit" size="sm" className="px-6 rounded-2xl h-12 shadow-lg shadow-brand-500/10">
+                  Convidar
                 </Button>
               </form>
             </div>
@@ -261,27 +289,28 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <h3 className="font-bold text-slate-900">Assinatura PRO</h3>
-                  <p className="text-xs text-slate-400 font-medium uppercase tracking-tight">Recursos ilimitados</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Recursos ilimitados</p>
                 </div>
               </div>
-              <p className="text-sm text-slate-500 font-medium mb-6">Desbloqueie usuários ilimitados, alertas de fraude e relatórios avançados.</p>
               <Button 
                 variant="secondary"
                 onClick={handleUpgrade} 
-                disabled={subscribing}
+                disabled={subscribing || company?.plan === 'pro'}
                 className={`w-full rounded-2xl h-12 font-bold transition-all hover:scale-[1.02] active:scale-[0.98] ${
-                  subscribing 
-                    ? 'bg-slate-400 cursor-not-allowed opacity-50' 
+                  subscribing || company?.plan === 'pro'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
                     : 'bg-slate-900 text-white hover:bg-black'
                 }`}
               >
                 {subscribing ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-slate-400/30 border-t-slate-400 rounded-full animate-spin" />
                     <span>Processando...</span>
                   </div>
+                ) : company?.plan === 'pro' ? (
+                  'Plano Ativo'
                 ) : (
-                  'Fazer Upgrade Agora'
+                  'Ativar Pro'
                 )}
               </Button>
             </div>

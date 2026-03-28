@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../services/supabase';
+import axios from 'axios';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Building2, Users, CreditCard, ShieldCheck, Globe } from 'lucide-react';
@@ -26,43 +26,24 @@ export default function SuperAdminDashboard() {
   }, [isPlatformAdmin]);
 
   const fetchData = async () => {
-    // Fetch all companies and their member counts
-    const { data: cos, error: cosErr } = await supabase
-      .from('companies')
-      .select(`
-        id, 
-        name, 
-        created_at,
-        subscriptions (plan)
-      `);
-
-    if (cosErr) {
-      console.error(cosErr);
-      return;
+    try {
+      const res = await axios.get('/platform/companies');
+      // A API já retorna formatado com plan e status
+      setCompanies(res.data);
+    } catch (err: any) {
+      console.error('FetchData Error:', err);
+      toast.error('Erro ao carregar empresas da plataforma');
     }
-
-    // Process counts (simplified for demo)
-    const formatted: CompanyStats[] = cos.map((c: any) => ({
-      id: c.id,
-      name: c.name,
-      created_at: new Date(c.created_at).toLocaleDateString(),
-      plan: c.subscriptions?.[0]?.plan || 'free',
-      user_count: 0 // In a real app we'd join with a count
-    }));
-
-    setCompanies(formatted);
   };
 
   const handleUpgrade = async (companyId: string) => {
-    const { error } = await supabase
-      .from('subscriptions')
-      .update({ plan: 'pro', status: 'active' })
-      .eq('company_id', companyId);
-    
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Empresa atualizada para PRO!");
+    try {
+      await axios.post(`/platform/companies/${companyId}/grant-courtesy`);
+      toast.success("Cortesia PRO concedida com sucesso!");
       fetchData();
+    } catch (err: any) {
+      console.error('Upgrade Error:', err);
+      toast.error(err.response?.data?.error || "Erro ao conceder cortesia");
     }
   };
 
