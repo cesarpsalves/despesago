@@ -1,10 +1,10 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Camera, LogOut, CreditCard } from 'lucide-react';
+import { Home, Camera, LogOut, CreditCard, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({ children, title }) => {
-  const { role, user, signOut } = useAuth();
+  const { role, user, signOut, isPlatformAdmin } = useAuth();
   const isAdmin = role === 'admin';
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,7 +12,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-slate-900 font-sans pb-24 md:pb-0">
+    <div className="min-h-screen bg-gray-50 text-slate-900 font-sans pb-24 md:pb-0 text-left">
       {/* Top Header */}
       <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-4xl mx-auto flex justify-between items-center px-4 sm:px-6 h-16">
@@ -24,6 +24,17 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
+            {isPlatformAdmin && (
+              <button 
+                onClick={() => navigate('/superadmin')}
+                className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 ${
+                  isActive('/superadmin') ? 'bg-indigo-100 text-indigo-700' : 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50/50'
+                }`}
+              >
+                <ShieldCheck size={16} />
+                <span>Gestão Global</span>
+              </button>
+            )}
             {isAdmin && (
               <button 
                 onClick={() => navigate('/app/subscription')}
