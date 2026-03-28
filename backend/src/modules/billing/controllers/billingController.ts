@@ -100,5 +100,67 @@ export const billingController = {
       console.error('Webhook Error:', error.message);
       return res.status(500).send('Error');
     }
+  },
+
+  // Consulta status detalhado de assinatura para o portal do cliente
+  status: async (req: Request, res: Response) => {
+    try {
+      const authHeader = req.headers.authorization || '';
+      const supabaseScoped = createScopedClient(authHeader);
+
+      const { data: user, error: userError } = await supabaseScoped
+        .from('users')
+        .select('company_id, role')
+        .single();
+      
+      if (userError || !user) throw new Error('Não autorizado');
+      const companyId = user.company_id;
+
+      // 1. Pegar Assinatura Atual
+      const { data: subscription, error: subsError } = await supabaseAdmin
+        .from('subscriptions')
+        .select('*')
+        .eq('company_id', companyId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      // 2. Calcular Uso do Mês Atual (Recibos Escaneados)
+      const firstDayOfMonth = new Date();
+      firstDayOfMonth.setDate(1);
+      firstDayOfMonth.setHours(0, 0, 0, 0);
+
+      const { count: usageCount, error: countError } = await supabaseAdmin
+        .from('expenses')
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', companyId)
+        .gte('created_at', firstDayOfMonth.toISOString());
+
+      if (countError) console.error('Count Error:', countError);
+
+      // 3. Obter dados da empresa (external_customer_id)
+      const { data: company } = await supabaseAdmin
+        .from('companies')
+        .select('name, external_customer_id')
+        .eq('id', companyId)
+        .single();
+
+      return res.status(200).json({
+        plan: subscription?.plan || 'free',
+        status: subscription?.status || 'active',
+        current_period_end: subscription?.current_period_end,
+        usage: {
+          current: usageCount || 0,
+          limit: subscription?.plan === 'pro' ? 5000 : 50 // Limites exemplares
+        },
+        company: {
+          name: company?.name,
+          has_external_id: !!company?.external_customer_id
+        }
+      });
+    } catch (error: any) {
+      console.error('Billing Status Err:', error);
+      return res.status(400).json({ error: error.message });
+    }
   }
 };

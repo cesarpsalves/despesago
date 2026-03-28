@@ -9,6 +9,7 @@ import AuthCallback from './pages/AuthCallback';
 import SuperAdmin from './pages/SuperAdmin';
 import NotFound from './pages/NotFound';
 import ResetPassword from './pages/ResetPassword';
+import Subscription from './pages/Admin/Subscription';
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { session, loading, requireOnboarding } = useAuth();
   
@@ -42,6 +43,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/app/subscription" 
+            element={
+              <PrivateRoute>
+                <Subscription />
               </PrivateRoute>
             } 
           />

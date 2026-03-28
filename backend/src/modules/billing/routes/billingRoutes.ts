@@ -7,6 +7,9 @@ const router = Router();
 // Endpoint para gerar a primeira assinatura/fatura
 router.post('/subscribe', authMiddleware, billingController.subscribe);
 
+// Endpoint para consultar status da assinatura atual
+router.get('/status', authMiddleware, billingController.status);
+
 // Endpoint público para escutar notificações do servidor do Asaas
 router.post('/webhook', billingController.webhook);
 

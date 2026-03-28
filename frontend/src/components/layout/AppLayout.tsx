@@ -1,25 +1,40 @@
-import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Camera, LogOut } from 'lucide-react';
+import { Home, Camera, LogOut, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({ children, title }) => {
   const { role, user, signOut } = useAuth();
   const isAdmin = role === 'admin';
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <div className="min-h-screen bg-gray-50 text-slate-900 font-sans pb-24 md:pb-0">
       {/* Top Header */}
       <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-md border-b border-slate-200/50">
         <div className="max-w-4xl mx-auto flex justify-between items-center px-4 sm:px-6 h-16">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/app')}>
             <img src="/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" className="h-6 opacity-90" />
             <span className="font-semibold tracking-tight text-slate-800 hidden sm:inline-block">
-              {title || (isAdmin ? 'Admin' : 'Painel')}
+              {title || (isAdmin ? 'Painel Admin' : 'Painel')}
             </span>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
+            {isAdmin && (
+              <button 
+                onClick={() => navigate('/app/subscription')}
+                className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 ${
+                  isActive('/app/subscription') ? 'bg-brand-50 text-brand-700' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50'
+                }`}
+              >
+                <CreditCard size={16} />
+                <span>Minha Assinatura</span>
+              </button>
+            )}
             <button 
               onClick={signOut} 
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-100/50 transition-all duration-200"
@@ -28,7 +43,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
               <LogOut size={16} />
               <span>Sair</span>
             </button>
-            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-bold shadow-sm ring-2 ring-white">
+            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-bold shadow-sm ring-2 ring-white cursor-pointer" onClick={() => navigate('/app')}>
               {user?.email?.[0].toUpperCase() || 'U'}
             </div>
           </div>
@@ -44,15 +59,27 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 pb-[env(safe-area-inset-bottom)] md:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
           <button 
-            onClick={() => window.location.href = '/'}
-            className="flex flex-col items-center justify-center w-full h-full text-brand-600 active:scale-90 transition-transform"
+            onClick={() => navigate('/app')}
+            className={`flex flex-col items-center justify-center w-full h-full active:scale-90 transition-all ${
+              isActive('/app') ? 'text-brand-600' : 'text-slate-400'
+            }`}
           >
             <Home size={20} />
             <span className="text-[10px] font-bold mt-1 uppercase tracking-wide">Início</span>
           </button>
           
-          {/* FAB (Employee Only) */}
-          {!isAdmin && (
+          {/* Slot Central: Camera (Employee) or Subscription (Admin) */}
+          {isAdmin ? (
+            <button 
+              onClick={() => navigate('/app/subscription')}
+              className={`flex flex-col items-center justify-center w-full h-full active:scale-90 transition-all ${
+                isActive('/app/subscription') ? 'text-brand-600' : 'text-slate-400'
+              }`}
+            >
+              <CreditCard size={20} />
+              <span className="text-[10px] font-bold mt-1 uppercase tracking-wide">Plano</span>
+            </button>
+          ) : (
             <div className="relative w-full flex justify-center h-full">
               <motion.button
                 whileTap={{ scale: 0.9 }}

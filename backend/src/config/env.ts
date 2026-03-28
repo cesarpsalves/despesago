@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-/**
- * Este módulo centraliza o carregamento das variáveis de ambiente.
- * Ele tenta encontrar o arquivo .env na raiz do projeto (um nível acima de /backend).
- */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const envPath = path.resolve(process.cwd(), '../.env');
+// Sobe de /backend/src/config/ para a raiz /
+const envPath = path.resolve(__dirname, '../../../.env');
 
 // Carrega o .env se ele existir (útil para desenvolvimento local direto com node/ts-node)
 dotenv.config({ path: envPath });
