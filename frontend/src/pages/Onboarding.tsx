@@ -3,7 +3,6 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useAuth } from '../contexts/AuthContext.js';
 import { Building, User, ArrowRight, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-// @ts-expect-error - evitando problema de tipo com framer-motion
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 import { toast } from 'sonner';

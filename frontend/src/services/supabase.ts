@@ -1,34 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Obter as variáveis de ambiente
-const supabaseUrl: string = import.meta.env.VITE_SUPABASE_URL as string || '';
-const supabaseAnonKey: string = import.meta.env.VITE_SUPABASE_ANON_KEY as string || '';
-
-// Mensagem de erro mais informativa
-console.log('Iniciando configuração do Supabase...');
-if (!supabaseUrl) {
-  console.error('Variável de ambiente VITE_SUPABASE_URL não encontrada');
-}
-if (!supabaseAnonKey) {
-  console.error('Variável de ambiente VITE_SUPABASE_ANON_KEY não encontrada');
-}
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error("Variáveis de ambiente VITE_SUPABASE_URL e/ou VITE_SUPABASE_ANON_KEY faltando.");
+  console.warn(
+    '[supabase] VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is missing. ' +
+    'Supabase client will not be initialized properly — check your .env file.'
+  );
 }
 
-console.log('Conectando ao Supabase URL:', supabaseUrl);
-
-// Configuração do cliente com logging adicional
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  db: {
-    schema: 'app_expense_b2b'
-  },
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    db: {
+      schema: 'app_expense_b2b',
+    },
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
   }
-});
-
-console.log('Cliente Supabase configurado com sucesso');
+);

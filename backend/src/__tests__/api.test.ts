@@ -3,7 +3,7 @@ import request from 'supertest';
 import app from '../app.js';
 
 // Mock do Supabase para evitar chamadas reais ao banco durante integração
-vi.mock('../src/shared/db/supabaseClient.js', () => ({
+vi.mock('../shared/db/supabaseClient.js', () => ({
   createScopedClient: () => ({
     from: () => ({
       select: () => ({
