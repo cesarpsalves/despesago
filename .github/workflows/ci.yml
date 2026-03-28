@@ -11,20 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
-          cache-dependency-path: backend/package-lock.json
 
-            - name: Install dependencies
+      - name: Install dependencies
         run: cd backend && npm install --legacy-peer-deps
 
       - name: Run Backend Tests
         run: |
           cd backend
-          VITE_SUPABASE_URL="https://mock.supabase.co" VITE_SUPABASE_ANON_KEY="mock-anon-key" npm test -- --passWithNoTests
+          npm test -- --passWithNoTests
         env:
           VITE_SUPABASE_URL: "https://mock.supabase.co"
           VITE_SUPABASE_ANON_KEY: "mock-anon-key"
@@ -33,20 +32,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
-            - name: Install dependencies
+      - name: Install dependencies
         run: cd frontend && npm install --legacy-peer-deps
 
       - name: Run Frontend Tests
         run: |
           cd frontend
-          VITE_SUPABASE_URL="https://mock.supabase.co" VITE_SUPABASE_ANON_KEY="mock-anon-key" VITE_API_URL="https://mock-api.co" npm test -- --passWithNoTests
+          npm test -- --passWithNoTests
         env:
           VITE_SUPABASE_URL: "https://mock.supabase.co"
           VITE_SUPABASE_ANON_KEY: "mock-anon-key"
+          VITE_API_URL: "https://mock-api.co"

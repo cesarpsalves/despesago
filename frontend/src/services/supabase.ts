@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Obter as variáveis de ambiente com fallbacks para desenvolvimento
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+// Obter as variáveis de ambiente
+const supabaseUrl: string = import.meta.env.VITE_SUPABASE_URL as string || '';
+const supabaseAnonKey: string = import.meta.env.VITE_SUPABASE_ANON_KEY as string || '';
 
 // Mensagem de erro mais informativa
 console.log('Iniciando configuração do Supabase...');

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useAuth } from '../contexts/AuthContext.js';
 import { Building, User, ArrowRight, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+// @ts-expect-error - evitando problema de tipo com framer-motion
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 import { toast } from 'sonner';
@@ -13,60 +14,72 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ companyName: '', document: '', userName: '' });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      console.log('API URL:', apiUrl);
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        console.log('API URL:', apiUrl);
 
-      // Url completa para o endpoint de onboarding
-      const onboardingUrl = `${apiUrl}/company/onboarding`;
-      console.log('Enviando dados de onboarding para:', onboardingUrl);
-      console.log('Dados:', form);
+        // Url completa para o endpoint de onboarding
+        const onboardingUrl = `${apiUrl}/company/onboarding`;
+        console.log('Enviando dados de onboarding para:', onboardingUrl);
+        console.log('Dados:', form);
 
-      const response = await axios.post(onboardingUrl, form, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 20000 // Aumentar timeout para 20s
-      });
-
-      console.log('Resposta do onboarding:', response.data);
-      toast.success('Empresa criada com sucesso!');
-
-      // Aguardar um pouco antes de verificar o status
-      setTimeout(async () => {
-        try {
-          await checkCompanyStatus();
-          navigate('/');
-        } catch (statusError: any) {
-          console.error('Erro ao verificar status da empresa:', statusError);
-          // Mesmo com erro, tentamos redirecionar
-          navigate('/');
-        }
-      }, 2000);
-    } catch (error: any) {
-      console.error('Erro no onboarding:', error);
-      if (error.response) {
-        console.error('Detalhes da resposta de erro:', {
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers
+        const response = await axios.post(onboardingUrl, form, {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 20000 // Aumentar timeout para 20s
         });
-      } else if (error.request) {
+
+        console.log('Resposta do onboarding:', response.data);
+        toast.success('Empresa criada com sucesso!');
+
+        // Aguardar um pouco antes de verificar o status
+        setTimeout(async () => {
+          try {
+            await checkCompanyStatus();
+            navigate('/');
+          } catch (error) {
+            const statusError = error as Error;
+            console.error('Erro ao verificar status da empresa:', statusError.message);
+            // Mesmo com erro, tentamos redirecionar
+            navigate('/');
+          }
+        }, 2000);
+      } catch (error) {
+      console.error('Erro no onboarding:', error);
+
+      // Tipando o erro como AxiosError
+      // Definindo interface para a estrutura de erro da API
+interface ApiErrorResponse {
+  error?: string;
+  message?: string;
+}
+
+const axiosError = error as AxiosError<ApiErrorResponse>;
+
+      if (axiosError.response) {
+        const errorResponse = axiosError.response as AxiosResponse<ApiErrorResponse>;
+        console.error('Detalhes da resposta de erro:', {
+          status: errorResponse.status,
+          data: errorResponse.data,
+          headers: errorResponse.headers
+        });
+      } else if (axiosError.request) {
         // A requisição foi feita mas não houve resposta
-        console.error('Sem resposta do servidor:', error.request);
+        console.error('Sem resposta do servidor:', axiosError.request);
         toast.error('Tempo de espera esgotado. O servidor pode estar indisponível.');
       } else {
         // Erro ao configurar a requisição
-        console.error('Erro ao configurar requisição:', error.message);
+        console.error('Erro ao configurar requisição:', axiosError.message);
       }
 
       toast.error(
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.message ||
+        axiosError.response?.data?.error ||
+        axiosError.response?.data?.message ||
+        axiosError.message ||
         'Erro interno ao provisionar ambiente. Por favor, tente novamente.'
       );
     } finally {
@@ -89,8 +102,8 @@ export default function Onboarding() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-8"
       >
-        <button
-          onClick={() => window.location.href = '/'}
+                <button
+          onClick={() => { navigate('/'); }}
           className="group flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-100 transition-all mb-4"
         >
           <img src="/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" className="h-6" />

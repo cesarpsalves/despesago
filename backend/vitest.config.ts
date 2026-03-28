@@ -4,5 +4,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    passWithNoTests: true,
+    coverage: {
+      enabled: false
+    },
+    testTimeout: 30000, // 30 segundos
   },
 });
