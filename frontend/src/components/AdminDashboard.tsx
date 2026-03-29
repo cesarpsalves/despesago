@@ -153,26 +153,26 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2">
           <div className={`px-4 py-2 rounded-2xl flex items-center gap-2.5 shadow-sm transition-all duration-500 ${
-            company?.plan === 'pro' || company?.plan === 'platform_admin' 
-              ? 'bg-emerald-50 border border-emerald-100' 
-              : 'bg-white border border-slate-200'
+            company?.plan === 'pro' && company?.subscriptionStatus === 'active'
+              ? 'bg-indigo-50 border border-indigo-100' 
+              : 'bg-slate-50 border border-slate-200'
           }`}>
-            <div className={`w-2.5 h-2.5 rounded-full ${
-              company?.plan === 'pro' || company?.plan === 'platform_admin' 
-                ? 'bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]' 
+            <div className={`w-2 h-2 rounded-full ${
+              company?.plan === 'pro' && company?.subscriptionStatus === 'active'
+                ? 'bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(79,70,229,0.5)]' 
                 : 'bg-slate-300'
             }`} />
             <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${
-              company?.plan === 'pro' || company?.plan === 'platform_admin' 
-                ? 'text-emerald-700' 
+              company?.plan === 'pro' && company?.subscriptionStatus === 'active'
+                ? 'text-indigo-700' 
                 : 'text-slate-500'
             }`}>
-              {company?.plan === 'platform_admin' ? 'Acesso Admin' : (company?.plan === 'pro' ? 'Status: Pro Ativo' : 'Status: Free')}
+              {company?.plan === 'pro' && company?.subscriptionStatus === 'active' ? 'Status: Pro Ativo' : 'Status: Plano Free'}
             </span>
           </div>
-          {company?.plan === 'free' && (
-            <Button size="sm" onClick={() => navigate('/app/subscription')} className="font-bold shadow-lg shadow-brand-500/20">
-              Upgrade
+          {(!(company?.plan === 'pro' && company?.subscriptionStatus === 'active')) && (
+            <Button size="sm" onClick={() => navigate('/app/subscription')} className="font-bold shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 border-none text-white">
+              Upgrade para Pro
             </Button>
           )}
         </div>

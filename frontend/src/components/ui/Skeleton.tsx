@@ -13,12 +13,13 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   width, 
   height 
 }) => {
-  const baseStyles = "bg-slate-100 animate-pulse";
+  // Cores suaves para evitar "quadrados pretos"
+  const baseStyles = "bg-slate-100/80 animate-pulse";
   
   const variantStyles = {
-    rect: "rounded-2xl",
+    rect: "rounded-lg",
     circle: "rounded-full",
-    text: "rounded-md"
+    text: "rounded"
   };
 
   const style: React.CSSProperties = {

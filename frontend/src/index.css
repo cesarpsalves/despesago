@@ -11,3 +11,14 @@
     @apply bg-emerald-500/20 text-emerald-900;
   }
 }
+
+@layer utilities {
+  @keyframes progress-fast {
+    0% { transform: scaleX(0); }
+    50% { transform: scaleX(0.7); }
+    100% { transform: scaleX(1); }
+  }
+  .animate-progress-fast {
+    animation: progress-fast 1s ease-in-out infinite;
+  }
+}

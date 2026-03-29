@@ -51,17 +51,25 @@ export default function Subscription() {
   if (loading) {
     return (
       <AppLayout title="Assinatura">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-10 h-10 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin" />
-            <p className="text-slate-400 font-medium animate-pulse">Carregando plano...</p>
+        <div className="max-w-2xl mx-auto space-y-8 pb-20 mt-10">
+          <div className="flex flex-col items-center gap-6 py-20">
+            <div className="relative">
+              <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center animate-pulse">
+                <img src="/logo/logo_preto_fundo_transparente.png" alt="dg" className="w-10 h-10 object-contain opacity-20" />
+              </div>
+              <div className="absolute inset-x-0 -bottom-1 h-1 bg-indigo-500 rounded-full animate-progress-fast origin-left" />
+            </div>
+            <div className="space-y-2 text-center">
+              <div className="h-6 w-48 bg-slate-100 rounded-lg animate-pulse mx-auto" />
+              <div className="h-4 w-64 bg-slate-50 rounded-md animate-pulse mx-auto" />
+            </div>
           </div>
         </div>
       </AppLayout>
     );
   }
 
-  const isPro = data?.plan === 'pro';
+  const isPro = data?.plan === 'pro' && data?.status === 'active';
   const usagePercent = Math.min(100, (data?.usage?.current / data?.usage?.limit) * 100);
 
   return (
@@ -72,9 +80,9 @@ export default function Subscription() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-50 text-brand-700 rounded-full text-xs font-bold uppercase tracking-widest border border-brand-100 mb-2"
+            className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-100 mb-2"
           >
-            <Zap size={14} className="fill-brand-500" />
+            <Zap size={14} className="fill-indigo-500" />
             Gestão de Assinatura
           </motion.div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">O controle está em suas mãos.</h1>
@@ -85,28 +93,28 @@ export default function Subscription() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`relative overflow-hidden p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] border transition-all ${
+          className={`relative overflow-hidden p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] border transition-all duration-500 ${
             isPro 
               ? 'bg-slate-900 border-slate-800 text-white shadow-2xl shadow-slate-900/20' 
               : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
           }`}
         >
           {/* Background Decorative */}
-          <div className="absolute top-0 right-0 p-12 opacity-10">
+          <div className={`absolute top-0 right-0 p-12 opacity-5 ${isPro ? 'text-white' : 'text-slate-200'}`}>
             <CreditCard size={180} />
           </div>
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <p className={`text-xs font-bold uppercase tracking-[0.2em] mb-2 ${isPro ? 'text-brand-400' : 'text-slate-400'}`}>
+              <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${isPro ? 'text-indigo-400' : 'text-slate-400'}`}>
                 Seu Plano Atual
               </p>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tighter mb-2">
+              <h2 className="text-2xl sm:text-4xl font-black tracking-tighter mb-2">
                 {isPlatformAdmin ? 'Administrador da Plataforma' : (isPro ? 'Plano Pro Ativo' : 'Plano Gratuito')}
               </h2>
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className={isPro ? 'text-emerald-400' : 'text-slate-300 shrink-0'} />
-                <span className={`text-xs sm:text-sm font-medium ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
+                <span className={`text-xs sm:text-sm font-bold ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
                   {isPro ? 'Renovação automática ativa' : 'Limitado a 50 escaneamentos/mês'}
                 </span>
               </div>
@@ -115,15 +123,15 @@ export default function Subscription() {
             <div className="flex flex-col items-start md:items-end gap-2 text-right">
               {isPro ? (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-2xl">
-                  <span className="text-emerald-400 text-sm font-bold uppercase tracking-tighter">Assinatura Ativa</span>
+                  <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Assinatura Ativa</span>
                 </div>
               ) : (
-                <div className="bg-slate-100 border border-slate-200 px-4 py-2 rounded-2xl">
-                  <span className="text-slate-500 text-sm font-bold uppercase tracking-tighter text-black">Acesso Limitado</span>
+                <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl">
+                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Acesso Free</span>
                 </div>
               )}
-              {data?.current_period_end && (
-                <p className={`text-xs font-medium ${isPro ? 'text-slate-500' : 'text-slate-400'}`}>
+              {data?.current_period_end && isPro && (
+                <p className={`text-[10px] font-bold uppercase tracking-tighter ${isPro ? 'text-slate-500' : 'text-slate-400'}`}>
                   Próxima fatura: {new Date(data.current_period_end).toLocaleDateString()}
                 </p>
               )}
@@ -131,24 +139,24 @@ export default function Subscription() {
           </div>
 
           {/* Barra de Uso (IA) */}
-          <div className="mt-10 pt-8 border-t border-slate-800/10">
+          <div className="mt-10 pt-8 border-t border-slate-100/10">
             <div className="flex justify-between items-end mb-3">
-              <div className="flex items-center gap-2 text-sm font-bold">
-                <Activity size={16} className={isPro ? 'text-brand-400' : 'text-brand-600'} />
+              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                <Activity size={16} className={isPro ? 'text-indigo-400' : 'text-indigo-600'} />
                 <span>Uso do Mês</span>
               </div>
-              <span className={`text-[10px] sm:text-xs font-bold tracking-widest ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
+              <span className={`text-[10px] font-black tracking-widest ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
                 {data?.usage?.current || 0} / {data?.usage?.limit || 50} ESCANEAMENTOS
               </span>
             </div>
-            <div className="h-3 bg-slate-800/5 rounded-full overflow-hidden border border-slate-200/10">
+            <div className={`h-2.5 rounded-full overflow-hidden border ${isPro ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${usagePercent}%` }}
                 transition={{ duration: 1, ease: 'easeOut' }}
                 className={`h-full rounded-full ${
-                  usagePercent > 80 ? 'bg-amber-400' : isPro ? 'bg-brand-500' : 'bg-brand-600'
-                } shadow-[0_0_12px_rgba(16,185,129,0.3)]`}
+                  usagePercent > 80 ? 'bg-amber-400' : 'bg-indigo-500'
+                } shadow-[0_0_12px_rgba(79,70,229,0.3)]`}
               />
             </div>
           </div>
@@ -160,42 +168,25 @@ export default function Subscription() {
              initial={{ opacity: 0, x: -10 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: 0.1 }}
-             className="bg-white p-4 sm:p-6 rounded-3xl border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-brand-200 transition-all shadow-sm"
+             className="bg-white p-4 sm:p-6 rounded-[2rem] border border-slate-100 flex items-center justify-between group cursor-pointer hover:border-indigo-200 transition-all shadow-sm active:scale-95"
              onClick={() => {
                 if (data?.company?.has_external_id) {
-                    // Direcionar para o portal do Asaas (exemplo de comportamento)
                     window.open('https://asaas.com', '_blank');
                 } else {
-                    toast.custom((t) => (
-                      <div className="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-2xl flex flex-col gap-4 border border-slate-800">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-white">
-                            <CreditCard size={24} />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-base">Sem faturas pendentes</h4>
-                            <p className="text-xs text-white/50">Não encontramos faturas emitidas para este período.</p>
-                          </div>
-                        </div>
-                        <Button 
-                          variant="secondary" 
-                          className="w-full rounded-2xl h-12 text-xs font-bold bg-white text-slate-900 border-none hover:bg-slate-100 transition-all hover:scale-[1.02]"
-                          onClick={() => toast.dismiss(t)}
-                        >
-                          Entendido
-                        </Button>
-                      </div>
-                    ), { duration: 4000 });
+                    toast.info('Não encontramos faturas pendentes para este período.', {
+                      description: 'Seu histórico será exibido aqui após o primeiro ciclo Pro.',
+                      icon: <CreditCard className="text-indigo-600" />
+                    });
                 }
              }}
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-brand-50 group-hover:text-brand-500 transition-colors">
+              <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
                 <ExternalLink size={20} />
               </div>
               <div>
                 <h4 className="font-bold text-slate-900 leading-tight">Painel Financeiro</h4>
-                <p className="text-xs text-slate-400 font-medium">Boleto, Pix e histórico oficial Asaas</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Histórico oficial Asaas</p>
               </div>
             </div>
           </motion.div>
@@ -207,8 +198,8 @@ export default function Subscription() {
               transition={{ delay: 0.2 }}
               className={`p-4 sm:p-6 rounded-[2rem] flex items-center justify-between group cursor-pointer transition-all shadow-lg ${
                 subscribing 
-                  ? 'bg-slate-400 cursor-not-allowed' 
-                  : 'bg-brand-600 hover:bg-brand-700 shadow-brand-600/20 active:scale-95'
+                  ? 'bg-slate-400 cursor-not-allowed opacity-50' 
+                  : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20 active:scale-95'
               }`}
               onClick={() => !subscribing && handleUpgrade('MONTHLY')}
             >
@@ -224,8 +215,8 @@ export default function Subscription() {
                   <h4 className="font-bold text-white text-sm sm:text-base leading-tight">
                     {subscribing ? 'Processando...' : 'Seja Ilimitado'}
                   </h4>
-                  <p className="text-[10px] sm:text-xs text-white/70 font-medium whitespace-nowrap">
-                    {subscribing ? 'Aguarde um momento' : 'Upgrade para Plano Pro'}
+                  <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest">
+                    {subscribing ? 'Gerando Link...' : 'Assinar Plano Pro'}
                   </p>
                 </div>
               </div>

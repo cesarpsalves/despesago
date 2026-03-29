@@ -110,10 +110,10 @@ export default function SuperAdminDashboard() {
 
   if (loading && companies.length === 0) {
     return (
-      <AppLayout title="Painel Global">
+      <AppLayout title="Administração da Plataforma">
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-          <div className="w-10 h-10 border-4 border-slate-200 border-t-brand-500 rounded-full animate-spin" />
-          <p className="text-slate-400 font-bold tracking-widest text-[10px] uppercase">Carregando Ecossistema...</p>
+          <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-slate-400 font-bold tracking-widest text-[10px] uppercase italic">Sincronizando Ecossistema Global...</p>
         </div>
       </AppLayout>
     );
@@ -124,46 +124,46 @@ export default function SuperAdminDashboard() {
       <div className="space-y-6 sm:space-y-8">
         {/* Header Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          <Card className="bg-emerald-50 border-emerald-100 p-4">
+          <Card className="bg-white border-slate-200 p-6 shadow-sm hover:border-indigo-200 transition-colors group">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-500 rounded-2xl text-white shrink-0">
+              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0">
                 <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-emerald-600">Total de Empresas</p>
-                <p className="text-xl sm:text-2xl font-bold text-emerald-900">{companies.length}</p>
+                <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Total de Empresas</p>
+                <p className="text-2xl font-black text-slate-900 tracking-tight">{companies.length}</p>
               </div>
             </div>
           </Card>
-          <Card className="bg-brand-50 border-brand-100 p-4">
+          <Card className="bg-white border-slate-200 p-6 shadow-sm hover:border-emerald-200 transition-colors group">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-brand-500 rounded-2xl text-white shrink-0">
+              <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all shrink-0">
                 <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-brand-600">Assinaturas PRO</p>
-                <p className="text-xl sm:text-2xl font-bold text-brand-900">{companies.filter(c => c.plan === 'pro').length}</p>
+                <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Assinaturas PRO</p>
+                <p className="text-2xl font-black text-slate-900 tracking-tight">{companies.filter(c => c.plan === 'pro').length}</p>
               </div>
             </div>
           </Card>
-          <Card className="bg-slate-50 border-slate-200 p-4">
+          <Card className="bg-white border-slate-200 p-6 shadow-sm hover:border-indigo-200 transition-colors group">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-slate-500 rounded-2xl text-white shrink-0">
+              <div className="p-3 bg-slate-50 text-slate-400 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0">
                 <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-medium text-slate-600">SaaS Health</p>
-                <p className="text-xl sm:text-2xl font-bold text-slate-900">100% OK</p>
+                <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Saúde do SaaS</p>
+                <p className="text-2xl font-black text-slate-900 tracking-tight text-indigo-600">100% OK</p>
               </div>
             </div>
           </Card>
         </div>
 
         <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/30">
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-brand-500" />
-              Lista de Clientes (Tenants)
+              <Building2 className="w-5 h-5 text-indigo-600" />
+              Clientes & Tenâncias
             </h2>
           </div>
           
@@ -201,11 +201,10 @@ export default function SuperAdminDashboard() {
                       {company.plan !== 'pro' ? (
                         <Button 
                           size="sm" 
-                          variant="secondary"
                           onClick={() => handleUpgrade(company.id, company.name)}
-                          className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest bg-brand-600 text-white hover:bg-brand-700 transition-all shadow-md shadow-brand-500/20 active:scale-95 border-none"
+                          className="h-9 px-4 rounded-xl font-bold text-[10px] uppercase tracking-widest bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-500/10 active:scale-95 border-none"
                         >
-                          Ativar PRO
+                          Conceder PRO
                         </Button>
                       ) : (
                         <div className="flex items-center justify-end gap-2 text-emerald-600">

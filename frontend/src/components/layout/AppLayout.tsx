@@ -1,8 +1,9 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Camera, LogOut, UserCircle, Globe, CreditCard, ShieldCheck } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Shield, ChevronLeft, Home, Camera, CreditCard } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { Logo } from '../ui/Logo';
 import { motion } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> = ({ children, title }) => {
   const { role, user, signOut, isPlatformAdmin } = useAuth();
@@ -17,25 +18,20 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
       {/* Top Header */}
       <header className="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 transition-all">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 h-16">
-          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate('/app')}>
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center p-1.5 group-hover:bg-brand-600 transition-colors shrink-0">
-              <img src="/logo/favicon.png" alt="DG" className="w-full h-full brightness-0 invert" />
-            </div>
-            <span className="font-bold tracking-tight text-slate-900 hidden xs:inline-block">
-              {title || (location.pathname.startsWith('/platform') ? 'Painel Global' : 'Painel da Empresa')}
-            </span>
-          </div>
+          <Link to="/app" className="flex items-center gap-2 group">
+            <Logo />
+          </Link>
           
-          <div className="flex items-center gap-1 sm:gap-4">
+          <div className="flex items-center gap-2">
             {isPlatformAdmin && (
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate('/platform')}
-                className="text-amber-600 hover:text-amber-700 bg-amber-50/50 hover:bg-amber-50 rounded-xl border-amber-100/50 hover:border-amber-200 px-2 sm:px-4 flex transition-all gap-1 sm:gap-2 shadow-sm"
+                className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border border-indigo-100 shadow-sm transition-all"
               >
-                <ShieldCheck className="w-5 h-5 fill-amber-100" />
-                <span className="font-bold text-[9px] sm:text-[10px] uppercase tracking-wider">Painel</span>
+                <Shield className="w-4 h-4" />
+                <span className="font-bold tracking-tighter text-[11px] uppercase">Plataforma</span>
               </Button>
             )}
 
@@ -43,20 +39,20 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/app/profile')}
-              className="text-slate-600 bg-slate-50/50 hover:bg-slate-100 hover:text-brand-600 border border-slate-100/50 hover:border-slate-200 font-bold transition-all px-2 sm:px-4 shadow-sm"
+              className="text-slate-600 hover:text-indigo-600 hover:bg-slate-50 border border-slate-100 shadow-sm transition-all"
             >
-              <UserCircle className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline font-bold text-xs uppercase tracking-tight">Meus Dados</span>
+              <User className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline font-bold text-[11px] uppercase tracking-tight">Meus Dados</span>
             </Button>
             
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={signOut}
-              className="text-red-500 bg-red-50/30 hover:bg-red-50 hover:text-red-700 border border-red-100/30 hover:border-red-100 transition-all font-bold px-2 sm:px-4 shadow-sm"
+              className="text-slate-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all shadow-none"
             >
-              <LogOut className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline font-bold text-xs uppercase tracking-tight">Sair</span>
+              <LogOut className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline font-bold text-[11px] uppercase tracking-tight">Sair</span>
             </Button>
           </div>
         </div>
@@ -73,7 +69,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           <button 
             onClick={() => navigate('/app')}
             className={`flex flex-col items-center justify-center w-full h-full active:scale-90 transition-all ${
-              isActive('/app') ? 'text-brand-600' : 'text-slate-400'
+              isActive('/app') ? 'text-indigo-600' : 'text-slate-400'
             }`}
           >
             <Home size={20} />
@@ -85,7 +81,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
             <button 
               onClick={() => navigate('/app/subscription')}
               className={`flex flex-col items-center justify-center w-full h-full active:scale-90 transition-all ${
-                isActive('/app/subscription') ? 'text-brand-600' : 'text-slate-400'
+                isActive('/app/subscription') ? 'text-indigo-600' : 'text-slate-400'
               }`}
             >
               <CreditCard size={20} />
@@ -95,7 +91,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
             <div className="relative w-full flex justify-center h-full">
               <motion.button
                 whileTap={{ scale: 0.9 }}
-                className="absolute -top-5 flex items-center justify-center w-14 h-14 bg-brand-500 text-white rounded-full shadow-[0_8px_32px_rgba(16,185,129,0.4)] border-4 border-white"
+                className="absolute -top-5 flex items-center justify-center w-14 h-14 bg-indigo-600 text-white rounded-full shadow-[0_8px_32px_rgba(79,70,229,0.4)] border-4 border-white"
                 onClick={() => document.getElementById("fileInput")?.click()}
               >
                 <Camera size={24} />

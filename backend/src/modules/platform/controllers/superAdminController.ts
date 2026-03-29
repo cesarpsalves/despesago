@@ -8,13 +8,20 @@ export const superAdminController = {
   async listAllCompanies(req: Request, res: Response) {
     try {
       // Busca empresas e suas assinaturas
+      // Busca empresas e suas assinaturas de forma segura
       const { data: companies, error } = await supabase
         .schema('app_expense_b2b')
         .from('companies')
-        .select('*, subscriptions(plan, status)')
+        .select(`
+          *,
+          subscriptions:subscriptions(plan, status)
+        `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro na query de empresas (SuperAdmin):', error);
+        throw error;
+      }
 
       // Busca contagem de usuários para todas as empresas em paralelo
       const { data: allUsers, error: usersError } = await supabase
@@ -35,8 +42,10 @@ export const superAdminController = {
 
       // Formata a resposta para facilitar no front
       const formatted = (companies || []).map(c => {
-        const activeSub = (c.subscriptions as any[])?.find((s: any) => ['active', 'trialing'].includes(s.status)) 
-          || (c.subscriptions as any[])?.[0];
+        const subs = Array.isArray(c.subscriptions) ? c.subscriptions : [];
+        const activeSub = subs.find((s: any) => ['active', 'trialing'].includes(s.status)) 
+          || subs[0];
+          
         return {
           ...c,
           plan: activeSub?.plan || 'free',
