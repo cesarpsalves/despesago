@@ -254,8 +254,10 @@ export const companyController = {
       if (companyError || !company) throw new Error('Empresa não encontrada');
 
       // Formata a resposta
-      const subs = Array.isArray(company.subscriptions) ? company.subscriptions : [];
-      const activeSubscription = subs.find((s: any) => ['active', 'trialing'].includes(s.status));
+      const subsData = company.subscriptions;
+      const activeSubscription = Array.isArray(subsData) 
+        ? subsData.find((s: any) => ['active', 'trialing'].includes(s.status))
+        : (['active', 'trialing'].includes(subsData?.status) ? subsData : null);
       
       const response = {
         ...company,
@@ -362,8 +364,10 @@ export const companyController = {
 
       // 4. Calcula o Plano Ativo (Idêntico ao billingController.status)
       const companyData = companyRes.data || {};
-      const subs = Array.isArray((companyData as any).subscriptions) ? (companyData as any).subscriptions : [];
-      const activeSubscription = subs.find((s: any) => ['active', 'trialing'].includes(s.status));
+      const subsData = (companyData as any).subscriptions;
+      const activeSubscription = Array.isArray(subsData)
+        ? subsData.find((s: any) => ['active', 'trialing'].includes(s.status))
+        : (['active', 'trialing'].includes(subsData?.status) ? subsData : null);
         
       const plan = activeSubscription?.plan || 'free';
       const subscriptionStatus = activeSubscription?.status || 'inactive';

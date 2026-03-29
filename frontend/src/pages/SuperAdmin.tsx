@@ -14,6 +14,7 @@ import {
   Globe 
 } from 'lucide-react';
 import { AppLayout } from '../components/layout/AppLayout';
+import { Logo } from '../components/ui/Logo';
 import { toast } from 'sonner';
 
 interface CompanyStats {
@@ -54,18 +55,18 @@ export default function SuperAdminDashboard() {
     toast.custom((t) => (
       <div className="bg-slate-900 border border-slate-800 p-6 rounded-[2.5rem] shadow-2xl flex flex-col gap-4 max-w-sm animate-in zoom-in-95 duration-200">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-brand-400">
-            <Zap size={24} className="fill-brand-400" />
+          <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-inner">
+            <Zap size={24} className="fill-indigo-400 animate-pulse" />
           </div>
           <div>
             <h4 className="font-bold text-white text-base">Ativar Cortesia PRO</h4>
-            <p className="text-xs text-slate-400 font-medium leading-relaxed">Deseja conceder acesso vitalício para <span className="text-white font-bold">{companyName}</span>?</p>
+            <p className="text-xs text-slate-400 font-medium leading-relaxed">Conceder acesso vitalício para <span className="text-white font-black">{companyName}</span>?</p>
           </div>
         </div>
         
         <div className="flex gap-3">
           <Button 
-            className="flex-1 rounded-2xl h-11 text-xs font-bold bg-indigo-600 text-white border-none hover:bg-indigo-700 transition-all hover:scale-[1.02] shadow-lg shadow-indigo-500/20"
+            className="flex-1 rounded-2xl h-11 text-[11px] font-black uppercase tracking-widest text-white bg-indigo-600 border-none shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all hover:scale-[1.02] flex items-center justify-center"
             onClick={async () => {
               toast.dismiss(t);
               const loadingId = toast.loading("Confirmando upgrade...");
@@ -82,8 +83,8 @@ export default function SuperAdminDashboard() {
             Confirmar Upgrade
           </Button>
           <Button 
-            variant="ghost" 
-            className="flex-1 rounded-2xl h-11 text-xs font-bold text-slate-400 hover:bg-white/5 hover:text-white border border-slate-800"
+            variant="outline" 
+            className="flex-1 rounded-2xl h-11 text-[11px] font-black uppercase tracking-widest text-slate-200 border-white/20 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all shadow-none flex items-center justify-center"
             onClick={() => toast.dismiss(t)}
           >
             Cancelar
@@ -160,11 +161,16 @@ export default function SuperAdminDashboard() {
         </div>
 
         <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-slate-100 bg-slate-50/30">
-            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-indigo-600" />
-              Clientes & Tenâncias
-            </h2>
+          <div className="p-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Logo showText={false} />
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 leading-none">Management</span>
+                <span className="text-xl font-black text-slate-900 tracking-tighter leading-tight italic">
+                  Despesa<span className="text-indigo-600">Go</span> Platform
+                </span>
+              </div>
+            </div>
           </div>
           
           <div className="hidden sm:block overflow-x-auto">

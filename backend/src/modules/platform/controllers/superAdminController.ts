@@ -42,14 +42,15 @@ export const superAdminController = {
 
       // Formata a resposta para facilitar no front
       const formatted = (companies || []).map(c => {
-        const subs = Array.isArray(c.subscriptions) ? c.subscriptions : [];
+        const subs = Array.isArray(c.subscriptions) ? c.subscriptions : (c.subscriptions ? [c.subscriptions] : []);
         const activeSub = subs.find((s: any) => ['active', 'trialing'].includes(s.status)) 
+          || subs.find((s: any) => s.status === 'pending')
           || subs[0];
           
         return {
           ...c,
-          plan: activeSub?.plan || 'free',
-          status: activeSub?.status || 'inactive',
+          plan: activeSub?.plan || c.plan || 'free',
+          status: activeSub?.status || c.status || 'inactive',
           user_count: countMap[c.id] || 0
         };
       });
@@ -93,8 +94,7 @@ export const superAdminController = {
               plan: 'pro', 
               status: 'active',
               users_limit: 100,
-              expenses_limit: 5000,
-              updated_at: new Date().toISOString()
+              expenses_limit: 5000
             })
             .eq('id', (existingSub as any).id),
           supabase

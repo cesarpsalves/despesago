@@ -69,23 +69,58 @@ export default function Subscription() {
     );
   }
 
-  const isPro = data?.plan === 'pro' && data?.status === 'active';
+  const displayPlan = data?.plan === 'platform_admin' ? 'pro' : (data?.plan || 'free');
+  const isActuallyPro = (data?.plan === 'pro' || data?.plan === 'platform_admin') && data?.status === 'active';
   const usagePercent = Math.min(100, (data?.usage?.current / data?.usage?.limit) * 100);
+
+  const PlanCard = ({ plan, active, usage }: any) => (
+    <div className={`p-6 rounded-[2rem] border transition-all duration-300 flex flex-col justify-between ${
+      active ? 'bg-indigo-600 border-indigo-500 text-white shadow-xl shadow-indigo-600/20 scale-[1.02]' : 'bg-white border-slate-100 text-slate-900 opacity-60'
+    }`}>
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <div className={`p-2 rounded-xl ${active ? 'bg-white/20' : 'bg-slate-50'}`}>
+            <Zap size={20} className={active ? 'text-white fill-white' : 'text-slate-400'} />
+          </div>
+          {active && <span className="bg-white/20 text-white text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-white/30 tracking-widest">Plano Atual</span>}
+        </div>
+        <h3 className="text-xl font-black tracking-tight mb-1">{plan === 'pro' ? 'Plano Ilimitado' : 'Plano Gratuito'}</h3>
+        <p className={`text-[10px] font-bold uppercase tracking-widest mb-4 ${active ? 'text-white/70' : 'text-slate-400'}`}>
+          {plan === 'pro' ? 'R$ 97,00 / mês' : 'R$ 0,00 / mês'}
+        </p>
+        <ul className="space-y-2 mb-6 text-xs">
+          <li className="flex items-center gap-2"><CheckCircle2 size={12} className={active ? 'text-emerald-300' : 'text-emerald-500'} /> {plan === 'pro' ? 'Escaneamentos Ilimitados' : '50 Escaneamentos / mês'}</li>
+          <li className="flex items-center gap-2"><CheckCircle2 size={12} className={active ? 'text-emerald-300' : 'text-emerald-500'} /> Insights da IA</li>
+          <li className="flex items-center gap-2"><CheckCircle2 size={12} className={active ? 'text-emerald-300' : 'text-emerald-500'} /> Gestão de Equipe</li>
+        </ul>
+      </div>
+      
+      {!active && (
+        <Button 
+          onClick={() => handleUpgrade('MONTHLY')} 
+          disabled={subscribing}
+          className="w-full h-10 rounded-xl font-black text-[10px] uppercase tracking-widest bg-slate-900 border-none hover:bg-black text-white"
+        >
+          {subscribing ? 'Processando...' : 'Migrar para Pro'}
+        </Button>
+      )}
+    </div>
+  );
 
   return (
     <AppLayout title="Plano e Assinatura">
       <div className="max-w-2xl mx-auto space-y-8 pb-20">
         {/* Header Visual */}
-        <section className="text-center space-y-2">
+        <section className="text-center space-y-2 pt-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold uppercase tracking-widest border border-indigo-100 mb-2"
+            className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-100 mb-2"
           >
             <Zap size={14} className="fill-indigo-500" />
-            Gestão de Assinatura
+            Gestão de Assinatura Premium
           </motion.div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">O controle está em suas mãos.</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">O controle está em suas mãos.</h1>
           <p className="text-slate-500 font-medium">Gerencie seu plano, faturas e limites de uso da IA.</p>
         </section>
 
@@ -94,52 +129,52 @@ export default function Subscription() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className={`relative overflow-hidden p-6 sm:p-10 rounded-2xl sm:rounded-[2.5rem] border transition-all duration-500 ${
-            isPro 
+            isActuallyPro 
               ? 'bg-slate-900 border-slate-800 text-white shadow-2xl shadow-slate-900/20' 
               : 'bg-white border-slate-100 shadow-xl shadow-slate-200/50'
           }`}
         >
           {/* Background Decorative */}
-          <div className={`absolute top-0 right-0 p-12 opacity-5 ${isPro ? 'text-white' : 'text-slate-200'}`}>
+          <div className={`absolute top-0 right-0 p-12 opacity-5 ${isActuallyPro ? 'text-white' : 'text-slate-200'}`}>
             <CreditCard size={180} />
           </div>
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${isPro ? 'text-indigo-400' : 'text-slate-400'}`}>
+                <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${isActuallyPro ? 'text-indigo-400' : 'text-slate-400'}`}>
                   Seu Plano Atual
                 </p>
-                {isPlatformAdmin && (
+                {data?.plan === 'platform_admin' && (
                   <span className="bg-amber-400/20 text-amber-500 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-amber-400/30 tracking-tight">
-                    Plataforma Admin
+                    Acesso Platform
                   </span>
                 )}
               </div>
               <h2 className="text-2xl sm:text-4xl font-black tracking-tighter mb-2">
-                {isPro ? 'Plano Pro Ativo' : 'Plano Gratuito'}
+                {data?.plan === 'platform_admin' ? 'Gerência Plataforma' : (isActuallyPro ? 'Plano Pro Ativo' : 'Plano Gratuito')}
               </h2>
               <div className="flex items-center gap-2">
-                <CheckCircle2 size={16} className={isPro ? 'text-emerald-400' : 'text-slate-300 shrink-0'} />
-                <span className={`text-xs sm:text-sm font-bold ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
-                  {isPro ? 'Renovação automática ativa' : 'Limitado a 50 escaneamentos/mês'}
+                <CheckCircle2 size={16} className={isActuallyPro ? 'text-emerald-400' : 'text-slate-300 shrink-0'} />
+                <span className={`text-xs sm:text-sm font-bold ${isActuallyPro ? 'text-slate-400' : 'text-slate-500'}`}>
+                  {isActuallyPro ? 'Acesso ilimitado liberado' : 'Limitado a 50 escaneamentos/mês'}
                 </span>
               </div>
             </div>
 
             <div className="flex flex-col items-start md:items-end gap-2 text-right">
-              {isPro ? (
+              {isActuallyPro ? (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-2xl">
-                  <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Assinatura Ativa</span>
+                  <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Ativo</span>
                 </div>
               ) : (
                 <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl">
-                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-brand-600 transition-colors">Acesso Free</span>
+                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Free Mode</span>
                 </div>
               )}
-              {data?.current_period_end && isPro && (
-                <p className={`text-[10px] font-bold uppercase tracking-tighter ${isPro ? 'text-slate-500' : 'text-slate-400'}`}>
-                  Próxima fatura: {new Date(data.current_period_end).toLocaleDateString()}
+              {data?.current_period_end && isActuallyPro && (
+                <p className={`text-[10px] font-bold uppercase tracking-tighter ${isActuallyPro ? 'text-slate-500' : 'text-slate-400'}`}>
+                  Próxima renovação: {new Date(data.current_period_end).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -149,14 +184,14 @@ export default function Subscription() {
           <div className="mt-10 pt-8 border-t border-slate-100/10">
             <div className="flex justify-between items-end mb-3">
               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                <Activity size={16} className={isPro ? 'text-indigo-400' : 'text-indigo-600'} />
+                <Activity size={16} className={isActuallyPro ? 'text-indigo-400' : 'text-indigo-600'} />
                 <span>Uso do Mês</span>
               </div>
-              <span className={`text-[10px] font-black tracking-widest ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
+              <span className={`text-[10px] font-black tracking-widest ${isActuallyPro ? 'text-slate-400' : 'text-slate-500'}`}>
                 {data?.usage?.current || 0} / {data?.usage?.limit || 50} ESCANEAMENTOS
               </span>
             </div>
-            <div className={`h-2.5 rounded-full overflow-hidden border ${isPro ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
+            <div className={`h-2.5 rounded-full overflow-hidden border ${isActuallyPro ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'}`}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${usagePercent}%` }}
@@ -198,38 +233,25 @@ export default function Subscription() {
             </div>
           </motion.div>
 
-          {!isPro && (
-            <motion.div
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className={`p-4 sm:p-6 rounded-[2rem] flex items-center justify-between group cursor-pointer transition-all shadow-lg ${
-                subscribing 
-                  ? 'bg-slate-400 cursor-not-allowed opacity-50' 
-                  : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/20 active:scale-95'
-              }`}
-              onClick={() => !subscribing && handleUpgrade('MONTHLY')}
-            >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-white shrink-0 ${subscribing ? 'animate-pulse' : ''}`}>
-                  {subscribing ? (
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <Zap size={18} className="fill-white sm:w-5 sm:h-5" />
-                  )}
-                </div>
-                <div>
-                  <h4 className="font-bold text-white text-sm sm:text-base leading-tight">
-                    {subscribing ? 'Processando...' : 'Seja Ilimitado'}
-                  </h4>
-                  <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest">
-                    {subscribing ? 'Gerando Link...' : 'Assinar Plano Pro'}
-                  </p>
-                </div>
-              </div>
-              {!subscribing && <ArrowRight size={18} className="text-white opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all sm:w-5 sm:h-5" />}
-            </motion.div>
-          )}
+        {!isActuallyPro && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid gap-6 md:grid-cols-2"
+          >
+            <PlanCard 
+              plan="free" 
+              active={true} 
+              usage={data?.usage?.current || 0} 
+            />
+            <PlanCard 
+              plan="pro" 
+              active={false} 
+              usage={0} 
+            />
+          </motion.div>
+        )}
         </section>
 
         {/* Footer info */}

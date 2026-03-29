@@ -127,14 +127,16 @@ export default function AdminDashboard() {
             <ShieldCheck size={24} className="animate-pulse" />
           </div>
           <div className="flex-1">
-            <p className="font-black text-xs uppercase tracking-widest text-brand-400 mb-0.5">Acesso Negócio (Platform Admin)</p>
-            <p className="font-bold text-sm text-slate-100 italic opacity-90">Visualizando esta empresa com privilégios de gestão total.</p>
+            <p className="font-black text-[10px] uppercase tracking-[0.2em] text-indigo-400 mb-0.5">
+              Despesa<span className="text-white">Go</span> Platform
+            </p>
+            <p className="font-bold text-sm text-slate-100 italic opacity-90 leading-tight">Gestão Global: Visualizando com privilégios de administrador.</p>
           </div>
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
             onClick={() => navigate('/platform')}
-            className="hidden sm:flex text-slate-400 hover:text-white hover:bg-white/10 rounded-xl px-4 font-bold text-xs"
+            className="hidden sm:flex text-slate-900 border-white/20 bg-white hover:bg-indigo-50 hover:text-indigo-700 rounded-xl px-5 h-10 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-black/20"
           >
             Voltar à Gestão
           </Button>
@@ -144,33 +146,33 @@ export default function AdminDashboard() {
       {/* Header de Boas-Vindas */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">
-            Painel da Empresa 👋
+          <h1 className="text-2xl font-black text-slate-900 mb-1 tracking-tight">
+            Despesa<span className="text-indigo-600">Go</span> Gestão 👋
           </h1>
           <p className="text-slate-500 font-medium text-sm">
-            Gerenciando: <span className="text-slate-900 font-bold">{company?.name || 'sua empresa'}</span>
+            Controlando: <span className="text-slate-900 font-bold">{company?.name || 'sua empresa'}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
           <div className={`px-4 py-2 rounded-2xl flex items-center gap-2.5 shadow-sm transition-all duration-500 ${
-            company?.plan === 'pro' && company?.subscriptionStatus === 'active'
+            (company?.plan === 'pro' || company?.plan === 'platform_admin') && company?.subscriptionStatus === 'active'
               ? 'bg-indigo-50 border border-indigo-100' 
               : 'bg-slate-50 border border-slate-200'
           }`}>
             <div className={`w-2 h-2 rounded-full ${
-              company?.plan === 'pro' && company?.subscriptionStatus === 'active'
+              (company?.plan === 'pro' || company?.plan === 'platform_admin') && company?.subscriptionStatus === 'active'
                 ? 'bg-indigo-500 animate-pulse shadow-[0_0_8px_rgba(79,70,229,0.5)]' 
                 : 'bg-slate-300'
             }`} />
             <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${
-              company?.plan === 'pro' && company?.subscriptionStatus === 'active'
+              company?.plan === 'pro'
                 ? 'text-indigo-700' 
                 : 'text-slate-500'
             }`}>
-              {company?.plan === 'pro' && company?.subscriptionStatus === 'active' ? 'Status: Pro Ativo' : 'Status: Plano Free'}
+              {company?.plan === 'pro' ? 'Status: Pro Ativo' : 'Status: Plano Free'}
             </span>
           </div>
-          {(!(company?.plan === 'pro' && company?.subscriptionStatus === 'active')) && (
+          {(!(company?.plan === 'pro' || company?.plan === 'platform_admin')) && (
             <Button size="sm" onClick={() => navigate('/app/subscription')} className="font-bold shadow-lg shadow-indigo-500/20 bg-indigo-600 hover:bg-indigo-700 border-none text-white">
               Upgrade para Pro
             </Button>
