@@ -4,8 +4,13 @@ import { supabase } from '../services/supabase.js';
 import axios from 'axios';
 import { AuthContext } from './AuthContext';
 
-// Configuração do axios global para usar o proxy do Vite no desenvolvimento local
-axios.defaults.baseURL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || '/api');
+// Configuração do axios global. Em produção sem VITE_API_URL, usamos '/api' relativo (melhor p/ Traefik/Nginx)
+const API_BASE_URL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || '/api');
+axios.defaults.baseURL = API_BASE_URL;
+
+if (!import.meta.env.DEV) {
+  console.log(`[DespesaGo] API ativa em: ${API_BASE_URL === '/api' ? window.location.origin + '/api' : API_BASE_URL}`);
+}
 
 // Interceptor global para garantir que o Token de Autenticação esteja em TODAS as chamadas
 axios.interceptors.request.use(async (config) => {
@@ -33,7 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Agora usamos nossa API centralizada que consulta o esquema correto (app_expense_b2b)
       // e retorna todos os metadados necessários de uma vez.
-      const res = await axios.get('/auth/me');
+      // Adicionamos um timeout de 10s para evitar que o app fique pendurado no Carregando
+      const res = await axios.get('/auth/me', { timeout: 10000 });
       const data = res.data;
 
       if (data) {
