@@ -114,9 +114,9 @@ export default function Landing() {
           initial={{ opacity: 0, y: 60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="max-w-5xl mx-auto mt-20 sm:mt-32 px-4"
+          className="max-w-5xl mx-auto mt-16 sm:mt-32 px-4 sm:px-6"
         >
-          <div className="relative p-3 rounded-[32px] bg-[#F5F5F7] shadow-soft border border-[#EBEBEB]">
+          <div className="relative p-2 sm:p-3 rounded-[32px] bg-[#F5F5F7] shadow-soft border border-[#EBEBEB]">
             <OCRDemo />
           </div>
         </motion.div>
@@ -239,34 +239,37 @@ function OCRDemo() {
   }, []);
 
   return (
-    <div className="w-full bg-white rounded-[24px] overflow-hidden flex flex-col md:flex-row min-h-[480px]">
-      <div className="w-full md:w-1/2 p-12 flex items-center justify-center bg-[#F5F5F7] relative">
+    <div className="w-full bg-white rounded-[24px] overflow-hidden flex flex-col md:flex-row min-h-[440px] md:min-h-[480px]">
+      <div className="w-full md:w-1/2 p-6 sm:p-12 flex items-center justify-center bg-[#F5F5F7] relative overflow-hidden">
         <motion.div 
-          className="bg-white p-8 rounded-xl shadow-premium w-full max-w-[280px] relative font-mono text-[11px] text-[#1D1D1F] border border-[#EBEBEB] rotate-[-1deg]"
+          className="bg-white p-6 sm:p-8 rounded-sm shadow-premium w-full max-w-[260px] sm:max-w-[280px] relative font-mono text-[10px] sm:text-[11px] text-[#1D1D1F] border-x border-t border-[#EBEBEB] rotate-[-0.5deg] mb-4"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <div className="text-center font-bold text-sm mb-6 border-b border-dashed border-[#EBEBEB] pb-4 uppercase">
-            RESTAURANTE PREMIUM <br/><span className="text-[9px] text-[#86868B] font-sans">CNPJ 12.345.678/0001-90</span>
+          {/* Efeito de papel serrilhado no rodapé */}
+          <div className="absolute left-[-1px] right-[-1px] bottom-[-10px] h-3 bg-white" style={{ clipPath: 'polygon(0% 0%, 5% 100%, 10% 0%, 15% 100%, 20% 0%, 25% 100%, 30% 0%, 35% 100%, 40% 0%, 45% 100%, 50% 0%, 55% 100%, 60% 0%, 65% 100%, 70% 0%, 75% 100%, 80% 0%, 85% 100%, 90% 0%, 95% 100%, 100% 0%)' }} />
+          
+          <div className="text-center font-bold text-xs sm:text-sm mb-6 border-b border-dashed border-[#EBEBEB] pb-4 uppercase">
+            RESTAURANTE PREMIUM <br/><span className="text-[8px] sm:text-[9px] text-[#86868B] font-sans">CNPJ 12.345.678/0001-90</span>
           </div>
-          <div className="flex justify-between mb-2"><span>CAFÉ EXPRESSO</span><span>R$ 12,00</span></div>
-          <div className="flex justify-between mb-6 border-b border-dashed border-[#EBEBEB] pb-4"><span>CROISSANT</span><span>R$ 18,00</span></div>
-          <div className="flex justify-between text-base font-bold mb-4 font-sans tracking-tight"><span>TOTAL</span><span>R$ 30,00</span></div>
-          <div className="text-[9px] text-center text-[#86868B] font-sans">27/03/2026 - 09:42:00</div>
+          <div className="flex justify-between mb-2"><span>CAFÉ EXPRESSO</span><span className="shrink-0 ml-2">R$ 12,00</span></div>
+          <div className="flex justify-between mb-6 border-b border-dashed border-[#EBEBEB] pb-4"><span>CROISSANT</span><span className="shrink-0 ml-2">R$ 18,00</span></div>
+          <div className="flex justify-between text-sm sm:text-base font-bold mb-4 font-sans tracking-tight"><span>TOTAL</span><span className="shrink-0 ml-2">R$ 30,00</span></div>
+          <div className="text-[8px] sm:text-[9px] text-center text-[#86868B] font-sans mb-2">27/03/2026 - 09:42:00</div>
 
           <AnimatePresence>
             {step === 1 && (
               <motion.div
                 initial={{ top: 0, opacity: 0 }}
                 animate={{ top: "100%", opacity: [0, 1, 1, 0] }}
-                className="absolute left-0 right-0 h-[4px] bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] z-10"
+                className="absolute left-0 right-0 h-[3px] bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] z-10"
               />
             )}
           </AnimatePresence>
         </motion.div>
       </div>
 
-      <div className="w-full md:w-1/2 p-12 flex flex-col justify-center border-t md:border-t-0 md:border-l border-[#EBEBEB]">
+      <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center border-t md:border-t-0 md:border-l border-[#EBEBEB] bg-white">
         <div className="flex items-center gap-3 mb-10">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-100">
             <Sparkles className="w-5 h-5 text-emerald-600" />

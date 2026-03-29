@@ -73,38 +73,38 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
         {children}
       </main>
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-2xl border-t border-[#F5F5F7] z-[60] pb-safe-offset-4 shadow-top-premium">
-        <div className="flex justify-around items-center h-22 px-6 max-w-lg mx-auto relative">
+      {/* Bottom Navigation (Mobile) - Ajustado para não sair da tela em 21:9 */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-2xl border-t border-[#F5F5F7] z-[60] safe-bottom shadow-top-premium">
+        <div className="flex justify-around items-center h-20 px-4 max-w-lg mx-auto relative">
           <button 
-            onClick={() => navigate('/')}
-            className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname === '/' ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}
+            onClick={() => navigate('/app')}
+            className={`flex flex-col items-center gap-1 transition-all flex-1 ${location.pathname === '/app' ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}
           >
-            <div className={`p-2.5 rounded-[14px] transition-all ${location.pathname === '/' ? 'bg-[#1D1D1F] text-white shadow-premium-dark scale-110' : 'hover:bg-[#F5F5F7]'}`}>
-              <LayoutDashboard size={20} />
+            <div className={`p-2.5 rounded-[14px] transition-all ${location.pathname === '/app' ? 'bg-[#1D1D1F] text-white shadow-premium-dark scale-105' : 'hover:bg-[#F5F5F7]'}`}>
+              <LayoutDashboard size={18} />
             </div>
-            <span className="text-[9px] font-bold uppercase tracking-[0.15em] mt-0.5">Painel</span>
+            <span className="text-[8px] font-bold uppercase tracking-[0.1em] mt-0.5">Painel</span>
           </button>
 
-          <div className="flex items-center justify-center -mt-12 relative">
+          <div className="flex items-center justify-center -mt-8 relative flex-1">
             <button 
-              onClick={() => navigate('/?view=scanner')}
-              className="w-18 h-18 bg-[#1D1D1F] rounded-[28px] text-white flex items-center justify-center shadow-premium-dark border-[6px] border-white active:scale-90 transition-all group overflow-hidden"
+              onClick={() => navigate('/app?view=scanner')}
+              className="w-16 h-16 bg-[#1D1D1F] rounded-[24px] text-white flex items-center justify-center shadow-premium-dark border-[4px] border-white active:scale-95 transition-all group overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <Camera size={28} className="relative z-10 group-active:scale-110 transition-transform" />
+              <Camera size={24} className="relative z-10 group-active:scale-110 transition-transform" />
             </button>
-            <span className="absolute -bottom-7 text-[9px] font-black text-[#1D1D1F] uppercase tracking-[0.2em] whitespace-nowrap bg-white/50 px-3 py-1 rounded-full backdrop-blur-md">Escanear</span>
+            <span className="absolute -bottom-6 text-[8px] font-black text-[#1D1D1F] uppercase tracking-[0.15em] whitespace-nowrap bg-white/30 px-2 py-0.5 rounded-full backdrop-blur-sm">Escanear</span>
           </div>
 
           <button 
             onClick={() => navigate('/app/subscription')}
-            className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname === '/app/subscription' ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}
+            className={`flex flex-col items-center gap-1 transition-all flex-1 ${location.pathname === '/app/subscription' ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}
           >
-            <div className={`p-2.5 rounded-[14px] transition-all ${location.pathname === '/app/subscription' ? 'bg-[#1D1D1F] text-white shadow-premium-dark scale-110' : 'hover:bg-[#F5F5F7]'}`}>
-              <CreditCard size={20} />
+            <div className={`p-2.5 rounded-[14px] transition-all ${location.pathname === '/app/subscription' ? 'bg-[#1D1D1F] text-white shadow-premium-dark scale-105' : 'hover:bg-[#F5F5F7]'}`}>
+              <CreditCard size={18} />
             </div>
-            <span className="text-[9px] font-bold uppercase tracking-[0.15em] mt-0.5">Plano</span>
+            <span className="text-[8px] font-bold uppercase tracking-[0.1em] mt-0.5">Plano</span>
           </button>
         </div>
       </nav>

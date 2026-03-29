@@ -212,18 +212,18 @@ export default function AdminDashboard() {
           </form>
         </div>
 
-        <div className="bg-white p-6 sm:p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
-              <Sparkles size={24} />
+        <div className="bg-white p-5 sm:p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all">
+          <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 shrink-0">
+              <Sparkles size={20} />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest leading-none mb-1">Uso de IA</p>
-              <h3 className="font-bold text-[#1D1D1F] text-sm">Escaneamento</h3>
+              <h3 className="font-bold text-[#1D1D1F] text-xs sm:text-sm">Escaneamento</h3>
             </div>
           </div>
           <div className="space-y-3">
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
+            <div className="flex justify-between text-[9px] sm:text-[10px] font-bold uppercase tracking-widest">
               <span className="text-[#86868B]">Consumido</span>
               <span className="text-[#1D1D1F]">{stats?.consumedCount || 0} / {stats?.limit || 50}</span>
             </div>
@@ -260,22 +260,22 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-6 shrink-0 ml-auto">
                   {/* Info Group: Setor e Role */}
-                  <div className="flex flex-col items-end gap-1.5 min-w-[70px]">
+                  <div className="flex flex-col items-end gap-1 min-w-[60px] sm:min-w-[70px]">
                     <button 
                       onClick={() => { setSelectedMember(member); setIsTransferModalOpen(true); }}
-                      className="text-[8px] sm:text-[9px] font-black text-[#86868B] uppercase tracking-[0.15em] hover:text-[#1D1D1F] transition-all flex items-center gap-1 px-2 py-1 bg-[#F5F5F7]/50 hover:bg-[#F5F5F7] rounded-lg border border-transparent hover:border-[#EBEBEB] shadow-sm"
+                      className="text-[8px] font-black text-[#86868B] uppercase tracking-[0.1em] hover:text-[#1D1D1F] transition-all flex items-center gap-1 px-1.5 py-0.5 bg-[#F5F5F7]/50 hover:bg-[#F5F5F7] rounded-md border border-[#F5F5F7] hover:border-[#EBEBEB]"
                     >
-                      <LayoutDashboard size={10} className="text-emerald-500" />
-                      <span className="truncate max-w-[60px] sm:max-w-none">
+                      <LayoutDashboard size={8} className="text-emerald-500" />
+                      <span className="truncate max-w-[50px] sm:max-w-none">
                         {costCenters.find(cc => cc.id === member.cost_center_id)?.name || 'Geral'}
                       </span>
                     </button>
                     
-                    <span className={`px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-[0.1em] border transition-all ${
+                    <span className={`px-1.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-[0.05em] border transition-all ${
                       member.role === 'admin' 
-                        ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-sm' 
+                        ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' 
                         : 'bg-white text-[#86868B] border-[#EBEBEB]'
                     }`}>
                       {member.role === 'admin' ? 'Admin' : 'Membro'}
@@ -422,19 +422,19 @@ export default function AdminDashboard() {
 
 function StatCard({ icon: Icon, label, value, sublabel, color = 'dark' }: any) {
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all group">
-      <div className="flex items-center gap-4 mb-4 sm:mb-6">
+    <div className="bg-white p-5 sm:p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all group overflow-hidden">
+      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shrink-0 ${
           color === 'emerald' ? 'bg-emerald-50 text-emerald-500' : 'bg-[#F5F5F7] text-[#1D1D1F]'
         }`}>
-          <Icon size={window.innerWidth < 640 ? 20 : 24} />
+          <Icon size={18} />
         </div>
-        <div>
-          <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest leading-none mb-1">{label}</p>
-          <p className="text-xs text-[#86868B] font-medium">{sublabel}</p>
+        <div className="min-w-0">
+          <p className="text-[9px] sm:text-[10px] font-bold text-[#86868B] uppercase tracking-widest leading-none mb-1">{label}</p>
+          <p className="text-[10px] sm:text-xs text-[#86868B] font-medium truncate">{sublabel}</p>
         </div>
       </div>
-      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1D1D1F]">{value}</p>
+      <p className="text-xl sm:text-3xl font-bold tracking-tight text-[#1D1D1F] truncate break-all">{value}</p>
     </div>
   );
 }
