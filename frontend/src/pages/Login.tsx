@@ -4,6 +4,7 @@ import { Mail, ArrowRight, Lock, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
 import { Logo } from '../components/ui/Logo';
+import { SEO } from '../components/SEO';
 import { toast } from 'sonner';
 import { Turnstile } from '@marsidev/react-turnstile';
 
@@ -65,6 +66,8 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50/20 via-transparent to-transparent">
+      <SEO title="Entrar" description="Acesse sua conta profissional no DespesaGo para gerenciar suas despesas corporativas." />
+
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

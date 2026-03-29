@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import AdminDashboard from "../components/AdminDashboard.tsx";
 import { AppLayout } from "../components/layout/AppLayout.tsx";
 import { EmployeeScanner } from "../components/scanner/EmployeeScanner.tsx";
+import { SEO } from "../components/SEO.tsx";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, LayoutDashboard, ChevronLeft } from "lucide-react";
 
@@ -25,6 +26,7 @@ export default function Home() {
 
   return (
     <AppLayout>
+      <SEO title={activeView === 'scanner' ? 'Escanear Recibo' : 'Painel de Controle'} description="Gestão de despesas em tempo real." />
       <div className="relative min-h-[calc(100vh-12rem)]">
         <AnimatePresence mode="wait">
           {activeView === 'scanner' ? (

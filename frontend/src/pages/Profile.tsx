@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { User, Lock, Save, ChevronLeft, Mail, Building, Bell, ShieldCheck } from 'lucide-react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { Button } from '../components/ui/Button';
+import { SEO } from '../components/SEO';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -80,6 +81,8 @@ export default function Profile() {
 
   return (
     <AppLayout title="Configurações">
+      <SEO title="Meu Perfil" description="Gerencie suas informações de perfil e segurança no DespesaGo." />
+
       <div className="max-w-[1200px] mx-auto px-6 pt-10 pb-24">
         <motion.button 
           initial={{ opacity: 0, x: -10 }}

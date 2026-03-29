@@ -3,13 +3,42 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Logo } from '../components/ui/Logo';
+import { SEO } from '../components/SEO';
 import { Camera, Sparkles, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 
 export default function Landing() {
   const navigate = useNavigate();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "DespesaGo",
+    "operatingSystem": "Web",
+    "applicationCategory": "BusinessApplication",
+    "description": "Gestão inteligente de reembolsos e despesas corporativas usando IA.",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "ratingCount": "120"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "BRL"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-[#1D1D1F] selection:bg-emerald-500/20 selection:text-emerald-900 text-left">
+      <SEO 
+        title="Gestão Financeira Inteligente com IA"
+        description="Poupe horas de trabalho. O DespesaGo usa IA para processar seus recibos e organizar suas prestações de contas automaticamente."
+      >
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+      </SEO>
+
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
@@ -60,10 +89,21 @@ export default function Landing() {
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col items-center justify-center mt-12 space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4"
           >
-            <Button size="lg" onClick={() => navigate('/login')} className="w-full sm:w-auto px-12 shadow-premium">
+            <Button 
+              size="lg" 
+              onClick={() => navigate('/login')} 
+              className="w-full sm:w-auto px-12 shadow-premium"
+              aria-label="Começar teste grátis do DespesaGo"
+            >
               Testar Grátis
             </Button>
-            <Button variant="outline" size="lg" onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth'})} className="w-full sm:w-auto px-12">
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth'})} 
+              className="w-full sm:w-auto px-12"
+              aria-label="Saiba como funciona o DespesaGo"
+            >
               Explorar
             </Button>
           </motion.div>

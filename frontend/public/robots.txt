@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /app/
+Disallow: /platform/
+Disallow: /onboarding/
 
 Sitemap: https://despesago.com.br/sitemap.xml
