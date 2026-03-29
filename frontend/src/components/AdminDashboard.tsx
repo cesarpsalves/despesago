@@ -249,45 +249,51 @@ export default function AdminDashboard() {
           </div>
           <div className="divide-y divide-[#F5F5F7]">
             {members.slice(0, 5).map((member) => (
-              <div key={member.id} className="px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-colors group gap-3">
+              <div key={member.id} className="px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-colors group gap-4 md:gap-6">
                 <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#F5F5F7] flex items-center justify-center text-sm font-bold text-[#1D1D1F] border border-[#EBEBEB] shrink-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#F5F5F7] flex items-center justify-center text-sm font-bold text-[#1D1D1F] border border-[#EBEBEB] shrink-0 transform group-hover:scale-110 transition-transform">
                     {member.display_name?.[0] || member.email[0].toUpperCase()}
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-[#1D1D1F] text-sm truncate">{member.display_name || 'Membro'}</p>
-                    <p className="text-[10px] text-[#86868B] font-medium truncate">{member.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-[#1D1D1F] text-sm truncate leading-tight mb-0.5">{member.display_name || 'Membro'}</p>
+                    <p className="text-[10px] text-[#86868B] font-medium truncate opacity-80">{member.email}</p>
                   </div>
                 </div>
+                
                 <div className="flex items-center gap-3 sm:gap-6 shrink-0">
-                  {/* Status & Actions Group */}
-                  <div className="flex items-center gap-2 sm:gap-4">
-                    <div className="flex flex-col items-end">
-                      <button 
-                        onClick={() => { setSelectedMember(member); setIsTransferModalOpen(true); }}
-                        className="text-[9px] font-bold text-[#86868B] uppercase tracking-[0.1em] hover:text-[#1D1D1F] transition-all flex items-center gap-1.5 mb-1 px-1.5 py-0.5 hover:bg-[#F5F5F7] rounded-lg border border-transparent hover:border-[#EBEBEB]"
-                      >
-                        <LayoutDashboard size={10} />
-                        <span className="hidden xs:inline">{costCenters.find(cc => cc.id === member.cost_center_id)?.name || 'Geral'}</span>
-                        <span className="xs:hidden">Setor</span>
-                      </button>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-all ${
-                        member.role === 'admin' 
-                          ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-sm' 
-                          : 'bg-[#F5F5F7] text-[#86868B] border-transparent'
-                      }`}>
-                        {member.role === 'admin' ? 'Admin' : 'Membro'}
-                      </span>
-                    </div>
-                    
+                  {/* Info Group: Setor e Role */}
+                  <div className="flex flex-col items-end gap-1.5 min-w-[70px]">
                     <button 
-                      onClick={() => handleToggleAdmin(member)} 
-                      className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-[#D2D2D7] hover:text-[#1D1D1F] hover:bg-[#F5F5F7] border border-transparent hover:border-[#EBEBEB] transition-all"
-                      title={member.role === 'admin' ? "Remover Admin" : "Tornar Admin"}
+                      onClick={() => { setSelectedMember(member); setIsTransferModalOpen(true); }}
+                      className="text-[8px] sm:text-[9px] font-black text-[#86868B] uppercase tracking-[0.15em] hover:text-[#1D1D1F] transition-all flex items-center gap-1 px-2 py-1 bg-[#F5F5F7]/50 hover:bg-[#F5F5F7] rounded-lg border border-transparent hover:border-[#EBEBEB] shadow-sm"
                     >
-                      <ShieldCheck size={18} className={member.role === 'admin' ? "text-emerald-500" : ""} />
+                      <LayoutDashboard size={10} className="text-emerald-500" />
+                      <span className="truncate max-w-[60px] sm:max-w-none">
+                        {costCenters.find(cc => cc.id === member.cost_center_id)?.name || 'Geral'}
+                      </span>
                     </button>
+                    
+                    <span className={`px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-[0.1em] border transition-all ${
+                      member.role === 'admin' 
+                        ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-sm' 
+                        : 'bg-white text-[#86868B] border-[#EBEBEB]'
+                    }`}>
+                      {member.role === 'admin' ? 'Admin' : 'Membro'}
+                    </span>
                   </div>
+                  
+                  {/* Quick Action Button */}
+                  <button 
+                    onClick={() => handleToggleAdmin(member)} 
+                    className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all border ${
+                      member.role === 'admin'
+                        ? 'bg-emerald-50 border-emerald-100 text-emerald-600 shadow-sm'
+                        : 'bg-white border-[#EBEBEB] text-[#D2D2D7] hover:text-[#1D1D1F] hover:bg-[#F5F5F7] shadow-sm'
+                    }`}
+                    title={member.role === 'admin' ? "Remover Admin" : "Tornar Admin"}
+                  >
+                    <ShieldCheck size={18} strokeWidth={2.5} />
+                  </button>
                 </div>
               </div>
             ))}

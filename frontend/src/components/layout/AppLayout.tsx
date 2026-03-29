@@ -1,5 +1,5 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { LogOut, User, Shield, Home, Camera, CreditCard } from 'lucide-react';
+import { LogOut, LayoutDashboard, Shield, Camera, CreditCard, User } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Logo } from '../ui/Logo';
 import { motion } from 'framer-motion';
@@ -69,48 +69,42 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
       </header>
 
       {/* Main Content Area - Padding otimizado para não 'achatar' em landscape ou telas curtas */}
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-32 md:pb-12 max-w-7xl mx-auto w-full">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-44 md:pb-12 max-w-7xl mx-auto w-full transition-all duration-300">
         {children}
       </main>
 
-      {/* Bottom Navigation (Mobile Only) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[60] glass border-t border-[#EBEBEB] pb-[env(safe-area-inset-bottom)] md:hidden">
-        <div className="flex items-center justify-around h-20 max-w-lg mx-auto px-4">
+      {/* Bottom Navigation (Mobile) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-2xl border-t border-[#F5F5F7] z-[60] pb-safe-offset-4 shadow-top-premium">
+        <div className="flex justify-around items-center h-22 px-6 max-w-lg mx-auto relative">
           <button 
-            onClick={() => navigate('/app')}
-            className={`flex flex-col items-center justify-center flex-1 h-full active:scale-90 transition-all gap-1 ${
-              isActive('/app') ? 'text-[#1D1D1F]' : 'text-[#86868B]'
-            }`}
+            onClick={() => navigate('/')}
+            className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname === '/' ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}
           >
-            <div className={`p-2 rounded-xl transition-all ${isActive('/app') ? 'bg-[#1D1D1F]/5' : ''}`}>
-              <Home size={20} strokeWidth={isActive('/app') ? 2.5 : 2} />
+            <div className={`p-2.5 rounded-[14px] transition-all ${location.pathname === '/' ? 'bg-[#1D1D1F] text-white shadow-premium-dark scale-110' : 'hover:bg-[#F5F5F7]'}`}>
+              <LayoutDashboard size={20} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-tight">Painel</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] mt-0.5">Painel</span>
           </button>
-          
-          {/* Central Button: Scan - Robust Implementation */}
-          <div className="flex-1 flex justify-center -mt-10 relative">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-[#1D1D1F] text-white rounded-2xl shadow-premium border-[4px] border-[#F5F5F7] z-10"
-              onClick={() => navigate('/app?view=scanner&trigger=true')}
+
+          <div className="flex items-center justify-center -mt-12 relative">
+            <button 
+              onClick={() => navigate('/?view=scanner')}
+              className="w-18 h-18 bg-[#1D1D1F] rounded-[28px] text-white flex items-center justify-center shadow-premium-dark border-[6px] border-white active:scale-90 transition-all group overflow-hidden"
             >
-              <Camera size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
-            </motion.button>
-            <span className="absolute -bottom-10 text-[9px] font-bold text-[#86868B] uppercase tracking-wider whitespace-nowrap">Escanear</span>
+              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Camera size={28} className="relative z-10 group-active:scale-110 transition-transform" />
+            </button>
+            <span className="absolute -bottom-7 text-[9px] font-black text-[#1D1D1F] uppercase tracking-[0.2em] whitespace-nowrap bg-white/50 px-3 py-1 rounded-full backdrop-blur-md">Escanear</span>
           </div>
 
           <button 
-            onClick={() => navigate('/app/profile')}
-            className={`flex flex-col items-center justify-center flex-1 h-full active:scale-95 transition-all gap-1 ${
-              isActive('/app/profile') ? 'text-[#1D1D1F]' : 'text-[#86868B]'
-            }`}
+            onClick={() => navigate('/app/subscription')}
+            className={`flex flex-col items-center gap-1.5 transition-all ${location.pathname === '/app/subscription' ? 'text-[#1D1D1F]' : 'text-[#86868B]'}`}
           >
-            <div className={`p-2 rounded-xl transition-all ${isActive('/app/profile') ? 'bg-[#1D1D1F]/5' : ''}`}>
-              <User size={20} strokeWidth={isActive('/app/profile') ? 2.5 : 2} />
+            <div className={`p-2.5 rounded-[14px] transition-all ${location.pathname === '/app/subscription' ? 'bg-[#1D1D1F] text-white shadow-premium-dark scale-110' : 'hover:bg-[#F5F5F7]'}`}>
+              <CreditCard size={20} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-tight">Conta</span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em] mt-0.5">Plano</span>
           </button>
         </div>
       </nav>

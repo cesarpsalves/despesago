@@ -128,19 +128,19 @@ export function EmployeeScanner() {
               key="interaction"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="relative aspect-square sm:aspect-video bg-white rounded-[32px] border-2 border-dashed border-[#EBEBEB] group hover:border-[#1D1D1F] transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
+              className="relative aspect-[4/5] sm:aspect-video bg-white rounded-[32px] border-2 border-dashed border-[#EBEBEB] group hover:border-[#1D1D1F] transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
               onClick={() => fileInputRef.current?.click()}
             >
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-8 text-center pointer-events-none">
-                <div className="w-20 h-20 bg-[#F5F5F7] rounded-[24px] flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-[#EBEBEB] group-hover:border-[#D2D2D7]">
-                  <Camera size={32} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-10 text-center pointer-events-none">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#F5F5F7] rounded-[28px] flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-[#EBEBEB] group-hover:border-[#D2D2D7] shadow-sm">
+                  <Camera size={window.innerWidth < 640 ? 32 : 40} />
                 </div>
-                <h3 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Toque para Escanear</h3>
-                <p className="text-sm text-[#86868B] max-w-[260px] mt-2 font-medium">Capture ou selecione a foto do recibo para processar automaticamente.</p>
+                <h3 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tracking-tight px-4">Toque para Escanear</h3>
+                <p className="text-sm text-[#86868B] max-w-[240px] mt-3 font-medium leading-relaxed">Capture ou selecione a foto do recibo para processar automaticamente.</p>
               </div>
               
               <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <span className="text-[10px] font-bold text-[#1D1D1F] uppercase tracking-[0.4em]">IA Pronta</span>
+                <span className="text-[10px] font-black text-[#1D1D1F] uppercase tracking-[0.4em] bg-white/80 px-4 py-1.5 rounded-full backdrop-blur-sm">IA Pronta</span>
               </div>
             </motion.div>
           )}

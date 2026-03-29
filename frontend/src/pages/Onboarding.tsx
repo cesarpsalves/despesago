@@ -12,15 +12,15 @@ import axios from 'axios';
 export default function Onboarding() {
   const [companyName, setCompanyName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user, signOut, checkCompanyStatus } = useAuth();
+  const { user, signOut, checkCompanyStatus, requireOnboarding, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Se o usuário já tiver empresa, redireciona para o app
   useEffect(() => {
-    if (user?.user_metadata?.company_id) {
+    if (!authLoading && !requireOnboarding && user) {
       navigate('/app', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, requireOnboarding, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,13 +59,13 @@ export default function Onboarding() {
         </Button>
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-start sm:justify-center p-6 sm:p-10 pt-24 sm:pt-0 w-full max-w-7xl mx-auto">
+      <div className="flex-1 flex flex-col items-center justify-start sm:justify-center p-5 sm:p-10 pt-20 sm:pt-0 w-full max-w-7xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-lg"
+          className="w-full max-w-lg px-1 sm:px-0"
         >
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 md:mb-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
               <Zap size={12} fill="currentColor" />
               Configuração Final
@@ -80,7 +80,7 @@ export default function Onboarding() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white p-8 md:p-10 rounded-[40px] shadow-premium border border-[#EBEBEB] relative overflow-hidden"
+            className="bg-white p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-premium border border-[#EBEBEB] relative overflow-hidden"
           >
             {/* Decoração sutil de fundo */}
             <div className="absolute top-0 right-0 p-8 text-emerald-50/50 -mr-8 -mt-8">

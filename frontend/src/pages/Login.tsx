@@ -86,13 +86,13 @@ export default function Login() {
         </Button>
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-start sm:justify-center p-6 sm:p-10 pt-24 sm:pt-0 w-full max-w-7xl mx-auto">
+      <div className="flex-1 flex flex-col items-center justify-start sm:justify-center p-5 sm:p-10 pt-20 sm:pt-0 w-full max-w-7xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm"
+          className="w-full max-w-sm px-1 sm:px-0"
         >
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <h1 className="text-3xl font-extrabold text-[#1D1D1F] tracking-tight mb-2">Acessar Conta</h1>
             <p className="text-sm text-[#86868B] font-medium uppercase tracking-widest">DespesaGo Business</p>
           </div>
