@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { HelmetProvider } from 'react-helmet-async';
 import Login from '../pages/Login';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
@@ -18,30 +19,34 @@ vi.mock('@supabase/supabase-js', () => ({
 describe('Login Authentication Flow', () => {
   it('Should render the login form correctly', () => {
     render(
-      <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
-      </BrowserRouter>
+      <HelmetProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </BrowserRouter>
+      </HelmetProvider>
     );
     
-    expect(screen.getByText('Acesse sua conta')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('voce@suaempresa.com')).toBeInTheDocument();
+    expect(screen.getByText('Acessar Conta')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('nome@suaempresa.com')).toBeInTheDocument();
   });
 
   it('Should show error on empty submission', async () => {
     render(
-      <BrowserRouter>
-        <AuthProvider>
-          <Login />
-        </AuthProvider>
-      </BrowserRouter>
+      <HelmetProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <Login />
+          </AuthProvider>
+        </BrowserRouter>
+      </HelmetProvider>
     );
 
-    const submitBtn = screen.getByRole('button', { name: /Receber Link Mágico/i });
+    const submitBtn = screen.getByRole('button', { name: /Receber Acesso Mágico/i });
     fireEvent.click(submitBtn);
 
-    const input = screen.getByPlaceholderText('voce@suaempresa.com');
+    const input = screen.getByPlaceholderText('nome@suaempresa.com');
     expect(input).toBeRequired();
   });
 });

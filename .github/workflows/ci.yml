@@ -23,6 +23,8 @@ jobs:
       - name: Run Backend Tests
         run: cd backend && npm test
         env:
+          SUPABASE_URL: "https://mock.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: "mock-service-role-key"
           VITE_SUPABASE_URL: "https://mock.supabase.co"
           VITE_SUPABASE_ANON_KEY: "mock-anon-key"
 

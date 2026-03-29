@@ -22,13 +22,13 @@ vi.mock('../shared/db/supabaseClient.js', () => ({
 
 describe('Backend API Integration', () => {
   it('GET /expenses - Should fail without auth', async () => {
-    const response = await request(app).get('/expenses');
+    const response = await request(app).get('/api/expenses');
     expect(response.status).toBe(401);
   });
 
   it('POST /expenses/process - Should validate missing imageBody', async () => {
     const response = await request(app)
-      .post('/expenses/process')
+      .post('/api/expenses/process')
       .set('Authorization', 'Bearer mock-token')
       .send({});
     
