@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useAuth } from '../contexts/AuthContext.js';
-import { Building, User, ArrowRight, LogOut } from 'lucide-react';
+import { Building, User, ArrowRight, LogOut, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 import { toast } from 'sonner';
 
 export default function Onboarding() {
@@ -17,38 +18,31 @@ export default function Onboarding() {
     e.preventDefault();
     setLoading(true);
     try {
-        // Usar a base URL pré-configurada do Axios ou garantir o prefixo /api
         const response = await axios.post('/company/onboarding', form, {
           headers: {
             'Content-Type': 'application/json'
           },
-          timeout: 20000 // Aumentar timeout para 20s
+          timeout: 20000 
         });
 
         console.log('Resposta do onboarding:', response.data);
-        toast.success('Empresa criada com sucesso!');
+        toast.success('Ambiente corporativo provisionado!');
 
-        // Aguardar um pouco antes de verificar o status
         setTimeout(async () => {
           try {
             await checkCompanyStatus();
             navigate('/set-password');
           } catch (error) {
-            const statusError = error as Error;
-            console.error('Erro ao verificar status da empresa:', statusError.message);
-            // Mesmo com erro, tentamos redirecionar
             navigate('/set-password');
           }
         }, 1500);
       } catch (error) {
       console.error('Erro no onboarding:', error);
 
-      // Tipando o erro como AxiosError
-      // Definindo interface para a estrutura de erro da API
-interface ApiErrorResponse {
-  error?: string;
-  message?: string;
-}
+      interface ApiErrorResponse {
+        error?: string;
+        message?: string;
+      }
 
       const axiosError = error as AxiosError<ApiErrorResponse>;
       const errorMessage = axiosError.response?.data?.error || 
@@ -56,33 +50,17 @@ interface ApiErrorResponse {
                           axiosError.message || '';
 
       if (errorMessage.includes('já está vinculado')) {
-        toast.info('Você já possui uma equipe. Redirecionando...');
+        toast.info('Identificamos uma equipe vinculada. Acessando...');
         await checkCompanyStatus();
         navigate('/app');
         return;
-      }
-
-      if (axiosError.response) {
-        const errorResponse = axiosError.response as AxiosResponse<ApiErrorResponse>;
-        console.error('Detalhes da resposta de erro:', {
-          status: errorResponse.status,
-          data: errorResponse.data,
-          headers: errorResponse.headers
-        });
-      } else if (axiosError.request) {
-        // A requisição foi feita mas não houve resposta
-        console.error('Sem resposta do servidor:', axiosError.request);
-        toast.error('Tempo de espera esgotado. O servidor pode estar indisponível.');
-      } else {
-        // Erro ao configurar a requisição
-        console.error('Erro ao configurar requisição:', axiosError.message);
       }
 
       toast.error(
         axiosError.response?.data?.error ||
         axiosError.response?.data?.message ||
         axiosError.message ||
-        'Erro interno ao provisionar ambiente. Por favor, tente novamente.'
+        'Falha ao configurar ambiente. Tente novamente ou contate o suporte.'
       );
     } finally {
       setLoading(false);
@@ -90,75 +68,87 @@ interface ApiErrorResponse {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-4 relative">
-      <button
+    <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-emerald-50/20 via-transparent to-transparent">
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         onClick={signOut}
-        className="absolute top-6 right-6 flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-slate-900 transition-colors"
+        className="absolute top-8 right-8 flex items-center gap-2 text-[10px] font-bold text-[#86868B] hover:text-[#1D1D1F] uppercase tracking-widest transition-all"
       >
-        <LogOut size={16} />
-        Sair da conta
-      </button>
+        <LogOut size={14} />
+        Encerrar Sessão
+      </motion.button>
 
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-8"
+        className="text-center mb-10 flex flex-col items-center"
       >
-                <button
-          onClick={() => { navigate('/'); }}
-          className="group flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-100 transition-all mb-4"
+        <motion.button 
+          whileHover={{ x: -4 }}
+          onClick={() => navigate('/')}
+          className="group flex items-center gap-2 mb-8 text-[#86868B] hover:text-[#1D1D1F] transition-all"
         >
-          <img src="/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" className="h-6" />
-          <span className="text-sm font-bold text-slate-400 group-hover:text-slate-900 transition-colors">Voltar para o site</span>
-        </button>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Configure sua equipe</h1>
-        <p className="text-slate-500 mt-2 font-medium">Crie o espaço de trabalho da sua empresa em segundos.</p>
+          <ChevronLeft size={16} />
+          <span className="text-[10px] font-bold uppercase tracking-widest">Voltar para o site</span>
+        </motion.button>
+        <Logo size="lg" className="mb-8" />
+        <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">Configuração Final</h1>
+        <p className="text-[#86868B] mt-2 font-medium">Estamos a poucos passos de simplificar sua gestão.</p>
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white p-8 rounded-3xl shadow-soft border border-slate-100 w-full max-w-md"
+        className="bg-white p-10 rounded-[32px] shadow-premium border border-[#EBEBEB] w-full max-w-lg"
       >
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome da Empresa</label>
-            <div className="relative">
-              <Building className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">Instituição / Empresa</label>
+            <div className="relative group">
+              <Building className="absolute left-4 top-3.5 w-5 h-5 text-[#D2D2D7] group-focus-within:text-emerald-500 transition-colors" />
               <input
                 type="text"
                 value={form.companyName}
                 onChange={e => setForm({ ...form, companyName: e.target.value })}
                 required
-                className="pl-10 pr-4 py-2 w-full bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/5 transition-all outline-none text-slate-900"
-                placeholder="Ex: Empresa Tech Inc"
+                className="pl-12 pr-4 py-3.5 w-full bg-[#F5F5F7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#EBEBEB] transition-all text-[#1D1D1F] font-medium"
+                placeholder="Ex: Razão Social ou Nome Fantasia"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Seu Nome Completo</label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">Representante da Conta</label>
+            <div className="relative group">
+              <User className="absolute left-4 top-3.5 w-5 h-5 text-[#D2D2D7] group-focus-within:text-emerald-500 transition-colors" />
               <input
                 type="text"
                 value={form.userName}
                 onChange={e => setForm({ ...form, userName: e.target.value })}
                 required
-                className="pl-10 pr-4 py-2.5 w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-900"
-                placeholder="Ex: João Silva"
+                className="pl-12 pr-4 py-3.5 w-full bg-[#F5F5F7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#EBEBEB] transition-all text-[#1D1D1F] font-medium"
+                placeholder="Seu nome completo"
               />
             </div>
+          </div>
+
+          <div className="bg-emerald-50/50 p-4 rounded-2xl flex items-start gap-3 border border-emerald-100">
+            <ShieldCheck size={18} className="text-emerald-600 mt-0.5" />
+            <p className="text-[10px] text-emerald-800 leading-relaxed font-medium">
+              Ao continuar, você concorda em criar um ambiente seguro sob os <span className="underline cursor-pointer">Termos de Uso Corporativo</span> do DespesaGo.
+            </p>
           </div>
 
           <Button
             type="submit"
             disabled={loading}
             fullWidth
-            className="mt-4"
+            size="lg"
+            className="mt-2 rounded-2xl"
           >
-            {loading ? 'Criando espaço...' : 'Ir para o Dashboard'}
+            {loading ? 'Provisionando ambiente...' : 'Finalizar e Acessar'}
             {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
           </Button>
         </form>

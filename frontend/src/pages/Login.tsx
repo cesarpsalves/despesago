@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext.js';
-import { Mail, ArrowRight, Lock } from 'lucide-react';
+import { Mail, ArrowRight, Lock, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 import { toast } from 'sonner';
 import { Turnstile } from '@marsidev/react-turnstile';
 
@@ -36,110 +37,131 @@ export default function Login() {
   };
 
   if (sent) return (
-    <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-black/5 text-center max-w-md w-full">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-900">Verifique seu email</h2>
-        <p className="text-gray-500">Enviamos um link mágico corporativo para <span className="font-medium text-gray-900">{email}</span>. Clique no link para acessar seu painel.</p>
-        <button 
+    <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center p-6">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white p-10 rounded-[32px] shadow-premium border border-[#EBEBEB] text-center max-w-sm w-full"
+      >
+        <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 mx-auto mb-6">
+          <Mail size={32} />
+        </div>
+        <h2 className="text-2xl font-bold mb-3 text-[#1D1D1F]">Verifique seu E-mail</h2>
+        <p className="text-[#86868B] text-sm font-medium leading-relaxed">
+          Enviamos um acesso seguro para <br/>
+          <span className="text-[#1D1D1F] font-bold">{email}</span>.
+        </p>
+        <Button 
+          variant="ghost"
+          size="sm"
           onClick={() => setSent(false)}
-          className="mt-6 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          className="mt-8 text-[10px] tracking-widest uppercase"
         >
-          Voltar para o login
-        </button>
-      </div>
+          Voltar ao login
+        </Button>
+      </motion.div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-50/20 via-transparent to-transparent">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-8"
+        className="flex flex-col items-center mb-10 text-center"
       >
-        <button 
+        <motion.button 
+          whileHover={{ x: -4 }}
           onClick={() => window.location.href = '/'}
-          className="group flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-100 transition-all mb-4"
+          className="group flex items-center gap-2 mb-8 text-[#86868B] hover:text-[#1D1D1F] transition-all"
         >
-          <img src="/logo/logo_preto_fundo_transparente.png" alt="DespesaGo" className="h-6" />
-          <span className="text-sm font-bold text-slate-400 group-hover:text-slate-900 transition-colors">Voltar para o site</span>
-        </button>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Acesse sua conta</h1>
-        <p className="text-slate-500 mt-2 font-medium">Insira seu e-mail profissional para entrar no DespesaGo.</p>
+          <ChevronLeft size={16} />
+          <span className="text-[10px] font-bold uppercase tracking-widest">Voltar para o site</span>
+        </motion.button>
+        <Logo size="lg" className="mb-8" />
+        <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">Olá novamente.</h1>
+        <p className="text-[#86868B] mt-2 font-medium">Use seu e-mail profissional para acessar.</p>
       </motion.div>
 
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white p-8 rounded-3xl shadow-soft border border-slate-100 w-full max-w-sm"
+        className="bg-white p-10 rounded-[32px] shadow-premium border border-[#EBEBEB] w-full max-w-md"
       >
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email Profissional</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+        <form onSubmit={handleLogin} className="flex flex-col gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">E-mail Profissional</label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-3.5 w-5 h-5 text-[#D2D2D7] group-focus-within:text-emerald-500 transition-colors" />
               <input 
                 type="email" 
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="pl-10 pr-4 py-2.5 w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-900"
-                placeholder="voce@suaempresa.com"
+                className="pl-12 pr-4 py-3.5 w-full bg-[#F5F5F7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#EBEBEB] transition-all text-[#1D1D1F] font-medium"
+                placeholder="nome@suaempresa.com"
               />
             </div>
           </div>
 
           {isPasswordLogin && (
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="block text-sm font-medium text-slate-700">Senha</label>
-                <button 
-                  type="button"
-                  onClick={async () => {
-                    if (!email) return toast.warning("Digite seu email profissional primeiro.");
-                    const { error } = await resetPassword(email);
-                    if (error) toast.error(error.message);
-                    else toast.success("Link de recuperação enviado para " + email);
-                  }}
-                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 transition-colors"
-                >
-                  Esqueci minha senha
-                </button>
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <div className="flex justify-between items-center ml-1">
+                  <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Senha</label>
+                  <button 
+                    type="button"
+                    onClick={async () => {
+                      if (!email) return toast.warning("Digite seu e-mail profissional primeiro.");
+                      const { error } = await resetPassword(email);
+                      if (error) toast.error(error.message);
+                      else toast.success("Link enviado para " + email);
+                    }}
+                    className="text-[9px] font-bold text-emerald-600 hover:text-emerald-700 uppercase tracking-widest"
+                  >
+                    Esqueci minha senha
+                  </button>
+                </div>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-3.5 w-5 h-5 text-[#D2D2D7] group-focus-within:text-emerald-500 transition-colors" />
+                  <input 
+                    type="password" 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    className="pl-12 pr-4 py-3.5 w-full bg-[#F5F5F7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#EBEBEB] transition-all text-[#1D1D1F] font-medium"
+                    placeholder="Sua senha corporativa"
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-                <input 
-                  type="password" 
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  className="pl-10 pr-4 py-2.5 w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-900"
-                  placeholder="Sua senha corporativa"
-                />
-              </div>
-            </div>
+            </motion.div>
           )}
 
           <Button 
             type="submit" 
             disabled={loading}
             fullWidth
-            className="mt-4"
+            size="lg"
+            className="mt-2"
           >
-            {loading ? 'Aguarde...' : isPasswordLogin ? 'Entrar' : 'Receber Link Mágico'} 
+            {loading ? 'Processando...' : isPasswordLogin ? 'Entrar' : 'Receber Acesso Mágico'} 
             {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
           </Button>
 
           <button
             type="button"
             onClick={() => setIsPasswordLogin(!isPasswordLogin)}
-            className="text-sm font-medium text-slate-400 hover:text-brand-600 transition-colors mt-4"
+            className="text-[10px] font-bold text-[#86868B] hover:text-[#1D1D1F] uppercase tracking-widest transition-all mt-2"
           >
-            {isPasswordLogin ? 'Voltar para Link Mágico' : 'Entrar com Senha (gestores)'}
+            {isPasswordLogin ? 'Usar Link por E-mail' : 'Entrar com Senha (Adm)'}
           </button>
 
-          <div className="mt-4 flex justify-center scale-90 opacity-70 hover:opacity-100 transition-opacity">
+          <div className="mt-4 flex justify-center scale-90 opacity-50 hover:opacity-100 transition-opacity">
             <Turnstile 
               siteKey={'0x4AAAAAACw_ETlhwO3aqZ9d'} 
               onSuccess={(token) => setCaptchaToken(token)}

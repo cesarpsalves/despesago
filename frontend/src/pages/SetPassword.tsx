@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Lock, ArrowRight, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,7 +28,7 @@ export default function SetPassword() {
       const { error } = await updateUser({ password });
       if (error) throw error;
       
-      toast.success('Senha definida com sucesso! Agora você pode acessar o DespesaGo usando seu e-mail e esta senha.');
+      toast.success('Ambiente provisionado com total segurança!');
       navigate('/app');
     } catch (err: any) {
       toast.error(err.message || 'Erro ao definir senha.');
@@ -37,18 +38,19 @@ export default function SetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-emerald-50/20 via-transparent to-transparent">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-8 max-w-md"
+        className="text-center mb-10 flex flex-col items-center max-w-md"
       >
-        <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-brand-600">
+        <div className="w-16 h-16 bg-white rounded-[24px] shadow-premium flex items-center justify-center mb-10 text-[#1D1D1F]">
           <ShieldCheck size={32} />
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Segurança da Conta</h1>
-        <p className="text-slate-500 mt-2 font-medium">
-          Para sua segurança e facilidade de acesso futuro, crie uma senha corporativa.
+        <Logo size="md" className="mb-6" />
+        <h1 className="text-3xl font-bold tracking-tight text-[#1D1D1F]">Defina sua Senha</h1>
+        <p className="text-[#86868B] mt-2 font-medium leading-relaxed">
+          Para garantir a integridade dos seus dados corporativos, crie uma senha robusta para acesso futuro.
         </p>
       </motion.div>
 
@@ -56,35 +58,35 @@ export default function SetPassword() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
-        className="bg-white p-8 rounded-3xl shadow-soft border border-slate-100 w-full max-w-sm"
+        className="bg-white p-10 rounded-[32px] shadow-premium border border-[#EBEBEB] w-full max-w-md"
       >
-        <form onSubmit={handleSetPassword} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Nova Senha</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+        <form onSubmit={handleSetPassword} className="flex flex-col gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">Senha de Acesso</label>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-3.5 w-5 h-5 text-[#D2D2D7] group-focus-within:text-emerald-500 transition-colors" />
               <input 
                 type="password" 
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="pl-10 pr-4 py-2.5 w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-900"
+                className="pl-12 pr-4 py-3.5 w-full bg-[#F5F5F7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#EBEBEB] transition-all text-[#1D1D1F] font-medium"
                 placeholder="Mínimo 6 caracteres"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Confirmar Senha</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">Confirmar Senha</label>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-3.5 w-5 h-5 text-[#D2D2D7] group-focus-within:text-emerald-500 transition-colors" />
               <input 
                 type="password" 
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 required
-                className="pl-10 pr-4 py-2.5 w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-slate-900"
-                placeholder="Repita a senha"
+                className="pl-12 pr-4 py-3.5 w-full bg-[#F5F5F7] border border-transparent rounded-xl outline-none focus:bg-white focus:border-[#EBEBEB] transition-all text-[#1D1D1F] font-medium"
+                placeholder="Repita a nova senha"
               />
             </div>
           </div>
@@ -93,18 +95,20 @@ export default function SetPassword() {
             type="submit" 
             disabled={loading}
             fullWidth
-            className="mt-4 py-6 text-base font-bold"
+            size="lg"
+            className="mt-2 rounded-2xl h-14"
           >
-            {loading ? 'Salvando...' : 'Concluir Configuração'} 
-            {!loading && <ArrowRight className="w-5 h-5 ml-2" />}
+            {loading ? 'Salvando...' : 'Finalizar Configuração'} 
+            {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
           </Button>
 
           <button
             type="button"
             onClick={() => navigate('/app')}
-            className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors mt-4"
+            className="flex items-center justify-center gap-2 text-[10px] font-bold text-[#86868B] hover:text-[#1D1D1F] uppercase tracking-widest transition-all mt-2"
           >
-            Pular por enquanto
+            <ChevronLeft size={14} />
+            Configurar depois
           </button>
         </form>
       </motion.div>

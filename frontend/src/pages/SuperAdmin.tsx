@@ -5,17 +5,19 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Users, 
   Building2, 
   ShieldCheck, 
   Zap,
   CheckCircle2,
   CreditCard, 
-  Globe 
+  Globe,
+  ChevronRight,
+  Search
 } from 'lucide-react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { Logo } from '../components/ui/Logo';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 interface CompanyStats {
   id: string;
@@ -29,6 +31,7 @@ export default function SuperAdminDashboard() {
   const { isPlatformAdmin } = useAuth();
   const [companies, setCompanies] = useState<CompanyStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,7 +44,6 @@ export default function SuperAdminDashboard() {
     try {
       setLoading(true);
       const res = await axios.get('/platform/companies');
-      // A API já retorna formatado com plan e status
       setCompanies(res.data || []);
     } catch (err: any) {
       console.error('FetchData Error:', err);
@@ -53,20 +55,20 @@ export default function SuperAdminDashboard() {
 
   const handleUpgrade = async (companyId: string, companyName: string) => {
     toast.custom((t) => (
-      <div className="bg-slate-900 border border-slate-800 p-6 rounded-[2.5rem] shadow-2xl flex flex-col gap-4 max-w-sm animate-in zoom-in-95 duration-200">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-inner">
-            <Zap size={24} className="fill-indigo-400 animate-pulse" />
+      <div className="bg-white border border-[#EBEBEB] p-8 rounded-[32px] shadow-premium flex flex-col gap-6 max-w-sm animate-in zoom-in-95 duration-200">
+        <div className="flex items-center gap-5">
+          <div className="w-14 h-14 bg-[#F5F5F7] rounded-2xl flex items-center justify-center text-[#1D1D1F] shadow-sm">
+            <Zap size={28} className="fill-[#1D1D1F]" />
           </div>
           <div>
-            <h4 className="font-bold text-white text-base">Ativar Cortesia PRO</h4>
-            <p className="text-xs text-slate-400 font-medium leading-relaxed">Conceder acesso vitalício para <span className="text-white font-black">{companyName}</span>?</p>
+            <h4 className="font-bold text-[#1D1D1F] text-lg tracking-tight">Privilégio PRO</h4>
+            <p className="text-xs text-[#86868B] font-medium leading-relaxed">Conceder acesso vitalício para <span className="text-[#1D1D1F] font-bold">{companyName}</span>?</p>
           </div>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex gap-4 pt-2">
           <Button 
-            className="flex-1 rounded-2xl h-11 text-[11px] font-black uppercase tracking-widest text-white bg-indigo-600 border-none shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 transition-all hover:scale-[1.02] flex items-center justify-center"
+            className="flex-1 rounded-2xl h-12 text-[10px] font-bold uppercase tracking-widest"
             onClick={async () => {
               toast.dismiss(t);
               const loadingId = toast.loading("Confirmando upgrade...");
@@ -80,11 +82,11 @@ export default function SuperAdminDashboard() {
               }
             }}
           >
-            Confirmar Upgrade
+            Confirmar
           </Button>
           <Button 
-            variant="outline" 
-            className="flex-1 rounded-2xl h-11 text-[11px] font-black uppercase tracking-widest text-slate-200 border-white/20 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all shadow-none flex items-center justify-center"
+            variant="ghost" 
+            className="flex-1 rounded-2xl h-12 text-[10px] font-bold uppercase tracking-widest text-[#86868B] hover:bg-[#F5F5F7]"
             onClick={() => toast.dismiss(t)}
           >
             Cancelar
@@ -96,126 +98,134 @@ export default function SuperAdminDashboard() {
 
   if (!isPlatformAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center p-8 bg-white rounded-[3rem] shadow-xl border border-slate-100 max-w-md animate-in fade-in zoom-in-95 duration-500">
-          <div className="w-20 h-20 bg-red-50 rounded-[2rem] flex items-center justify-center text-red-500 mx-auto mb-6">
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F5F7]">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center p-12 bg-white rounded-[40px] shadow-premium border border-[#EBEBEB] max-w-md"
+        >
+          <div className="w-20 h-20 bg-rose-50 rounded-[2rem] flex items-center justify-center text-rose-500 mx-auto mb-8">
             <ShieldCheck size={40} />
           </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Acesso Restrito</h1>
-          <p className="text-slate-500 mt-2 font-medium">Este é o Painel Global da Plataforma. Seus privilégios atuais não permitem o acesso.</p>
-          <Button onClick={() => navigate('/app')} className="mt-8 px-8 h-12 rounded-2xl font-bold shadow-lg shadow-brand-500/20">Voltar ao App</Button>
-        </div>
+          <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Área Restrita</h1>
+          <p className="text-[#86868B] mt-3 font-medium leading-relaxed">Seu acesso atual não possui privilégios de plataforma para visualizar o ecossistema global.</p>
+          <Button onClick={() => navigate('/app')} className="mt-10 px-10 h-14 rounded-2xl font-bold">Voltar ao Painel</Button>
+        </motion.div>
       </div>
     );
   }
 
-  if (loading && companies.length === 0) {
-    return (
-      <AppLayout title="Administração da Plataforma">
-        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
-          <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-slate-400 font-bold tracking-widest text-[10px] uppercase italic">Sincronizando Ecossistema Global...</p>
-        </div>
-      </AppLayout>
-    );
-  }
+  const filteredCompanies = companies.filter(c => 
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    c.id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <AppLayout title="Painel Global">
-      <div className="space-y-6 sm:space-y-8">
-        {/* Header Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-          <Card className="bg-white border-slate-200 p-6 shadow-sm hover:border-indigo-200 transition-colors group">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0">
-                <Globe className="w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Total de Empresas</p>
-                <p className="text-2xl font-black text-slate-900 tracking-tight">{companies.length}</p>
-              </div>
+    <AppLayout title="Plataforma">
+      <div className="max-w-[1200px] mx-auto space-y-10 pb-20">
+        
+        {/* Superior Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+               <div className="w-8 h-8 rounded-lg bg-[#1D1D1F] flex items-center justify-center text-white">
+                  <Globe size={18} />
+               </div>
+               <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Painel Global</span>
             </div>
-          </Card>
-          <Card className="bg-white border-slate-200 p-6 shadow-sm hover:border-emerald-200 transition-colors group">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all shrink-0">
-                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Assinaturas PRO</p>
-                <p className="text-2xl font-black text-slate-900 tracking-tight">{companies.filter(c => c.plan === 'pro').length}</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="bg-white border-slate-200 p-6 shadow-sm hover:border-indigo-200 transition-colors group">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-slate-50 text-slate-400 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0">
-                <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest font-black text-slate-400 mb-1">Saúde do SaaS</p>
-                <p className="text-2xl font-black text-slate-900 tracking-tight text-indigo-600">100% OK</p>
-              </div>
-            </div>
-          </Card>
+            <h1 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Gestão do Ecossistema</h1>
+          </div>
+          
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-4 top-3.5 w-5 h-5 text-[#D2D2D7]" />
+            <input 
+              type="text" 
+              placeholder="Buscar empresas..." 
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full bg-white border border-[#EBEBEB] rounded-2xl pl-12 pr-4 py-3.5 outline-none focus:border-[#1D1D1F] transition-all text-sm font-medium shadow-soft"
+            />
+          </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Logo showText={false} />
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500 leading-none">Management</span>
-                <span className="text-xl font-black text-slate-900 tracking-tighter leading-tight italic">
-                  Despesa<span className="text-indigo-600">Go</span> Platform
-                </span>
-              </div>
+        {/* Global Key Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard 
+            icon={Building2} 
+            label="Empresas" 
+            value={companies.length}
+            sublabel="Clientes cadastrados"
+          />
+          <StatCard 
+            icon={CreditCard} 
+            label="Inscrições PRO" 
+            value={companies.filter(c => c.plan === 'pro').length}
+            sublabel="Assinaturas ativas"
+            color="emerald"
+          />
+          <StatCard 
+            icon={ShieldCheck} 
+            label="Saúde SaaS" 
+            value="100%"
+            sublabel="Status de rede: OK"
+          />
+        </div>
+
+        <section className="bg-white rounded-[32px] border border-[#EBEBEB] shadow-premium overflow-hidden">
+          <div className="px-10 py-8 border-b border-[#F5F5F7] flex items-center justify-between">
+            <div className="flex items-center gap-4">
+               <Logo size="sm" showText={false} />
+               <div>
+                  <h3 className="font-bold text-[#1D1D1F] text-lg tracking-tight leading-none mb-1">Empresas Integradas</h3>
+                  <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Controle de Provisionamento</p>
+               </div>
             </div>
           </div>
           
-          <div className="hidden sm:block overflow-x-auto">
+          <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-100">
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Empresa</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Criado em</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Plano Integrado</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-right">Ação</th>
+                <tr className="bg-[#F5F5F7] border-b border-[#EBEBEB]">
+                  <th className="px-10 py-5 text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Organização</th>
+                  <th className="px-10 py-5 text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Membros</th>
+                  <th className="px-10 py-5 text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Plano Atual</th>
+                  <th className="px-10 py-5 text-[10px] font-bold text-[#86868B] uppercase tracking-widest text-right">Ação</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {companies.map((company) => (
-                  <tr key={company.id} className="group hover:bg-slate-50/80 transition-all duration-300">
-                    <td className="px-6 py-4">
-                      <p className="font-extrabold text-slate-900 text-sm group-hover:text-brand-600 transition-colors">{company.name}</p>
-                      <p className="text-[10px] font-mono text-slate-400">ID: {company.id}</p>
+              <tbody className="divide-y divide-[#F5F5F7]">
+                {filteredCompanies.map((company) => (
+                  <tr key={company.id} className="group hover:bg-[#F5F5F7]/30 transition-all">
+                    <td className="px-10 py-6">
+                      <p className="font-bold text-[#1D1D1F] transition-colors">{company.name}</p>
+                      <p className="text-[10px] font-medium text-[#D2D2D7] tracking-tight">{company.id}</p>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-500">
-                      {new Date(company.created_at).toLocaleDateString()}
+                    <td className="px-10 py-6">
+                       <span className="text-sm font-bold text-[#1D1D1F]">{company.user_count || 0}</span>
+                       <span className="text-[10px] text-[#86868B] font-medium uppercase ml-2">Pessoas</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit border ${
+                    <td className="px-10 py-6">
+                      <span className={`px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest border ${
                         company.plan === 'pro' 
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                          : 'bg-slate-50 text-slate-400 border-slate-100'
+                          : 'bg-[#F5F5F7] text-[#86868B] border-transparent'
                       }`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${company.plan === 'pro' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
                         {company.plan === 'pro' ? 'Premium PRO' : 'Basic FREE'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-10 py-6 text-right">
                       {company.plan !== 'pro' ? (
                         <Button 
                           size="sm" 
+                          variant="secondary"
                           onClick={() => handleUpgrade(company.id, company.name)}
-                          className="h-9 px-4 rounded-xl font-bold text-[10px] uppercase tracking-widest bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-md shadow-indigo-500/10 active:scale-95 border-none"
+                          className="h-9 px-5 rounded-xl text-[10px] font-bold uppercase tracking-widest"
                         >
                           Conceder PRO
                         </Button>
                       ) : (
                         <div className="flex items-center justify-end gap-2 text-emerald-600">
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span className="text-[10px] font-black uppercase tracking-widest">Ativo</span>
+                          <CheckCircle2 size={16} />
+                          <span className="text-[10px] font-bold uppercase tracking-widest">Vitalício</span>
                         </div>
                       )}
                     </td>
@@ -225,48 +235,30 @@ export default function SuperAdminDashboard() {
             </table>
           </div>
 
-          {/* Mobile View: Cards instead of table */}
-          <div className="sm:hidden divide-y divide-slate-100">
-            {companies.map((company) => (
-              <div key={company.id} className="p-5 space-y-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-black text-slate-900">{company.name}</h3>
-                    <p className="text-[10px] font-mono text-slate-400">UUID: {company.id.slice(0, 8)}...</p>
-                  </div>
-                  <span className={`px-2.5 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest border ${
-                    company.plan === 'pro' 
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                      : 'bg-slate-50 text-slate-400 border-slate-100'
-                  }`}>
-                    {company.plan === 'pro' ? 'Premium' : 'Free'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center pt-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                    Cadastrado em {new Date(company.created_at).toLocaleDateString()}
-                  </p>
-                  {company.plan !== 'pro' && (
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleUpgrade(company.id, company.name)}
-                      className="h-10 rounded-2xl font-black text-[10px] uppercase tracking-widest px-6 bg-brand-600 text-white shadow-lg shadow-brand-500/20 active:scale-95 border-none"
-                    >
-                      Ativar PRO
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {companies.length === 0 && (
-            <div className="px-6 py-12 text-center">
-              <p className="text-slate-400 italic">Nenhum cliente cadastrado ainda.</p>
+          {filteredCompanies.length === 0 && (
+            <div className="px-10 py-20 text-center">
+              <p className="text-[#86868B] text-sm font-medium italic">Nenhuma empresa encontrada para este critério.</p>
             </div>
           )}
-        </div>
+        </section>
       </div>
     </AppLayout>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, sublabel, color = 'dark' }: any) {
+  return (
+    <div className="bg-white p-10 rounded-[32px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all group">
+      <div className="flex items-start justify-between mb-8">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 ${
+          color === 'emerald' ? 'bg-emerald-50 text-emerald-500' : 'bg-[#F5F5F7] text-[#1D1D1F]'
+        }`}>
+          <Icon size={24} />
+        </div>
+        <span className="text-[10px] font-bold text-[#D2D2D7] uppercase tracking-widest">{label}</span>
+      </div>
+      <p className="text-4xl font-bold tracking-tighter text-[#1D1D1F] mb-1">{value}</p>
+      <p className="text-[10px] text-[#86868B] font-bold uppercase tracking-widest">{sublabel}</p>
+    </div>
   );
 }

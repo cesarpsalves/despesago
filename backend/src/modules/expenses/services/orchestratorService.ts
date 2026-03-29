@@ -9,9 +9,10 @@ export interface ExpenseData {
   merchant: string;
   category: string;
   confidence: number;
+  cost_center_id?: string;
 }
 
-export const processExpense = async (input: { imageBase64: string }, authHeader: string) => {
+export const processExpense = async (input: { imageBase64: string, cost_center_id?: string }, authHeader: string) => {
   console.log('--- Starting REAL AI Orchestration Flow ---');
   const supabase = createScopedClient(authHeader);
 
@@ -22,6 +23,11 @@ export const processExpense = async (input: { imageBase64: string }, authHeader:
 
   const expenseData = await receiptAgent.extract(input.imageBase64);
   console.log('1. AI Extracted:', expenseData);
+
+  // Link cost center if provided
+  if (input.cost_center_id) {
+    expenseData.cost_center_id = input.cost_center_id;
+  }
 
   // 2. Validation (Standardized + Defensive)
   if (!expenseData.amount || !expenseData.date || !expenseData.merchant) {

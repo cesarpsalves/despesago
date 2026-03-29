@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { Button } from './Button';
 
 interface ModalProps {
   isOpen: boolean;
@@ -37,38 +36,38 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-[#1D1D1F]/40 backdrop-blur-md transition-opacity"
           />
 
           {/* Modal Content */}
           <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 10 }}
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 10 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className={`relative w-full ${sizeClasses[size]} bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden text-left`}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+            className={`relative w-full ${sizeClasses[size]} bg-white rounded-[32px] shadow-premium border border-[#EBEBEB] overflow-hidden text-left`}
           >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="text-xl font-bold text-slate-900 tracking-tight">
+            <div className="px-8 py-6 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">
                 {title}
               </h3>
               <button
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
+                className="p-2 text-[#86868B] hover:text-[#1D1D1F] hover:bg-[#F5F5F7] rounded-full transition-all"
               >
                 <X size={20} />
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-6 text-slate-600 font-medium">
+            <div className="px-8 pb-8 text-[#1D1D1F]">
               {children}
             </div>
 
             {/* Footer */}
             {footer && (
-              <div className="px-6 py-5 bg-slate-50/80 border-t border-slate-100 flex justify-end gap-3 font-bold">
+              <div className="px-8 py-6 bg-[#F5F5F7]/50 border-t border-[#EBEBEB] flex justify-end gap-4">
                 {footer}
               </div>
             )}

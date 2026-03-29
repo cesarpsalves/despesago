@@ -319,7 +319,7 @@ export const companyController = {
       const firstDay = startOfMonth(now).toISOString();
       const lastDay = endOfMonth(now).toISOString();
 
-      const [companyRes, expensesRes, membersCountRes, monthlyTotalRes, membersRes] = await Promise.all([
+      const [companyRes, expensesRes, membersCountRes, monthlyTotalRes, membersRes, costCentersRes] = await Promise.all([
         // Detalhes da Empresa e Assinatura
         supabaseAdmin
           .schema('app_expense_b2b')
@@ -332,7 +332,7 @@ export const companyController = {
         supabaseScoped
           .schema('app_expense_b2b')
           .from('expenses')
-          .select('*')
+          .select('*, cost_centers(name)')
           .order('date', { ascending: false })
           .limit(10),
         
@@ -357,6 +357,13 @@ export const companyController = {
           .from('users')
           .select('*')
           .eq('company_id', companyId)
+          .order('name'),
+
+        // Centros de Custo (Caixas)
+        supabaseScoped
+          .schema('app_expense_b2b')
+          .from('cost_centers')
+          .select('*')
           .order('name')
       ]);
 
@@ -387,6 +394,7 @@ export const companyController = {
         },
         recentExpenses: Array.isArray(expensesRes.data) ? expensesRes.data : [],
         members: Array.isArray(membersRes.data) ? membersRes.data : [],
+        costCenters: Array.isArray(costCentersRes.data) ? costCentersRes.data : [],
         stats: {
           memberCount: membersCountRes.count || 0,
           monthlyTotal,
