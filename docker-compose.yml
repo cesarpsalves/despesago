@@ -50,8 +50,6 @@ services:
       - "traefik.http.routers.despesago-api.entrypoints=web,websecure"
       - "traefik.http.routers.despesago-api.tls=true"
       - "traefik.http.routers.despesago-api.tls.certresolver=le"
-      - "traefik.http.routers.despesago-api.middlewares=despesago-api-strip"
-      - "traefik.http.middlewares.despesago-api-strip.stripprefix.prefixes=/api"
       - "traefik.http.services.despesago-api.loadbalancer.server.port=3000"
 
 networks:
