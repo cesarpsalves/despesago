@@ -96,9 +96,8 @@ export default function Profile() {
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white p-8 rounded-[32px] shadow-premium border border-[#EBEBEB]">
               <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 bg-[#1D1D1F] rounded-[32px] flex items-center justify-center text-white font-bold text-3xl shadow-premium mb-6 overflow-hidden">
+                <div className="w-24 h-24 bg-[#1D1D1F] rounded-[32px] flex items-center justify-center text-white font-bold text-3xl shadow-premium mb-6 overflow-hidden relative">
                   <span className="relative z-10">{userName[0] || user?.email?.[0]?.toUpperCase()}</span>
-                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-transparent to-transparent" />
                 </div>
                 <h2 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">{userName || 'Usuário'}</h2>
                 <span className="mt-2 px-3 py-1 bg-[#F5F5F7] rounded-full text-[10px] font-bold text-[#86868B] uppercase tracking-widest">
@@ -123,16 +122,6 @@ export default function Profile() {
                 </div>
               </div>
             </div>
-
-            <Button 
-              variant="outline" 
-              fullWidth 
-              size="lg"
-              onClick={signOut}
-              className="rounded-[24px] border-[#EBEBEB] text-[#E03131] hover:bg-rose-50 hover:border-rose-100 h-14 font-bold"
-            >
-              Encerrar Sessão
-            </Button>
           </div>
 
           {/* Forms Area */}

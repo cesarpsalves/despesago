@@ -26,14 +26,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={() => {
-                if (location.pathname !== '/app') navigate('/app');
-                setTimeout(() => document.getElementById("fileInput")?.click(), 100);
-              }}
+              onClick={() => navigate('/app?view=scanner&trigger=true')}
               className="hidden sm:flex items-center text-[#1D1D1F]"
             >
               <Camera size={16} className="mr-2" />
-              <span className="font-bold text-[10px] uppercase tracking-widest">Novo Recibo</span>
+              <span className="font-bold text-[10px] uppercase tracking-widest">Escanear Recibo</span>
             </Button>
 
             {isPlatformAdmin && (
@@ -82,11 +79,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           <button 
             onClick={() => navigate('/app')}
             className={`flex flex-col items-center justify-center w-full h-full active:scale-90 transition-all ${
-              isActive('/app') ? 'text-emerald-500' : 'text-[#86868B]'
+              isActive('/app') ? 'text-[#1D1D1F]' : 'text-[#86868B]'
             }`}
           >
             <Home size={20} />
-            <span className="text-[10px] font-bold mt-1 uppercase tracking-tight">Início</span>
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-tight">Painel</span>
           </button>
           
           {/* Central Button: Scan for Anyone with Company */}
@@ -94,10 +91,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
             <motion.button
               whileTap={{ scale: 0.9 }}
               className="absolute -top-6 flex items-center justify-center w-16 h-16 bg-[#1D1D1F] text-white rounded-full shadow-premium border-4 border-white"
-              onClick={() => {
-                if (location.pathname !== '/app') navigate('/app');
-                setTimeout(() => document.getElementById("fileInput")?.click(), 100);
-              }}
+              onClick={() => navigate('/app?view=scanner&trigger=true')}
             >
               <Camera size={26} />
             </motion.button>
@@ -107,11 +101,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
           <button 
             onClick={() => navigate('/app/profile')}
             className={`flex flex-col items-center justify-center w-full h-full active:scale-95 transition-all ${
-              isActive('/app/profile') ? 'text-emerald-500' : 'text-[#86868B]'
+              isActive('/app/profile') ? 'text-[#1D1D1F]' : 'text-[#86868B]'
             }`}
           >
             <User size={20} />
-            <span className="text-[10px] font-bold mt-1 uppercase tracking-tight">Perfil</span>
+            <span className="text-[10px] font-bold mt-1 uppercase tracking-tight">Conta</span>
           </button>
         </div>
       </nav>

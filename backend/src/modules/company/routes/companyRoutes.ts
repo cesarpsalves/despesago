@@ -14,6 +14,11 @@ router.post('/invite', authMiddleware, planLimitsMiddleware, companyController.i
 // Centros de custo
 router.get('/cost-centers', authMiddleware, companyController.listCostCenters);
 router.post('/cost-centers', authMiddleware, companyController.createCostCenter);
+router.put('/cost-centers/:id', authMiddleware, companyController.updateCostCenter);
+router.delete('/cost-centers/:id', authMiddleware, companyController.deleteCostCenter);
+
+// Gestão de Membros
+router.patch('/members/:memberId/cost-center', authMiddleware, companyController.assignMemberToCostCenter);
 
 // Identificação da Empresa vinculada
 router.get('/me', authMiddleware, companyController.getMe);

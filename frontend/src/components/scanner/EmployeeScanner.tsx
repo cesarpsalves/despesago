@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import axios from "axios";
 import { CostCenterSelector } from "../ui/CostCenterSelector.js";
+import { useSearchParams } from "react-router-dom";
 
 interface ProcessResponse {
   message: string;
@@ -16,10 +17,23 @@ interface ProcessResponse {
 }
 
 export function EmployeeScanner() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedCostCenter, setSelectedCostCenter] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<ProcessResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-trigger input if requested via URL
+  useEffect(() => {
+    if (searchParams.get('trigger') === 'true' && fileInputRef.current) {
+      fileInputRef.current.click();
+      // Clean up param so it doesn't re-trigger on re-render
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('trigger');
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleUpload = useCallback(async (file: File) => {
     setIsProcessing(true);
@@ -106,7 +120,7 @@ export function EmployeeScanner() {
                 onClick={() => setResult(null)}
                 className="w-full mt-8 py-4 bg-[#F5F5F7] text-[#1D1D1F] rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#EBEBEB] transition-all"
               >
-                Novo Lancamento
+                Escanear Outro
               </button>
             </motion.div>
           ) : (
@@ -115,7 +129,7 @@ export function EmployeeScanner() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="relative aspect-square sm:aspect-video bg-white rounded-[32px] border-2 border-dashed border-[#EBEBEB] group hover:border-[#1D1D1F] transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
-              onClick={() => document.getElementById("fileInput")?.click()}
+              onClick={() => fileInputRef.current?.click()}
             >
               <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center pointer-events-none">
                 <div className="w-20 h-20 bg-[#F5F5F7] rounded-full flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 transition-transform duration-500">
@@ -148,6 +162,7 @@ export function EmployeeScanner() {
       </div>
 
       <input
+        ref={fileInputRef}
         id="fileInput"
         type="file"
         accept="image/*"

@@ -228,7 +228,122 @@ export const companyController = {
     }
   },
 
-  // 5. Retorna dados da empresa vinculada ao usuário logado
+  // 5. Atualização de Centro de Custo (Nome/Orçamento)
+  updateCostCenter: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { name, budget } = req.body;
+      const authHeader = req.headers.authorization || '';
+      const supabaseScoped = createScopedClient(authHeader);
+
+      // Verifica se o usuário é admin da empresa do centro de custo através do RLS
+      const { data, error } = await supabaseScoped
+        .schema('app_expense_b2b')
+        .from('cost_centers')
+        .update({ name, budget })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return res.status(200).json({ success: true, costCenter: data });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  },
+
+  // 6. Deleção de Centro de Custo (Move membros para 'Geral')
+  deleteCostCenter: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const authHeader = req.headers.authorization || '';
+      const supabaseScoped = createScopedClient(authHeader);
+
+      const { data: adminUser } = await supabaseScoped
+        .schema('app_expense_b2b')
+        .from('users')
+        .select('company_id, role')
+        .single();
+      
+      if (!adminUser || adminUser.role !== 'admin') throw new Error('Não autorizado');
+
+      // 1. Acha o ID do 'Geral' para não deixar órfãos
+      const { data: defaultCc } = await supabaseAdmin
+        .schema('app_expense_b2b')
+        .from('cost_centers')
+        .select('id')
+        .eq('company_id', adminUser.company_id)
+        .eq('name', 'Geral')
+        .single();
+
+      if (defaultCc && defaultCc.id === id) throw new Error('O centro de custo Geral não pode ser deletado.');
+
+      // 2. Transfere usuários e despesas órfãs para o Geral (Transaction-safe)
+      if (defaultCc) {
+        await supabaseAdmin.schema('app_expense_b2b').from('users').update({ cost_center_id: defaultCc.id }).eq('cost_center_id', id);
+        await supabaseAdmin.schema('app_expense_b2b').from('expenses').update({ cost_center_id: defaultCc.id }).eq('cost_center_id', id);
+      }
+
+      // 3. Deleta o centro de custo
+      const { error } = await supabaseScoped
+        .schema('app_expense_b2b')
+        .from('cost_centers')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return res.status(200).json({ success: true });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  },
+
+  // 7. Atribuição de Membro a um Setor (Com migração opcional)
+  assignMemberToCostCenter: async (req: Request, res: Response) => {
+    try {
+      const { memberId } = req.params;
+      const { costCenterId, transferExpenses } = req.body;
+      const authHeader = req.headers.authorization || '';
+      const supabaseScoped = createScopedClient(authHeader);
+
+      // Verificação de permissão (Admin da mesma empresa)
+      const { data: adminUser } = await supabaseScoped
+        .schema('app_expense_b2b')
+        .from('users')
+        .select('company_id, role')
+        .single();
+      
+      if (!adminUser || adminUser.role !== 'admin') throw new Error('Não autorizado');
+
+      // 1. Atualiza o perfil do membro
+      const { error: userUpdateError } = await supabaseAdmin
+        .schema('app_expense_b2b')
+        .from('users')
+        .update({ cost_center_id: costCenterId })
+        .eq('id', memberId)
+        .eq('company_id', adminUser.company_id);
+
+      if (userUpdateError) throw userUpdateError;
+
+      // 2. Se solicitado, move as despesas passadas
+      if (transferExpenses) {
+        const { error: expError } = await supabaseAdmin
+          .schema('app_expense_b2b')
+          .from('expenses')
+          .update({ cost_center_id: costCenterId })
+          .eq('user_id', memberId)
+          .eq('company_id', adminUser.company_id);
+        
+        if (expError) throw expError;
+      }
+
+      return res.status(200).json({ success: true });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  },
+
+  // 8. Retorna dados da empresa vinculada ao usuário logado
   getMe: async (req: Request, res: Response) => {
     try {
       const authHeader = req.headers.authorization || '';

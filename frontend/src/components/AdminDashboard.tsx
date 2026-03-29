@@ -9,6 +9,8 @@ import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { ExpenseDetailModal } from './ui/ExpenseDetailModal';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ManageCostCentersModal } from './dashboard/ManageCostCentersModal';
+import { MemberTransferModal } from './dashboard/MemberTransferModal';
 
 export default function AdminDashboard() {
   const { isPlatformAdmin } = useAuth();
@@ -25,6 +27,11 @@ export default function AdminDashboard() {
   });
   const [selectedExpense, setSelectedExpense] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  
+  // Modais de Centros de Custo e Membros
+  const [isManageCcOpen, setIsManageCcOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
 
   const fetchData = async () => {
     try {
@@ -137,14 +144,6 @@ export default function AdminDashboard() {
               <p className="text-[10px] text-[#86868B] font-medium uppercase tracking-widest">Acesso Global Ativo</p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate('/platform')}
-            className="text-white hover:bg-white/10"
-          >
-            Sair
-          </Button>
         </div>
       )}
 
@@ -260,15 +259,34 @@ export default function AdminDashboard() {
                     <p className="text-[10px] text-[#86868B] font-medium">{member.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border ${
-                    member.role === 'admin' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-[#F5F5F7] text-[#86868B] border-transparent'
-                  }`}>
-                    {member.role === 'admin' ? 'Admin' : 'Membro'}
-                  </span>
-                  <button onClick={() => handleToggleAdmin(member)} className="text-[#D2D2D7] hover:text-[#1D1D1F] transition-colors p-1">
-                    <ShieldCheck size={18} />
-                  </button>
+                <div className="flex items-center gap-6">
+                  {/* Status & Actions Group */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-end">
+                      <button 
+                        onClick={() => { setSelectedMember(member); setIsTransferModalOpen(true); }}
+                        className="text-[9px] font-bold text-[#86868B] uppercase tracking-[0.1em] hover:text-[#1D1D1F] transition-all flex items-center gap-1.5 mb-1.5 px-2 py-1 hover:bg-[#F5F5F7] rounded-lg border border-transparent hover:border-[#EBEBEB]"
+                      >
+                        <LayoutDashboard size={10} />
+                        {costCenters.find(cc => cc.id === member.cost_center_id)?.name || 'Geral'}
+                      </button>
+                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-all ${
+                        member.role === 'admin' 
+                          ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-sm' 
+                          : 'bg-[#F5F5F7] text-[#86868B] border-transparent'
+                      }`}>
+                        {member.role === 'admin' ? 'Admin' : 'Membro'}
+                      </span>
+                    </div>
+                    
+                    <button 
+                      onClick={() => handleToggleAdmin(member)} 
+                      className="w-9 h-9 flex items-center justify-center rounded-xl text-[#D2D2D7] hover:text-[#1D1D1F] hover:bg-[#F5F5F7] border border-transparent hover:border-[#EBEBEB] transition-all"
+                      title={member.role === 'admin' ? "Remover Admin" : "Tornar Admin"}
+                    >
+                      <ShieldCheck size={18} className={member.role === 'admin' ? "text-emerald-500" : ""} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -289,7 +307,12 @@ export default function AdminDashboard() {
               <Building size={20} className="text-emerald-500" />
               Caixas / Setores
             </h3>
-            <button className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest hover:text-[#1D1D1F]">Gerenciar</button>
+            <button 
+              onClick={() => setIsManageCcOpen(true)}
+              className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest hover:text-[#1D1D1F]"
+            >
+              Gerenciar
+            </button>
           </div>
           <div className="divide-y divide-[#F5F5F7]">
             {costCenters.length > 0 ? costCenters.map((cc) => (
@@ -310,8 +333,10 @@ export default function AdminDashboard() {
               </div>
             )) : (
               <div className="p-12 text-center">
-                <p className="text-sm text-[#86868B] font-medium mb-4">Nenhum caixa configurado.</p>
-                <Button variant="ghost" size="sm" className="text-[10px] uppercase tracking-widest">Criar Primeiro Caixa</Button>
+                <p className="text-sm text-[#86868B] font-medium mb-4">Nenhum caixa configurado além do Geral.</p>
+                <Button variant="ghost" size="sm" onClick={() => setIsManageCcOpen(true)} className="text-[10px] uppercase tracking-widest">
+                  Personalizar Setores
+                </Button>
               </div>
             )}
           </div>
@@ -368,6 +393,22 @@ export default function AdminDashboard() {
       </div>
 
       <ExpenseDetailModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} expense={selectedExpense} />
+      
+      {/* Modais de Gestão de Centros de Custo */}
+      <ManageCostCentersModal 
+        isOpen={isManageCcOpen} 
+        onClose={() => setIsManageCcOpen(false)} 
+        costCenters={costCenters} 
+        onRefresh={fetchData}
+      />
+
+      <MemberTransferModal 
+        isOpen={isTransferModalOpen} 
+        onClose={() => setIsTransferModalOpen(false)} 
+        member={selectedMember} 
+        costCenters={costCenters} 
+        onRefresh={fetchData} 
+      />
     </div>
   );
 }

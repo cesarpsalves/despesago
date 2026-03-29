@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext.js";
+import { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext.tsx";
+import { useSearchParams } from "react-router-dom";
 import AdminDashboard from "../components/AdminDashboard.tsx";
 import { AppLayout } from "../components/layout/AppLayout.tsx";
 import { EmployeeScanner } from "../components/scanner/EmployeeScanner.tsx";
@@ -8,8 +9,19 @@ import { Camera, LayoutDashboard, ChevronLeft } from "lucide-react";
 
 export default function Home() {
   const { role } = useAuth();
+  const [searchParams] = useSearchParams();
   const isAdmin = role === 'admin';
-  const [activeView, setActiveView] = useState<'default' | 'scanner'>(isAdmin ? 'default' : 'scanner');
+  
+  // Initialize from URL or default role logic
+  const initialView = searchParams.get('view') === 'scanner' ? 'scanner' : (isAdmin ? 'default' : 'scanner');
+  const [activeView, setActiveView] = useState<'default' | 'scanner'>(initialView);
+
+  // Sync if URL changes while on home
+  useEffect(() => {
+    const view = searchParams.get('view');
+    if (view === 'scanner') setActiveView('scanner');
+    else if (view === 'default') setActiveView('default');
+  }, [searchParams]);
 
   return (
     <AppLayout>
@@ -53,16 +65,6 @@ export default function Home() {
                     <h1 className="text-2xl font-bold text-[#1D1D1F] tracking-tight">Visão Geral</h1>
                     <p className="text-xs text-[#86868B] font-medium uppercase tracking-widest mt-0.5">Gestão em Tempo Real</p>
                   </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setActiveView('scanner')}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-6 py-3 bg-white border border-[#EBEBEB] rounded-2xl text-[10px] font-bold uppercase tracking-widest text-[#1D1D1F] hover:shadow-premium transition-all hover:border-[#D2D2D7]"
-                  >
-                    <Camera size={16} className="text-emerald-500" />
-                    Escanear Recibo
-                  </button>
                 </div>
               </div>
               
