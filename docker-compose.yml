@@ -13,14 +13,14 @@ services:
       - traefik-public
     labels:
       - "traefik.enable=true"
-      # Redirection HTTP -> HTTPS
+      # Redirection HTTP -> HTTPS (Somente para o domínio oficial)
       - "traefik.http.routers.despesago-http.rule=Host(`despesago.com.br`)"
       - "traefik.http.routers.despesago-http.entrypoints=web"
       - "traefik.http.routers.despesago-http.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectScheme.scheme=https"
-      # HTTPS Router
-      - "traefik.http.routers.despesago.rule=Host(`despesago.com.br`)"
-      - "traefik.http.routers.despesago.entrypoints=websecure"
+      # HTTPS Router (Domínio e IP para testes - SSL no domínio, Sem SSL ignorado no IP)
+      - "traefik.http.routers.despesago.rule=Host(`despesago.com.br`) || Host(`31.97.26.125`)"
+      - "traefik.http.routers.despesago.entrypoints=web,websecure"
       - "traefik.http.routers.despesago.tls=true"
       - "traefik.http.routers.despesago.tls.certresolver=le"
       - "traefik.http.services.despesago.loadbalancer.server.port=80"
@@ -45,9 +45,9 @@ services:
       - traefik-public
     labels:
       - "traefik.enable=true"
-      # Configuração para responder em /api com strip do prefixo
-      - "traefik.http.routers.despesago-api.rule=Host(`despesago.com.br`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.despesago-api.entrypoints=websecure"
+      # Configuração para responder em /api com strip do prefixo (Domínio e IP)
+      - "traefik.http.routers.despesago-api.rule=(Host(`despesago.com.br`) || Host(`31.97.26.125`)) && PathPrefix(`/api`)"
+      - "traefik.http.routers.despesago-api.entrypoints=web,websecure"
       - "traefik.http.routers.despesago-api.tls=true"
       - "traefik.http.routers.despesago-api.tls.certresolver=le"
       - "traefik.http.routers.despesago-api.middlewares=despesago-api-strip"
