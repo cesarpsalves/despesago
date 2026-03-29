@@ -14,7 +14,7 @@ export function SEO({
   title, 
   description, 
   canonical, 
-  ogImage = '/logo/logo_branco_fundo_verde.png', 
+  ogImage = '/logo/social_preview.png', 
   ogType = 'website',
   twitterHandle = '@despesago',
   children 

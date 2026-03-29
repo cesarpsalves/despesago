@@ -131,7 +131,7 @@ export default function AdminDashboard() {
   const isPro = (company?.plan === 'pro' || company?.plan === 'platform_admin') && company?.subscriptionStatus === 'active';
 
   return (
-    <div className="space-y-10 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="space-y-6 md:space-y-10 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       {/* Banner de Modo Admin Global */}
       {isPlatformAdmin && (
         <div className="bg-[#1D1D1F] p-4 rounded-[20px] flex items-center justify-between text-white shadow-premium">
@@ -192,27 +192,27 @@ export default function AdminDashboard() {
           color="emerald"
         />
         
-        <div className="bg-white p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft flex flex-col justify-between group hover:shadow-premium transition-all">
+        <div className="bg-white p-6 sm:p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft flex flex-col justify-between group hover:shadow-premium transition-all">
           <div className="flex items-start justify-between mb-6">
             <div className="w-12 h-12 bg-[#F5F5F7] rounded-xl flex items-center justify-center text-[#1D1D1F] group-hover:scale-110 transition-transform">
               <UserPlus size={24} />
             </div>
             <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">{members.length} Ativos</span>
           </div>
-          <form onSubmit={handleInvite} className="flex gap-2">
+          <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-3">
             <input 
               type="email" 
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
               placeholder="Convidar por e-mail" 
-              className="flex-1 bg-[#F5F5F7] border-transparent rounded-[12px] px-4 py-2 text-sm outline-none focus:bg-white focus:border-[#EBEBEB] transition-all font-medium" 
+              className="flex-1 bg-[#F5F5F7] border-transparent rounded-[12px] px-4 py-3 sm:py-2 text-sm outline-none focus:bg-white focus:border-[#EBEBEB] transition-all font-medium" 
               required 
             />
             <Button type="submit" size="sm" className="px-5">Enviar</Button>
           </form>
         </div>
 
-        <div className="bg-white p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all">
+        <div className="bg-white p-6 sm:p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
               <Sparkles size={24} />
@@ -241,7 +241,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Equipe Table Style */}
         <section className="bg-white rounded-[24px] border border-[#EBEBEB] shadow-soft overflow-hidden">
-          <div className="px-8 py-6 border-b border-[#F5F5F7] flex justify-between items-center">
+          <div className="px-5 sm:px-8 py-4 sm:py-6 border-b border-[#F5F5F7] flex justify-between items-center">
             <h3 className="font-bold text-[#1D1D1F] flex items-center gap-2">
               <Users size={20} className="text-emerald-500" />
               Sua Equipe
@@ -249,28 +249,29 @@ export default function AdminDashboard() {
           </div>
           <div className="divide-y divide-[#F5F5F7]">
             {members.slice(0, 5).map((member) => (
-              <div key={member.id} className="px-8 py-5 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-[#F5F5F7] flex items-center justify-center text-sm font-bold text-[#1D1D1F] border border-[#EBEBEB]">
+              <div key={member.id} className="px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-colors group gap-3">
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#F5F5F7] flex items-center justify-center text-sm font-bold text-[#1D1D1F] border border-[#EBEBEB] shrink-0">
                     {member.display_name?.[0] || member.email[0].toUpperCase()}
                   </div>
-                  <div>
-                    <p className="font-bold text-[#1D1D1F] text-sm">{member.display_name || 'Membro'}</p>
-                    <p className="text-[10px] text-[#86868B] font-medium">{member.email}</p>
+                  <div className="min-w-0">
+                    <p className="font-bold text-[#1D1D1F] text-sm truncate">{member.display_name || 'Membro'}</p>
+                    <p className="text-[10px] text-[#86868B] font-medium truncate">{member.email}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3 sm:gap-6 shrink-0">
                   {/* Status & Actions Group */}
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 sm:gap-4">
                     <div className="flex flex-col items-end">
                       <button 
                         onClick={() => { setSelectedMember(member); setIsTransferModalOpen(true); }}
-                        className="text-[9px] font-bold text-[#86868B] uppercase tracking-[0.1em] hover:text-[#1D1D1F] transition-all flex items-center gap-1.5 mb-1.5 px-2 py-1 hover:bg-[#F5F5F7] rounded-lg border border-transparent hover:border-[#EBEBEB]"
+                        className="text-[9px] font-bold text-[#86868B] uppercase tracking-[0.1em] hover:text-[#1D1D1F] transition-all flex items-center gap-1.5 mb-1 px-1.5 py-0.5 hover:bg-[#F5F5F7] rounded-lg border border-transparent hover:border-[#EBEBEB]"
                       >
                         <LayoutDashboard size={10} />
-                        {costCenters.find(cc => cc.id === member.cost_center_id)?.name || 'Geral'}
+                        <span className="hidden xs:inline">{costCenters.find(cc => cc.id === member.cost_center_id)?.name || 'Geral'}</span>
+                        <span className="xs:hidden">Setor</span>
                       </button>
-                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-all ${
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-all ${
                         member.role === 'admin' 
                           ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] shadow-sm' 
                           : 'bg-[#F5F5F7] text-[#86868B] border-transparent'
@@ -281,7 +282,7 @@ export default function AdminDashboard() {
                     
                     <button 
                       onClick={() => handleToggleAdmin(member)} 
-                      className="w-9 h-9 flex items-center justify-center rounded-xl text-[#D2D2D7] hover:text-[#1D1D1F] hover:bg-[#F5F5F7] border border-transparent hover:border-[#EBEBEB] transition-all"
+                      className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl text-[#D2D2D7] hover:text-[#1D1D1F] hover:bg-[#F5F5F7] border border-transparent hover:border-[#EBEBEB] transition-all"
                       title={member.role === 'admin' ? "Remover Admin" : "Tornar Admin"}
                     >
                       <ShieldCheck size={18} className={member.role === 'admin' ? "text-emerald-500" : ""} />
@@ -302,7 +303,7 @@ export default function AdminDashboard() {
 
         {/* Centros de Custo (Caixas) */}
         <section className="bg-white rounded-[24px] border border-[#EBEBEB] shadow-soft overflow-hidden">
-          <div className="px-8 py-6 border-b border-[#F5F5F7] flex justify-between items-center">
+          <div className="px-5 sm:px-8 py-4 sm:py-6 border-b border-[#F5F5F7] flex justify-between items-center">
             <h3 className="font-bold text-[#1D1D1F] flex items-center gap-2">
               <Building size={20} className="text-emerald-500" />
               Caixas / Setores
@@ -316,9 +317,9 @@ export default function AdminDashboard() {
           </div>
           <div className="divide-y divide-[#F5F5F7]">
             {costCenters.length > 0 ? costCenters.map((cc) => (
-              <div key={cc.id} className="px-8 py-5 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#F5F5F7] flex items-center justify-center text-[#1D1D1F] border border-[#EBEBEB]">
+              <div key={cc.id} className="px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-colors group">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F5F5F7] flex items-center justify-center text-[#1D1D1F] border border-[#EBEBEB] shrink-0">
                     <LayoutDashboard size={18} />
                   </div>
                   <div>
@@ -326,9 +327,9 @@ export default function AdminDashboard() {
                     <p className="text-[10px] text-[#86868B] font-medium">Orçamento: {cc.budget ? `R$ ${cc.budget}` : 'Sem limite'}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest">Ativo</span>
+                  <span className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest sm:block hidden">Ativo</span>
                 </div>
               </div>
             )) : (
@@ -344,7 +345,7 @@ export default function AdminDashboard() {
 
         {/* Despesas Recentes */}
         <section className="bg-white rounded-[24px] border border-[#EBEBEB] shadow-soft overflow-hidden">
-          <div className="px-8 py-6 border-b border-[#F5F5F7] flex justify-between items-center">
+          <div className="px-5 sm:px-8 py-4 sm:py-6 border-b border-[#F5F5F7] flex justify-between items-center">
             <h3 className="font-bold text-[#1D1D1F] flex items-center gap-2">
               <History size={20} className="text-emerald-500" />
               Despesas Recentes
@@ -356,26 +357,26 @@ export default function AdminDashboard() {
               <div 
                 key={exp.id} 
                 onClick={() => { setSelectedExpense(exp); setIsDetailOpen(true); }}
-                className="px-8 py-5 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-all cursor-pointer group"
+                className="px-5 sm:px-8 py-4 sm:py-5 flex items-center justify-between hover:bg-[#F5F5F7]/30 transition-all cursor-pointer group gap-4"
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-[#F5F5F7] rounded-xl flex items-center justify-center text-[#1D1D1F] border border-[#EBEBEB] group-hover:bg-white group-hover:scale-105 transition-all">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#F5F5F7] rounded-xl flex items-center justify-center text-[#1D1D1F] border border-[#EBEBEB] group-hover:bg-white group-hover:scale-105 transition-all shrink-0 uppercase font-bold text-sm">
                     {exp.merchant?.[0] || 'D'}
                   </div>
-                  <div>
-                    <p className="font-bold text-[#1D1D1F] text-sm truncate max-w-[120px]">{exp.merchant}</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[9px] text-[#86868B] font-bold uppercase tracking-widest">{exp.category || 'Geral'}</p>
+                  <div className="min-w-0">
+                    <p className="font-bold text-[#1D1D1F] text-sm truncate">{exp.merchant}</p>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <p className="text-[9px] text-[#86868B] font-bold uppercase tracking-widest truncate">{exp.category || 'Geral'}</p>
                       {exp.cost_centers?.name && (
                         <>
-                          <span className="w-1 h-1 rounded-full bg-[#D2D2D7]" />
-                          <p className="text-[9px] text-emerald-600 font-extrabold uppercase tracking-tight">{exp.cost_centers.name}</p>
+                          <span className="w-1 h-1 rounded-full bg-[#D2D2D7] shrink-0" />
+                          <p className="text-[9px] text-emerald-600 font-extrabold uppercase tracking-tight truncate">{exp.cost_centers.name}</p>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <p className="font-bold text-[#1D1D1F] text-sm">
                     R$ {Number(exp.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
@@ -415,19 +416,19 @@ export default function AdminDashboard() {
 
 function StatCard({ icon: Icon, label, value, sublabel, color = 'dark' }: any) {
   return (
-    <div className="bg-white p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all group">
-      <div className="flex items-center gap-4 mb-6">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${
+    <div className="bg-white p-6 sm:p-8 rounded-[24px] border border-[#EBEBEB] shadow-soft hover:shadow-premium transition-all group">
+      <div className="flex items-center gap-4 mb-4 sm:mb-6">
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 shrink-0 ${
           color === 'emerald' ? 'bg-emerald-50 text-emerald-500' : 'bg-[#F5F5F7] text-[#1D1D1F]'
         }`}>
-          <Icon size={24} />
+          <Icon size={window.innerWidth < 640 ? 20 : 24} />
         </div>
         <div>
           <p className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest leading-none mb-1">{label}</p>
           <p className="text-xs text-[#86868B] font-medium">{sublabel}</p>
         </div>
       </div>
-      <p className="text-3xl font-bold tracking-tight text-[#1D1D1F]">{value}</p>
+      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-[#1D1D1F]">{value}</p>
     </div>
   );
 }

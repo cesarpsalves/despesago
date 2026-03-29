@@ -1,12 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
-export const Logo: React.FC<{ className?: string; showText?: boolean; size?: 'sm' | 'md' | 'lg' }> = ({ 
+export const Logo: React.FC<{ 
+  className?: string; 
+  showText?: boolean; 
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+}> = ({ 
   className = "", 
   showText = true,
-  size = 'md'
+  size = 'md',
+  disabled = false
 }) => {
   const navigate = useNavigate();
+  const { session } = useAuth();
 
   const iconSizes = {
     sm: "w-6 h-6 rounded-lg",
@@ -20,15 +28,24 @@ export const Logo: React.FC<{ className?: string; showText?: boolean; size?: 'sm
     lg: "text-2xl"
   };
 
+  const handleClick = () => {
+    if (disabled) return;
+    if (session) {
+      navigate('/app');
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div 
-      className={`flex items-center gap-2.5 group cursor-pointer transition-all duration-300 ${className}`} 
-      onClick={() => navigate('/app')}
-      role="button"
+      className={`flex items-center gap-2.5 group ${disabled ? 'cursor-default' : 'cursor-pointer'} transition-all duration-300 ${className}`} 
+      onClick={handleClick}
+      role={disabled ? undefined : "button"}
       aria-label="Ir para o Início"
     >
       <div className="relative flex items-center justify-center transition-all duration-300 group-hover:scale-105 active:scale-95">
-        <div className={`${iconSizes[size]} bg-white shadow-soft border border-[#EBEBEB] flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:shadow-premium`}>
+        <div className={`${iconSizes[size]} bg-white shadow-soft border border-[#EBEBEB] flex items-center justify-center overflow-hidden transition-all duration-300 ${!disabled && 'group-hover:shadow-premium'}`}>
           <img 
             src="/logo/logo_preto_fundo_transparente.png" 
             alt="dg" 

@@ -15,12 +15,13 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 1600
     },
     server: {
-      port: 5173,
+      port: 5174,
+      host: true, // Permite acesso via IP local (Essencial para testar no celular S20 Ultra)
       strictPort: false,
       proxy: {
         // Proxy unificado para o backend
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:3000',
+          target: mode === 'development' ? 'http://localhost:3000' : (env.VITE_API_URL || 'http://localhost:3000'),
           changeOrigin: true,
           secure: false
         }

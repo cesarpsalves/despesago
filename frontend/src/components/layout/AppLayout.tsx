@@ -68,44 +68,49 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-24 pb-32 md:pb-12 max-w-7xl mx-auto w-full">
+      {/* Main Content Area - Padding otimizado para não 'achatar' em landscape ou telas curtas */}
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-32 md:pb-12 max-w-7xl mx-auto w-full">
         {children}
       </main>
 
       {/* Bottom Navigation (Mobile Only) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-[#EBEBEB] pb-[env(safe-area-inset-bottom)] md:hidden">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+      <nav className="fixed bottom-0 left-0 right-0 z-[60] glass border-t border-[#EBEBEB] pb-[env(safe-area-inset-bottom)] md:hidden">
+        <div className="flex items-center justify-around h-20 max-w-lg mx-auto px-4">
           <button 
             onClick={() => navigate('/app')}
-            className={`flex flex-col items-center justify-center w-full h-full active:scale-90 transition-all ${
+            className={`flex flex-col items-center justify-center flex-1 h-full active:scale-90 transition-all gap-1 ${
               isActive('/app') ? 'text-[#1D1D1F]' : 'text-[#86868B]'
             }`}
           >
-            <Home size={20} />
-            <span className="text-[10px] font-bold mt-1 uppercase tracking-tight">Painel</span>
+            <div className={`p-2 rounded-xl transition-all ${isActive('/app') ? 'bg-[#1D1D1F]/5' : ''}`}>
+              <Home size={20} strokeWidth={isActive('/app') ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-tight">Painel</span>
           </button>
           
-          {/* Central Button: Scan for Anyone with Company */}
-          <div className="relative w-full flex justify-center h-full">
+          {/* Central Button: Scan - Robust Implementation */}
+          <div className="flex-1 flex justify-center -mt-10 relative">
             <motion.button
               whileTap={{ scale: 0.9 }}
-              className="absolute -top-6 flex items-center justify-center w-16 h-16 bg-[#1D1D1F] text-white rounded-full shadow-premium border-4 border-white"
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-[#1D1D1F] text-white rounded-2xl shadow-premium border-[4px] border-[#F5F5F7] z-10"
               onClick={() => navigate('/app?view=scanner&trigger=true')}
             >
-              <Camera size={26} />
+              <Camera size={24} className="sm:w-7 sm:h-7" strokeWidth={2.5} />
             </motion.button>
-            <span className="absolute bottom-2 text-[10px] font-bold text-[#86868B] uppercase tracking-tight">Escanear</span>
+            <span className="absolute -bottom-10 text-[9px] font-bold text-[#86868B] uppercase tracking-wider whitespace-nowrap">Escanear</span>
           </div>
 
           <button 
             onClick={() => navigate('/app/profile')}
-            className={`flex flex-col items-center justify-center w-full h-full active:scale-95 transition-all ${
+            className={`flex flex-col items-center justify-center flex-1 h-full active:scale-95 transition-all gap-1 ${
               isActive('/app/profile') ? 'text-[#1D1D1F]' : 'text-[#86868B]'
             }`}
           >
-            <User size={20} />
-            <span className="text-[10px] font-bold mt-1 uppercase tracking-tight">Conta</span>
+            <div className={`p-2 rounded-xl transition-all ${isActive('/app/profile') ? 'bg-[#1D1D1F]/5' : ''}`}>
+              <User size={20} strokeWidth={isActive('/app/profile') ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-tight">Conta</span>
           </button>
         </div>
       </nav>

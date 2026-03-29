@@ -7,6 +7,19 @@ import { AuthContext } from './AuthContext';
 // Configuração do axios global para usar o proxy do Vite no desenvolvimento local
 axios.defaults.baseURL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_URL || '/api');
 
+// Interceptor global para garantir que o Token de Autenticação esteja em TODAS as chamadas
+axios.interceptors.request.use(async (config) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      config.headers.Authorization = `Bearer ${session.access_token}`;
+    }
+  } catch (err) {
+    console.error('Erro ao injetar token no Axios:', err);
+  }
+  return config;
+});
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -36,10 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (err) {
       console.error('Erro ao verificar status da empresa via API:', err);
-      setCompanyId(null);
-      setRole(null);
-      setIsPlatformAdmin(false);
-      setRequireOnboarding(true);
+      // Mantemos o estado atual ou falhamos silenciosamente para evitar loop de onboarding
+      // Só forçamos onboarding se tivermos certeza que o erro é "usuário não encontrado no esquema"
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        setRequireOnboarding(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -50,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(session?.user ?? null);
 
     if (session) {
+      // O interceptor acima já deve lidar com isso, mas mantemos o default por compatibilidade legado se necessário
       axios.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
       await checkCompanyStatus();
     } else {
