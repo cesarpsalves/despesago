@@ -37,8 +37,8 @@ export const Logo: React.FC<{ className?: string; showText?: boolean }> = ({
       
       {showText && (
         <div className="flex flex-col">
-          <span className="text-xl md:text-2xl font-black tracking-tighter text-slate-900 leading-none">
-            despesa<span className="text-brand-600 uppercase italic">go</span>
+          <span className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 leading-none">
+            Despesa<span className="text-brand-600">Go</span>
           </span>
         </div>
       )}

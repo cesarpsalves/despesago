@@ -106,11 +106,18 @@ export default function Subscription() {
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${isPro ? 'text-indigo-400' : 'text-slate-400'}`}>
-                Seu Plano Atual
-              </p>
+              <div className="flex items-center gap-2 mb-2">
+                <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${isPro ? 'text-indigo-400' : 'text-slate-400'}`}>
+                  Seu Plano Atual
+                </p>
+                {isPlatformAdmin && (
+                  <span className="bg-amber-400/20 text-amber-500 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-amber-400/30 tracking-tight">
+                    Plataforma Admin
+                  </span>
+                )}
+              </div>
               <h2 className="text-2xl sm:text-4xl font-black tracking-tighter mb-2">
-                {isPlatformAdmin ? 'Administrador da Plataforma' : (isPro ? 'Plano Pro Ativo' : 'Plano Gratuito')}
+                {isPro ? 'Plano Pro Ativo' : 'Plano Gratuito'}
               </h2>
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className={isPro ? 'text-emerald-400' : 'text-slate-300 shrink-0'} />
@@ -127,7 +134,7 @@ export default function Subscription() {
                 </div>
               ) : (
                 <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl">
-                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Acesso Free</span>
+                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-brand-600 transition-colors">Acesso Free</span>
                 </div>
               )}
               {data?.current_period_end && isPro && (

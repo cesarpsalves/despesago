@@ -63,9 +63,9 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Button 
-            className="flex-1 rounded-2xl h-11 text-xs font-bold bg-white text-slate-900 border-none hover:bg-slate-100 transition-all hover:scale-[1.02]"
+            className="flex-1 rounded-2xl h-11 text-xs font-bold bg-indigo-600 text-white border-none hover:bg-indigo-700 transition-all hover:scale-[1.02] shadow-lg shadow-indigo-500/20"
             onClick={async () => {
               toast.dismiss(t);
               const loadingId = toast.loading("Confirmando upgrade...");
@@ -79,11 +79,11 @@ export default function SuperAdminDashboard() {
               }
             }}
           >
-            Confirmar
+            Confirmar Upgrade
           </Button>
           <Button 
             variant="ghost" 
-            className="flex-1 rounded-2xl h-11 text-xs font-bold text-slate-400 hover:bg-white/5 hover:text-white"
+            className="flex-1 rounded-2xl h-11 text-xs font-bold text-slate-400 hover:bg-white/5 hover:text-white border border-slate-800"
             onClick={() => toast.dismiss(t)}
           >
             Cancelar
