@@ -16,17 +16,15 @@ export const superAdminController = {
 
       if (error) throw error;
 
-      // Busca contagem de usuários para todas as empresas em paralelo para ser rápido
-      const { data: userCounts } = await supabase
-        .schema('app_expense_b2b')
-        .rpc('count_users_per_company'); 
-        // Se a RPC não existir, usaremos uma query alternativa ou simularemos.
-        // Vamos usar uma query direta para garantir compatibilidade inicial:
-      
-      const { data: allUsers } = await supabase
+      // Busca contagem de usuários para todas as empresas em paralelo
+      const { data: allUsers, error: usersError } = await supabase
         .schema('app_expense_b2b')
         .from('users')
         .select('company_id');
+
+      if (usersError) {
+        console.warn('Erro ao buscar contagem de usuários, continuando com zero:', usersError);
+      }
 
       const countMap: Record<string, number> = {};
       allUsers?.forEach(u => {
@@ -78,41 +76,61 @@ export const superAdminController = {
       if (existingSub) {
         console.log(`[SuperAdmin] Atualizando assinatura existente: ${existingSub.id}`);
         // Upgrade da assinatura existente
-        const { error } = await supabase
-          .schema('app_expense_b2b')
-          .from('subscriptions')
-          .update({ 
-            plan: 'pro', 
-            status: 'active',
-            users_limit: 100,
-            expenses_limit: 5000,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', (existingSub as any).id);
-        
-        if (error) {
-          console.error('[SuperAdmin] Erro no update da assinatura:', error);
-          throw error;
-        }
+        const updateTasks = [
+          supabase
+            .schema('app_expense_b2b')
+            .from('subscriptions')
+            .update({ 
+              plan: 'pro', 
+              status: 'active',
+              users_limit: 100,
+              expenses_limit: 5000,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', (existingSub as any).id),
+          supabase
+            .schema('app_expense_b2b')
+            .from('companies')
+            .update({ plan: 'pro' })
+            .eq('id', companyId)
+        ];
+
+        const results = await Promise.all(updateTasks);
+        results.forEach((r, idx) => {
+          if (r.error) {
+            console.error(`[SuperAdmin] Erro no task ${idx}:`, r.error);
+            throw r.error;
+          }
+        });
       } else {
         console.log('[SuperAdmin] Criando nova assinatura de cortesia');
-        // Cria nova assinatura cortesia
-        const { error } = await supabase
-          .schema('app_expense_b2b')
-          .from('subscriptions')
-          .insert([{
-            company_id: companyId,
-            plan: 'pro',
-            status: 'active',
-            billing_cycle: 'monthly',
-            users_limit: 100,
-            expenses_limit: 5000
-          }]);
-        
-        if (error) {
-          console.error('[SuperAdmin] Erro no insert da assinatura:', error);
-          throw error;
-        }
+        // Cria nova assinatura cortesia e atualiza empresa
+        const insertTasks = [
+          supabase
+            .schema('app_expense_b2b')
+            .from('subscriptions')
+            .insert([{
+              company_id: companyId,
+              plan: 'pro',
+              status: 'active',
+              billing_cycle: 'monthly',
+              users_limit: 100,
+              expenses_limit: 5000
+            }]),
+          supabase
+            .schema('app_expense_b2b')
+            .from('companies')
+            .update({ plan: 'pro' })
+            .eq('id', companyId)
+        ];
+
+        const results = await Promise.all(insertTasks);
+        results.forEach((r, idx) => {
+          if (r.error) {
+            console.error(`[SuperAdmin] Erro no task ${idx}:`, r.error);
+            throw r.error;
+          }
+        });
       }
 
       return res.json({ success: true, message: 'Cortesia PRO concedida com sucesso!' });

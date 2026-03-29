@@ -203,9 +203,9 @@ export default function SuperAdminDashboard() {
                           size="sm" 
                           variant="secondary"
                           onClick={() => handleUpgrade(company.id, company.name)}
-                          className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-600 hover:text-white transition-all shadow-sm active:scale-95"
+                          className="h-9 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest bg-brand-600 text-white hover:bg-brand-700 transition-all shadow-md shadow-brand-500/20 active:scale-95 border-none"
                         >
-                          Ativar Cortesia
+                          Ativar PRO
                         </Button>
                       ) : (
                         <div className="flex items-center justify-end gap-2 text-emerald-600">
@@ -244,9 +244,8 @@ export default function SuperAdminDashboard() {
                   {company.plan !== 'pro' && (
                     <Button 
                       size="sm" 
-                      variant="secondary"
                       onClick={() => handleUpgrade(company.id, company.name)}
-                      className="h-10 rounded-2xl font-black text-[10px] uppercase tracking-widest px-6 shadow-sm active:scale-95"
+                      className="h-10 rounded-2xl font-black text-[10px] uppercase tracking-widest px-6 bg-brand-600 text-white shadow-lg shadow-brand-500/20 active:scale-95 border-none"
                     >
                       Ativar PRO
                     </Button>

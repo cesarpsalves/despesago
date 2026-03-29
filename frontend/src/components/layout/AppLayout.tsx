@@ -1,5 +1,5 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { Home, Camera, LogOut, UserCircle, Globe, CreditCard } from 'lucide-react';
+import { Home, Camera, LogOut, UserCircle, Globe, CreditCard, ShieldCheck } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -26,34 +26,34 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
             </span>
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1 sm:gap-4">
             {isPlatformAdmin && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="w-full flex items-center justify-center gap-2 bg-slate-900 border-none hover:bg-slate-800 text-white shadow-xl shadow-brand-500/10 h-10 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+              <Button 
+                variant="ghost" 
+                size="sm" 
                 onClick={() => navigate('/platform')}
+                className="text-amber-600 hover:text-amber-700 bg-amber-50/50 hover:bg-amber-50 rounded-xl border-amber-100/50 hover:border-amber-200 px-2 sm:px-4 flex transition-all gap-1 sm:gap-2 shadow-sm"
               >
-                <Globe className="w-3.5 h-3.5 text-brand-400" />
-                Painel Global
+                <ShieldCheck className="w-5 h-5 fill-amber-100" />
+                <span className="font-bold text-[9px] sm:text-[10px] uppercase tracking-wider">Painel</span>
               </Button>
             )}
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => navigate('/app/profile')}
-              className="text-slate-600 hover:text-brand-600 hover:bg-brand-50/80 rounded-xl border border-transparent hover:border-brand-100 px-3 sm:px-4 transition-all"
-            >
-              <UserCircle className="w-5 h-5 sm:mr-2" />
-              <span className="hidden sm:inline font-bold text-xs uppercase tracking-tight">Meus Dados</span>
-            </Button>
 
             <Button 
               variant="ghost" 
               size="sm" 
+              onClick={() => navigate('/app/profile')}
+              className="text-slate-600 bg-slate-50/50 hover:bg-slate-100 hover:text-brand-600 border border-slate-100/50 hover:border-slate-200 font-bold transition-all px-2 sm:px-4 shadow-sm"
+            >
+              <UserCircle className="w-5 h-5 sm:mr-2" />
+              <span className="hidden sm:inline font-bold text-xs uppercase tracking-tight">Meus Dados</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm" 
               onClick={signOut}
-              className="text-slate-400 hover:text-red-600 hover:bg-red-50/80 rounded-xl border border-transparent hover:border-red-100 px-3 transition-all"
+              className="text-red-500 bg-red-50/30 hover:bg-red-50 hover:text-red-700 border border-red-100/30 hover:border-red-100 transition-all font-bold px-2 sm:px-4 shadow-sm"
             >
               <LogOut className="w-5 h-5 sm:mr-2" />
               <span className="hidden sm:inline font-bold text-xs uppercase tracking-tight">Sair</span>
@@ -63,12 +63,12 @@ export const AppLayout: React.FC<{ children: React.ReactNode; title?: string }> 
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-24 pb-24 md:pb-12 max-w-7xl mx-auto w-full transition-all duration-300">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 pt-24 pb-48 md:pb-12 max-w-7xl mx-auto w-full transition-all duration-300">
         {children}
       </main>
 
       {/* Bottom Navigation (Mobile Only) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 pb-[env(safe-area-inset-bottom)] md:hidden shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 pb-[env(safe-area-inset-bottom)] md:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
           <button 
             onClick={() => navigate('/app')}

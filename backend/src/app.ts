@@ -13,11 +13,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // API Routes
-app.use('/expenses', expenseRoutes);
-app.use('/company', companyRoutes);
-app.use('/billing', billingRoutes);
-app.use('/auth', authRoutes);
-app.use('/platform', platformRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/company', companyRoutes);
+app.use('/api/billing', billingRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/platform', platformRoutes);
 
 
 // Health check

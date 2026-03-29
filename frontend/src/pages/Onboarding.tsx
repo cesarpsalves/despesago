@@ -17,15 +17,8 @@ export default function Onboarding() {
     e.preventDefault();
     setLoading(true);
     try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        console.log('API URL:', apiUrl);
-
-        // Url completa para o endpoint de onboarding
-        const onboardingUrl = `${apiUrl}/company/onboarding`;
-        console.log('Enviando dados de onboarding para:', onboardingUrl);
-        console.log('Dados:', form);
-
-        const response = await axios.post(onboardingUrl, form, {
+        // Usar a base URL pré-configurada do Axios ou garantir o prefixo /api
+        const response = await axios.post('/company/onboarding', form, {
           headers: {
             'Content-Type': 'application/json'
           },
@@ -57,7 +50,17 @@ interface ApiErrorResponse {
   message?: string;
 }
 
-const axiosError = error as AxiosError<ApiErrorResponse>;
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      const errorMessage = axiosError.response?.data?.error || 
+                          axiosError.response?.data?.message || 
+                          axiosError.message || '';
+
+      if (errorMessage.includes('já está vinculado')) {
+        toast.info('Você já possui uma equipe. Redirecionando...');
+        await checkCompanyStatus();
+        navigate('/app');
+        return;
+      }
 
       if (axiosError.response) {
         const errorResponse = axiosError.response as AxiosResponse<ApiErrorResponse>;

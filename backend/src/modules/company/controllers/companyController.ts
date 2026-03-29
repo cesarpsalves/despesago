@@ -22,11 +22,11 @@ export const companyController = {
       const { data: existingUser } = await supabaseAdmin
         .schema('app_expense_b2b')
         .from('users')
-        .select('company_id')
+        .select('id, company_id')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (existingUser) {
+      if (existingUser && existingUser.company_id) {
         return res.status(400).json({ error: 'Usuário já está vinculado a uma empresa corporativa.' });
       }
 
@@ -43,17 +43,17 @@ export const companyController = {
         
       if (companyError) throw companyError;
 
-      // Vincula o usuário fundador como Admin da empresa
+      // Vincula o usuário fundador como Admin da empresa (upsert suporta se já existir)
       const { error: userError } = await supabaseAdmin
         .schema('app_expense_b2b')
         .from('users')
-        .insert([{
+        .upsert([{
           id: user.id,
           company_id: company.id,
           role: 'admin',
           name: userName || user.email?.split('@')[0] || 'Usuário Fundador',
           email: user.email
-        }]);
+        }], { onConflict: 'id' });
 
       if (userError) throw userError;
 

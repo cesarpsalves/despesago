@@ -163,7 +163,7 @@ export const authController = {
         companyId: userData.company_id,
         isPlatformAdmin: !!userData.is_platform_admin,
         company: userData.company,
-        requireOnboarding: !userData.company_id
+        requireOnboarding: !userData.is_platform_admin && !userData.company_id
       });
     } catch (error: any) {
       console.error('Auth getMe Error:', error.message);
