@@ -45,10 +45,10 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-            className={`relative w-full ${sizeClasses[size]} bg-white rounded-[32px] shadow-premium border border-[#EBEBEB] overflow-hidden text-left`}
+            className={`relative w-full ${sizeClasses[size]} bg-white rounded-[32px] shadow-premium border border-[#EBEBEB] flex flex-col max-h-[90vh] overflow-hidden text-left`}
           >
             {/* Header */}
-            <div className="px-8 py-6 flex items-center justify-between">
+            <div className="px-8 py-6 flex items-center justify-between flex-shrink-0">
               <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">
                 {title}
               </h3>
@@ -61,13 +61,13 @@ export const Modal: React.FC<ModalProps> = ({
             </div>
 
             {/* Body */}
-            <div className="px-8 pb-8 text-[#1D1D1F]">
+            <div className="px-8 pb-8 text-[#1D1D1F] overflow-y-auto flex-1 custom-scrollbar">
               {children}
             </div>
 
             {/* Footer */}
             {footer && (
-              <div className="px-8 py-6 bg-[#F5F5F7]/50 border-t border-[#EBEBEB] flex justify-end gap-4">
+              <div className="px-8 py-6 bg-[#F5F5F7]/50 border-t border-[#EBEBEB] flex justify-end gap-4 flex-shrink-0">
                 {footer}
               </div>
             )}

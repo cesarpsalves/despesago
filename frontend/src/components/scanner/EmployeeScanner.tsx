@@ -19,6 +19,7 @@ interface ProcessResponse {
 export function EmployeeScanner() {
   const [searchParams, setSearchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [selectedCostCenter, setSelectedCostCenter] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -317,27 +318,45 @@ export function EmployeeScanner() {
             </motion.div>
           ) : (
             <div className="space-y-4">
-              <motion.div
-                key="interaction"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="relative aspect-[4/5] sm:aspect-video bg-white rounded-[40px] border-2 border-dashed border-[#EBEBEB] group hover:border-emerald-500 transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center pointer-events-none">
-                  <div className="w-24 h-24 bg-[#F5F5F7] rounded-[32px] flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-[#EBEBEB] shadow-sm">
-                    <Camera size={40} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div
+                  key="camera-interaction"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="relative aspect-[4/5] sm:aspect-square bg-white rounded-[40px] border-2 border-dashed border-[#EBEBEB] group hover:border-emerald-500 transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center pointer-events-none">
+                    <div className="w-20 h-20 bg-[#F5F5F7] rounded-[28px] flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-[#EBEBEB] shadow-sm">
+                      <Camera size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">Tirar Foto</h3>
+                    <p className="text-[10px] text-[#86868B] max-w-[200px] mt-2 font-medium leading-relaxed uppercase tracking-widest">Usar Câmera</p>
                   </div>
-                  <h3 className="text-3xl font-bold text-[#1D1D1F] tracking-tight">Escanear Recibo</h3>
-                  <p className="text-sm text-[#86868B] max-w-[240px] mt-3 font-medium leading-relaxed">Capture a foto para extrair valores automaticamente via IA.</p>
-                </div>
-              </motion.div>
+                </motion.div>
+
+                <motion.div
+                  key="gallery-interaction"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="relative aspect-[4/5] sm:aspect-square bg-white rounded-[40px] border-2 border-dashed border-[#EBEBEB] group hover:border-emerald-500 transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
+                  onClick={() => galleryInputRef.current?.click()}
+                >
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center pointer-events-none">
+                    <div className="w-20 h-20 bg-[#F5F5F7] rounded-[28px] flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 border border-[#EBEBEB] shadow-sm">
+                      <CheckCircle2 size={32} className="text-emerald-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">Galeria</h3>
+                    <p className="text-[10px] text-[#86868B] max-w-[200px] mt-2 font-medium leading-relaxed uppercase tracking-widest">Escolher Arquivo</p>
+                  </div>
+                </motion.div>
+              </div>
 
               <button 
                 onClick={() => setShowManualForm(true)}
                 className="w-full py-5 bg-white border border-[#EBEBEB] text-[#86868B] rounded-[24px] text-[10px] font-bold uppercase tracking-[0.2em] hover:text-[#1D1D1F] hover:border-[#D2D2D7] transition-all"
               >
-                Ou preencher manualmente
+                Preencher de forma manual
               </button>
             </div>
           )}
@@ -357,7 +376,25 @@ export function EmployeeScanner() {
         )}
       </div>
 
-      <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="hidden" 
+      <input 
+        ref={fileInputRef} 
+        type="file" 
+        accept="image/*" 
+        capture="environment" 
+        className="hidden" 
+        onChange={(e) => {
+          if (e.target.files?.[0]) {
+            handleUpload(e.target.files[0]);
+            e.target.value = '';
+          }
+        }}
+      />
+
+      <input 
+        ref={galleryInputRef} 
+        type="file" 
+        accept="image/*" 
+        className="hidden" 
         onChange={(e) => {
           if (e.target.files?.[0]) {
             handleUpload(e.target.files[0]);

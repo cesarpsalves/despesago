@@ -60,17 +60,24 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
         upsert: true
       });
 
+    if (uploadError) {
+      console.error('Storage Upload Error Detail:', {
+        message: uploadError.message,
+        name: uploadError.name,
+        fileName
+      });
+    }
+
     if (!uploadError && uploadData) {
       const { data: { publicUrl } } = supabase
         .storage
         .from('receipts')
         .getPublicUrl(fileName);
       receipt_url = publicUrl;
-    } else {
-      console.warn('Image upload failed, continuing without image:', uploadError);
+      console.log('Image uploaded successfully:', receipt_url);
     }
-  } catch (err) {
-    console.warn('Storage error:', err);
+  } catch (err: any) {
+    console.error('Storage catch error:', err.message);
   }
 
   const finalExpenseData = {

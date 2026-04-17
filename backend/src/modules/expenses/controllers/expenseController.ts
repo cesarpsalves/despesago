@@ -58,15 +58,24 @@ export const expenseController = {
               upsert: true
             });
 
+          if (uploadError) {
+            console.error('Manual Storage Upload Error Detail:', {
+              message: uploadError.message,
+              name: uploadError.name,
+              fileName
+            });
+          }
+
           if (!uploadError && uploadData) {
             const { data: { publicUrl } } = supabase
               .storage
               .from('receipts')
               .getPublicUrl(fileName);
             receipt_url = publicUrl;
+            console.log('Manual image uploaded successfully:', receipt_url);
           }
-        } catch (err) {
-          console.warn('Manual storage error:', err);
+        } catch (err: any) {
+          console.error('Manual storage catch error:', err.message);
         }
       }
 

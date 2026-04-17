@@ -24,7 +24,29 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Detalhes da Despesa" size="lg">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title="Detalhes da Despesa" 
+      size="lg"
+      footer={
+        <div className="flex flex-col sm:flex-row gap-4 w-full">
+          <Button 
+            variant="ghost" 
+            className="flex-1 rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2 text-[#E03131] hover:bg-rose-50 border border-[#EBEBEB] transition-all" 
+            onClick={onClose}
+          >
+            <XCircle size={18} /> Rejeitar
+          </Button>
+          <Button 
+            className="flex-[2] rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2 shadow-premium hover:scale-[1.02] active:scale-[0.98] transition-all" 
+            onClick={onClose}
+          >
+            <CheckCircle2 size={18} /> Aprovar Despesa
+          </Button>
+        </div>
+      }
+    >
       <div className="space-y-8">
         {/* Top Header Card */}
         <div className="relative overflow-hidden bg-[#1D1D1F] rounded-[32px] p-8 text-white shadow-premium">
@@ -58,7 +80,7 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
           <DetailItem 
             icon={Calendar} 
             label="Data da Captura" 
-            value={new Date(expense.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })} 
+            value={new Date(expense.date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })} 
           />
           <DetailItem 
             icon={CreditCard} 
@@ -94,7 +116,7 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
               </div>
             </div>
             <div className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-sm ${isLowConfidence ? 'bg-white text-amber-600 border border-amber-100' : 'bg-white text-emerald-600 border border-emerald-100'}`}>
-              {(expense.confidence * 100).toFixed(0)}% Precisão
+              {((expense.confidence || 0.9) * 100).toFixed(0)}% Precisão
             </div>
           </div>
           <p className="text-sm text-[#424245] leading-relaxed font-medium">
@@ -117,7 +139,7 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
             )}
           </div>
           
-          <div className="aspect-[4/3] bg-[#F5F5F7] rounded-[32px] border border-[#EBEBEB] border-dashed flex flex-col items-center justify-center group cursor-pointer hover:bg-[#F5F5F7]/80 hover:border-[#1D1D1F]/20 transition-all overflow-hidden relative">
+          <div className="aspect-[4/3] bg-[#F5F5F7] rounded-[32px] border border-[#EBEBEB] border-dashed flex flex-col items-center justify-center group cursor-pointer hover:bg-[#F5F5F7]/80 hover:border-[#1D1D1F]/20 transition-all overflow-hidden relative mb-4">
             {expense.receipt_url ? (
               <img src={expense.receipt_url} alt="Recibo" className="w-full h-full object-contain p-4 group-hover:scale-[1.02] transition-transform" />
             ) : (
@@ -129,35 +151,10 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
                 <p className="text-[10px] font-medium text-[#86868B] max-w-[200px]">Nenhuma imagem vinculada a esta transação.</p>
               </div>
             )}
-            
-            {/* Hover overlay for original view */}
-            {expense.receipt_url && (
-              <div className="absolute inset-0 bg-[#1D1D1F]/0 group-hover:bg-[#1D1D1F]/5 transition-colors flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 bg-white/90 backdrop-blur-md px-6 py-2 rounded-full shadow-premium text-[10px] font-bold uppercase tracking-widest text-[#1D1D1F] transition-all translate-y-4 group-hover:translate-y-0">
-                  Ver em Tela Cheia
-                </div>
-              </div>
-            )}
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-6 pb-2">
-          <Button 
-            variant="ghost" 
-            className="flex-1 rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2 text-[#E03131] hover:bg-rose-50 border border-transparent hover:border-red-100 transition-all" 
-            onClick={onClose}
-          >
-            <XCircle size={18} /> Rejeitar
-          </Button>
-          <Button 
-            className="flex-[2] rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2 shadow-premium hover:scale-[1.02] active:scale-[0.98] transition-all" 
-            onClick={onClose}
-          >
-            <CheckCircle2 size={18} /> Aprovar Despesa
-          </Button>
         </div>
       </div>
     </Modal>
+  );
   );
 }
