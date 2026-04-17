@@ -54,6 +54,7 @@ Rules:
 - Normalize date format (YYYY-MM-DD)
 - Merchant must be clean and readable
 - Translate category to Portuguese (e.g. Alimentos, Combustível, Geral, etc.)
+- If you find a CNPJ (XX.XXX.XXX/XXXX-XX) or CPF (XXX.XXX.XXX-XX) for the merchant, extract it.
 
 Return ONLY JSON:
 {
@@ -61,6 +62,7 @@ Return ONLY JSON:
   "date": string,
   "merchant": string,
   "category": string,
+  "document": string | null,
   "confidence": number
 }
             `
@@ -95,6 +97,7 @@ Return ONLY JSON:
         date: String(parsed.date),
         merchant: String(parsed.merchant),
         category: String(parsed.category || 'Other'),
+        document: parsed.document || null,
         confidence: confidence
       };
     } catch (error: any) {

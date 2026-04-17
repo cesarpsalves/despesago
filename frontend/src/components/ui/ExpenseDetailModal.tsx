@@ -65,6 +65,13 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
             label="Método de Pagamento" 
             value="Corporativo / Dinheiro" 
           />
+          {expense.document && (
+            <DetailItem 
+              icon={Building} 
+              label="CNPJ / Documento" 
+              value={expense.document} 
+            />
+          )}
           {expense.cost_centers?.name && (
             <DetailItem 
               icon={LayoutDashboard} 
@@ -135,16 +142,16 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row gap-4 pt-6 pb-2">
           <Button 
             variant="ghost" 
-            className="flex-1 rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2 text-[#E03131] hover:bg-rose-50" 
+            className="flex-1 rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2 text-[#E03131] hover:bg-rose-50 border border-transparent hover:border-red-100 transition-all" 
             onClick={onClose}
           >
             <XCircle size={18} /> Rejeitar
           </Button>
           <Button 
-            className="flex-[2] rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2" 
+            className="flex-[2] rounded-[20px] h-14 text-[11px] font-bold uppercase tracking-widest gap-2 shadow-premium hover:scale-[1.02] active:scale-[0.98] transition-all" 
             onClick={onClose}
           >
             <CheckCircle2 size={18} /> Aprovar Despesa

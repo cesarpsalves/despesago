@@ -8,11 +8,30 @@ export interface ExpenseData {
   date: string;
   merchant: string;
   category: string;
+  document?: string | null;
   confidence: number;
   cost_center_id?: string;
 }
 
-export const processExpense = async (input: { imageBase64: string, cost_center_id?: string }, authHeader: string) => {
+export interface ExpenseData {
+  amount: number;
+  date: string;
+  merchant: string;
+  category: string;
+  document?: string | null;
+  confidence: number;
+  cost_center_id?: string;
+  receipt_url?: string | null;
+}
+
+export const extractReceiptData = async (imageBase64: string): Promise<ExpenseData> => {
+  if (!imageBase64) {
+    throw new Error("missing_image_data");
+  }
+
+  const expenseData = await receiptAgent.extract(imageBase64);
+  return expenseData;
+};
   console.log('--- Starting REAL AI Orchestration Flow ---');
   const supabase = createScopedClient(authHeader);
 
@@ -27,11 +46,7 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
   }
 
   // 1. Extraction (REAL Receipt Agent AI)
-  if (!input.imageBase64) {
-    throw new Error("missing_image_data");
-  }
-
-  const expenseData = await receiptAgent.extract(input.imageBase64);
+  const expenseData = await extractReceiptData(input.imageBase64);
   console.log('1. AI Extracted:', expenseData);
 
   // Link cost center and user/company info
@@ -39,10 +54,38 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
     expenseData.cost_center_id = input.cost_center_id;
   }
   
+  // 1.5 Handle Image Storage
+  let receipt_url = null;
+  try {
+    const fileName = `${userProfile.company_id}/${Date.now()}-${userProfile.id}.jpg`;
+    const imageBuffer = Buffer.from(input.imageBase64, 'base64');
+    
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from('receipts')
+      .upload(fileName, imageBuffer, {
+        contentType: 'image/jpeg',
+        upsert: true
+      });
+
+    if (!uploadError && uploadData) {
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from('receipts')
+        .getPublicUrl(fileName);
+      receipt_url = publicUrl;
+    } else {
+      console.warn('Image upload failed, continuing without image:', uploadError);
+    }
+  } catch (err) {
+    console.warn('Storage error:', err);
+  }
+
   const finalExpenseData = {
     ...expenseData,
     company_id: userProfile.company_id,
-    user_id: userProfile.id
+    user_id: userProfile.id,
+    receipt_url: receipt_url
   };
 
   // 2. Validation (Standardized + Defensive)
