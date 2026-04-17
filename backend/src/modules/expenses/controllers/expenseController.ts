@@ -19,6 +19,42 @@ export const expenseController = {
       });
     }
   },
+  create: async (req: Request, res: Response) => {
+    try {
+      const authHeader = req.headers.authorization || '';
+      const supabase = (await import('../../../shared/db/supabaseClient.js')).createScopedClient(authHeader);
+      
+      // Get user context to find the company_id automatically
+      const { data: userProfile, error: userError } = await supabase
+        .from('users')
+        .select('company_id, id')
+        .single();
+      
+      if (userError || !userProfile) throw new Error('Usuário não identificado.');
+
+      const expenseData = {
+        ...req.body,
+        company_id: userProfile.company_id,
+        user_id: userProfile.id
+      };
+
+      const { data, error } = await supabase
+        .from('expenses')
+        .insert([expenseData])
+        .select()
+        .single();
+      
+      if (error) throw error;
+
+      return res.status(201).json({
+        success: true,
+        expense: data
+      });
+    } catch (error: any) {
+      console.error('Manual Creation Failed:', error.message);
+      return res.status(400).json({ error: error.message });
+    }
+  },
   list: async (req: Request, res: Response) => {
     try {
       const authHeader = req.headers.authorization || '';

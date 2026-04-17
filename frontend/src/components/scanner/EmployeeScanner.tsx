@@ -23,6 +23,14 @@ export function EmployeeScanner() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<ProcessResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showManualForm, setShowManualForm] = useState(false);
+  
+  // Manual form state
+  const [manualData, setManualData] = useState({
+    amount: "",
+    merchant: "",
+    date: new Date().toISOString().split('T')[0]
+  });
 
   // Auto-trigger input if requested via URL
   useEffect(() => {
@@ -43,8 +51,8 @@ export function EmployeeScanner() {
     try {
       const base64 = await toBase64(file);
       const res = await axios.post('/expenses/process', { 
-        image: base64,
-        cost_center_id: selectedCostCenter // New field for categorization
+        imageBase64: base64,
+        cost_center_id: selectedCostCenter 
       });
       setResult(res.data);
     } catch (err: any) {
@@ -54,6 +62,30 @@ export function EmployeeScanner() {
       setIsProcessing(false);
     }
   }, [selectedCostCenter]);
+
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualData.amount || !manualData.merchant) return;
+    
+    setIsProcessing(true);
+    setError(null);
+    
+    try {
+      const res = await axios.post('/expenses', {
+        amount: parseFloat(manualData.amount.replace(',', '.')),
+        merchant: manualData.merchant,
+        date: manualData.date,
+        cost_center_id: selectedCostCenter
+      });
+      setResult(res.data);
+      setShowManualForm(false);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.error || "Erro ao salvar despesa manual.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="max-w-xl mx-auto space-y-8">
@@ -123,26 +155,98 @@ export function EmployeeScanner() {
                 Escanear Outro
               </button>
             </motion.div>
-          ) : (
+          ) : showManualForm ? (
             <motion.div
-              key="interaction"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="relative aspect-[4/5] sm:aspect-video bg-white rounded-[32px] border-2 border-dashed border-[#EBEBEB] group hover:border-[#1D1D1F] transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
-              onClick={() => fileInputRef.current?.click()}
+              key="manual-form"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-[32px] border border-[#EBEBEB] p-6 sm:p-10 shadow-premium"
             >
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-10 text-center pointer-events-none">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#F5F5F7] rounded-[28px] flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-[#EBEBEB] group-hover:border-[#D2D2D7] shadow-sm">
-                  <Camera size={window.innerWidth < 640 ? 32 : 40} />
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-bold text-[#1D1D1F] tracking-tight">Preencher Manual</h3>
+                <button 
+                  onClick={() => setShowManualForm(false)}
+                  className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest hover:text-red-500 transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+
+              <form onSubmit={handleManualSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">Estabelecimento</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Starbucks, Posto shell..."
+                    className="w-full h-14 bg-[#F5F5F7] border-none rounded-2xl px-6 font-medium text-[#1D1D1F] focus:ring-2 focus:ring-[#1D1D1F] transition-all"
+                    value={manualData.merchant}
+                    onChange={e => setManualData({...manualData, merchant: e.target.value})}
+                  />
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tracking-tight px-4">Toque para Escanear</h3>
-                <p className="text-sm text-[#86868B] max-w-[240px] mt-3 font-medium leading-relaxed">Capture ou selecione a foto do recibo para processar automaticamente.</p>
-              </div>
-              
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <span className="text-[10px] font-black text-[#1D1D1F] uppercase tracking-[0.4em] bg-white/80 px-4 py-1.5 rounded-full backdrop-blur-sm">IA Pronta</span>
-              </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">Valor (R$)</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="0,00"
+                      className="w-full h-14 bg-[#F5F5F7] border-none rounded-2xl px-6 font-medium text-[#1D1D1F] focus:ring-2 focus:ring-[#1D1D1F] transition-all"
+                      value={manualData.amount}
+                      onChange={e => setManualData({...manualData, amount: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">Data</label>
+                    <input
+                      type="date"
+                      required
+                      className="w-full h-14 bg-[#F5F5F7] border-none rounded-2xl px-6 font-medium text-[#1D1D1F] focus:ring-2 focus:ring-[#1D1D1F] transition-all"
+                      value={manualData.date}
+                      onChange={e => setManualData({...manualData, date: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  type="submit"
+                  disabled={isProcessing}
+                  className="w-full py-5 bg-[#1D1D1F] text-white rounded-2xl text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#333333] transition-all shadow-premium mt-4 disabled:opacity-50"
+                >
+                  {isProcessing ? "Salvando..." : "Salvar Despesa"}
+                </button>
+              </form>
             </motion.div>
+          ) : (
+            <div className="space-y-4">
+              <motion.div
+                key="interaction"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="relative aspect-[4/5] sm:aspect-video bg-white rounded-[32px] border-2 border-dashed border-[#EBEBEB] group hover:border-[#1D1D1F] transition-all cursor-pointer overflow-hidden shadow-sm hover:shadow-premium"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 sm:p-10 text-center pointer-events-none">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#F5F5F7] rounded-[28px] flex items-center justify-center mb-6 text-[#1D1D1F] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 border border-[#EBEBEB] group-hover:border-[#D2D2D7] shadow-sm">
+                    <Camera size={window.innerWidth < 640 ? 32 : 40} />
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-[#1D1D1F] tracking-tight px-4">Toque para Escanear</h3>
+                  <p className="text-sm text-[#86868B] max-w-[240px] mt-3 font-medium leading-relaxed">Capture ou selecione a foto do recibo para processar automaticamente.</p>
+                </div>
+                
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <span className="text-[10px] font-black text-[#1D1D1F] uppercase tracking-[0.4em] bg-white/80 px-4 py-1.5 rounded-full backdrop-blur-sm">IA Pronta</span>
+                </div>
+              </motion.div>
+
+              <button 
+                onClick={() => setShowManualForm(true)}
+                className="w-full py-4 bg-white border border-[#EBEBEB] text-[#86868B] rounded-[24px] text-[10px] font-bold uppercase tracking-[0.2em] hover:text-[#1D1D1F] hover:border-[#D2D2D7] transition-all"
+              >
+                Ou preencher manualmente
+              </button>
+            </div>
           )}
         </AnimatePresence>
 
