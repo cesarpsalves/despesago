@@ -74,7 +74,7 @@ export function EmployeeScanner() {
         amount: String(data.amount),
         merchant: data.merchant,
         date: data.date,
-        document: data.document || "",
+        document: data.document ? formatCNPJ_CPF(data.document) : "",
         category: data.category
       });
       setIsReviewing(true);
@@ -223,11 +223,18 @@ export function EmployeeScanner() {
                   <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">CNPJ do Estabelecimento (Opcional)</label>
                   <input
                     type="text"
-                    placeholder="Documento não identificado"
-                    className="w-full h-14 bg-[#F5F5F7] border-none rounded-2xl px-6 font-medium text-[#1D1D1F] focus:ring-2 focus:ring-emerald-500 transition-all"
+                    placeholder="Documento vazio (CNPJ/CPF)"
+                    className={`w-full h-14 bg-[#F5F5F7] border rounded-2xl px-6 font-medium text-[#1D1D1F] focus:ring-2 focus:ring-emerald-500 transition-all ${
+                      reviewData.document && reviewData.document.replace(/\D/g, '').length !== 11 && reviewData.document.replace(/\D/g, '').length !== 14
+                        ? 'border-amber-400 focus:ring-amber-500 bg-amber-50'
+                        : 'border-transparent'
+                    }`}
                     value={reviewData.document}
-                    onChange={e => setReviewData({...reviewData, document: e.target.value})}
+                    onChange={e => setReviewData({...reviewData, document: formatCNPJ_CPF(e.target.value)})}
                   />
+                  {reviewData.document && reviewData.document.replace(/\D/g, '').length !== 11 && reviewData.document.replace(/\D/g, '').length !== 14 && (
+                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest ml-1 mt-1">Formato Incompleto</p>
+                  )}
                 </div>
 
                 <div className="flex gap-4 pt-4">
@@ -311,7 +318,16 @@ export function EmployeeScanner() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">CNPJ/Documento (Opcional)</label>
-                  <input type="text" className="w-full h-14 bg-[#F5F5F7] rounded-2xl px-6 font-medium" value={manualData.document} onChange={e => setManualData({...manualData, document: e.target.value})} />
+                  <input 
+                    type="text" 
+                    className={`w-full h-14 bg-[#F5F5F7] border rounded-2xl px-6 font-medium transition-all ${
+                      manualData.document && manualData.document.replace(/\D/g, '').length !== 11 && manualData.document.replace(/\D/g, '').length !== 14
+                        ? 'border-amber-400 focus:ring-amber-500 bg-amber-50' 
+                        : 'border-transparent'
+                    }`}
+                    value={manualData.document} 
+                    onChange={e => setManualData({...manualData, document: formatCNPJ_CPF(e.target.value)})} 
+                  />
                 </div>
                 <button type="submit" className="w-full py-5 bg-[#1D1D1F] text-white rounded-2xl font-bold uppercase tracking-widest shadow-premium">Salvar</button>
               </form>
@@ -413,4 +429,22 @@ function toBase64(file: File): Promise<string> {
     reader.onload = () => resolve(reader.result?.toString().split(",")[1] || "");
     reader.onerror = reject;
   });
+}
+
+function formatCNPJ_CPF(value: string): string {
+  const v = value.replace(/\D/g, '');
+  if (!v) return '';
+  if (v.length <= 11) {
+    return v
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+      .substring(0, 14);
+  }
+  return v
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d)/, '$1-$2')
+    .substring(0, 18);
 }

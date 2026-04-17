@@ -51,10 +51,10 @@ Rules:
 - If multiple values appear, choose the most likely total amount
 - Prefer "TOTAL" or "AMOUNT" fields
 - Ignore irrelevant text
-- Normalize date format (YYYY-MM-DD)
-- Merchant must be clean and readable
+- MERCHANT NAME: The merchant name is usually the largest text at the very top of the receipt. DO NOT confuse employee/attendant names (e.g. 'Operador: Joao', 'Caixa 1', 'Atendente') with the Merchant Name.
+- DATE: For blurry or messy dates, look for standard Brazilian patterns (DD/MM/YYYY) usually near the top header or bottom footer timestamps. Guess logically if a digit is slightly distorted. Return strictly as YYYY-MM-DD.
 - Translate category to Portuguese (e.g. Alimentos, Combustível, Geral, etc.)
-- If you find a CNPJ (XX.XXX.XXX/XXXX-XX) or CPF (XXX.XXX.XXX-XX) for the merchant, extract it.
+- DOCUMENT: If you find a CNPJ or CPF for the merchant, extract it. IMPORTANT: You MUST return it strictly formatted with mask (XX.XXX.XXX/XXXX-XX or XXX.XXX.XXX-XX).
 
 Return ONLY JSON:
 {
