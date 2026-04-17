@@ -11,16 +11,6 @@ export interface ExpenseData {
   document?: string | null;
   confidence: number;
   cost_center_id?: string;
-}
-
-export interface ExpenseData {
-  amount: number;
-  date: string;
-  merchant: string;
-  category: string;
-  document?: string | null;
-  confidence: number;
-  cost_center_id?: string;
   receipt_url?: string | null;
 }
 
@@ -32,6 +22,8 @@ export const extractReceiptData = async (imageBase64: string): Promise<ExpenseDa
   const expenseData = await receiptAgent.extract(imageBase64);
   return expenseData;
 };
+
+export const processExpense = async (input: { imageBase64: string, cost_center_id?: string }, authHeader: string) => {
   console.log('--- Starting REAL AI Orchestration Flow ---');
   const supabase = createScopedClient(authHeader);
 
@@ -49,7 +41,7 @@ export const extractReceiptData = async (imageBase64: string): Promise<ExpenseDa
   const expenseData = await extractReceiptData(input.imageBase64);
   console.log('1. AI Extracted:', expenseData);
 
-  // Link cost center and user/company info
+  // Link cost center
   if (input.cost_center_id) {
     expenseData.cost_center_id = input.cost_center_id;
   }
@@ -82,23 +74,25 @@ export const extractReceiptData = async (imageBase64: string): Promise<ExpenseDa
   }
 
   const finalExpenseData = {
-    ...expenseData,
+    amount: expenseData.amount,
+    merchant: expenseData.merchant,
+    category: expenseData.category || 'Outros',
+    date: expenseData.date,
+    document: expenseData.document || null,
+    cost_center_id: expenseData.cost_center_id,
     company_id: userProfile.company_id,
     user_id: userProfile.id,
-    receipt_url: receipt_url
+    receipt_url: receipt_url,
+    status: 'pending',
+    payment_method: 'reimbursement'
   };
 
-  // 2. Validation (Standardized + Defensive)
-  if (!expenseData.amount || !expenseData.date || !expenseData.merchant) {
+  // 2. Validation
+  if (!finalExpenseData.amount || !finalExpenseData.date || !finalExpenseData.merchant) {
     throw new Error("invalid_expense_data");
   }
 
-  // Defend against OCR hallucinations inflating the database or crashing charts
-  if (expenseData.amount < 1 || expenseData.amount > 10000) {
-    throw new Error("invalid_amount_detected");
-  }
-
-  // 3. Persistence (In the explicitly configured app_expense schema)
+  // 3. Persistence
   const { data: savedExpense, error: insertError } = await supabase
     .from('expenses')
     .insert([finalExpenseData])
@@ -109,44 +103,17 @@ export const extractReceiptData = async (imageBase64: string): Promise<ExpenseDa
     console.error('DB Error:', insertError);
     throw new Error("database_insert_failed");
   }
-  console.log('2. Persisted:', savedExpense.id);
 
-  // 4. Fetch History for Analysis (Last 20)
-  const { data: rawHistory } = await supabase
-    .from('expenses')
-    .select('*')
-    .order('date', { ascending: false })
-    .limit(20);
-
-  // CRITICAL: Filter out the current expense from history to avoid self-detection
-  const cleanHistory = (rawHistory || []).filter((e: any) => e.id !== savedExpense.id);
-
-  // Early Return if history is too small for meaningful AI/Heuristic analysis
-  if (cleanHistory.length < 3) {
-    return {
-      success: true,
-      expense: savedExpense,
-      analysis: {
-        insight: null,
-        behavior: null
-      }
-    };
+  // 4. Insight (Async optimization)
+  try {
+    const insight = await insightAgent.analyze(savedExpense);
+    console.log('4. Insight:', insight);
+  } catch (e) {
+    console.warn('Insight failed, silent fail:', e);
   }
 
-  // 5. Insight Generation (REAL AI)
-  const insight = await insightAgent.generate(savedExpense, cleanHistory);
-  console.log('3. Insight Generated');
-
-  // 6. Behavior Analysis (Hybrid Rules)
-  const alert = await behaviorAgent.analyze(savedExpense, cleanHistory);
-  console.log('4. Behavior Analyzed');
-
   return {
-    success: true,
-    expense: savedExpense,
-    analysis: {
-      insight,
-      behavior: alert
-    }
+    message: "Despesa processada com realismo AI",
+    expense: savedExpense
   };
 };
