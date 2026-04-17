@@ -16,6 +16,16 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
   console.log('--- Starting REAL AI Orchestration Flow ---');
   const supabase = createScopedClient(authHeader);
 
+  // 0. Get user context (Required for company_id/user_id)
+  const { data: userProfile, error: userError } = await supabase
+    .from('users')
+    .select('id, company_id')
+    .single();
+
+  if (userError || !userProfile) {
+    throw new Error("user_not_found");
+  }
+
   // 1. Extraction (REAL Receipt Agent AI)
   if (!input.imageBase64) {
     throw new Error("missing_image_data");
@@ -24,10 +34,16 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
   const expenseData = await receiptAgent.extract(input.imageBase64);
   console.log('1. AI Extracted:', expenseData);
 
-  // Link cost center if provided
+  // Link cost center and user/company info
   if (input.cost_center_id) {
     expenseData.cost_center_id = input.cost_center_id;
   }
+  
+  const finalExpenseData = {
+    ...expenseData,
+    company_id: userProfile.company_id,
+    user_id: userProfile.id
+  };
 
   // 2. Validation (Standardized + Defensive)
   if (!expenseData.amount || !expenseData.date || !expenseData.merchant) {
@@ -42,7 +58,7 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
   // 3. Persistence (In the explicitly configured app_expense schema)
   const { data: savedExpense, error: insertError } = await supabase
     .from('expenses')
-    .insert([expenseData])
+    .insert([finalExpenseData])
     .select()
     .single();
 
