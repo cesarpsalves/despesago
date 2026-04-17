@@ -7,7 +7,7 @@ export const billingController = {
   // Chamada via Painel do Gestor para contratar plano PRO
   subscribe: async (req: Request, res: Response) => {
     try {
-      const { cycle } = req.body; // MONTHLY or YEARLY
+      const { cycle, document } = req.body; // MONTHLY or YEARLY
       const authHeader = req.headers.authorization || '';
       const supabaseScoped = createScopedClient(authHeader);
 
@@ -34,13 +34,18 @@ export const billingController = {
       
       // 1. Criar ou Recuperar o Customer ASAAS
       let externalCustomerId = company.external_customer_id;
+      const finalDocument = company.document || document;
+      
       if (!externalCustomerId) {
-        externalCustomerId = await asaasService.createCustomer(company.name, adminUser.email, company.document || undefined);
-        // Atualiza a tabela com o reference do Asaas
+        externalCustomerId = await asaasService.createCustomer(company.name, adminUser.email, finalDocument);
+        // Atualiza a tabela com o reference do Asaas (e salva o CNPJ caso não tivesse)
         await supabaseAdmin
           .schema('app_expense_b2b')
           .from('companies')
-          .update({ external_customer_id: externalCustomerId })
+          .update({ 
+            external_customer_id: externalCustomerId,
+            ...(finalDocument && !company.document ? { document: finalDocument } : {})
+          })
           .eq('id', companyId);
       }
 
@@ -187,7 +192,7 @@ export const billingController = {
       const { data: company } = await supabaseAdmin
         .schema('app_expense_b2b')
         .from('companies')
-        .select('name, external_customer_id')
+        .select('name, external_customer_id, document')
         .eq('id', companyId)
         .single();
 
@@ -201,7 +206,8 @@ export const billingController = {
         },
         company: {
           name: company?.name,
-          has_external_id: !!company?.external_customer_id
+          has_external_id: !!company?.external_customer_id,
+          has_document: !!company?.document
         }
       });
     } catch (error: any) {

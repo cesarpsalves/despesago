@@ -11,6 +11,7 @@ import axios from 'axios';
 
 export default function Onboarding() {
   const [companyName, setCompanyName] = useState('');
+  const [document, setDocument] = useState('');
   const [loading, setLoading] = useState(false);
   const { user, signOut, checkCompanyStatus, requireOnboarding, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -28,7 +29,10 @@ export default function Onboarding() {
 
     setLoading(true);
     try {
-      await axios.post('/auth/onboarding', { name: companyName });
+      await axios.post('/company/onboarding', { 
+        companyName: companyName,
+        document: document || undefined 
+      });
       await checkCompanyStatus();
       toast.success('Empresa configurada com sucesso!');
       navigate('/app', { replace: true });
@@ -103,6 +107,23 @@ export default function Onboarding() {
                 </div>
                 <p className="text-[10px] text-[#86868B] ml-1 font-medium italic">
                   Este nome será exibido nos relatórios e convites de funcionários.
+                </p>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <label className="text-[10px] font-bold text-[#86868B] uppercase tracking-widest ml-1">CNPJ (Opcional)</label>
+                <div className="relative group">
+                  <Building2 className="absolute left-4 top-4 w-5 h-5 text-[#D2D2D7] group-focus-within:text-emerald-500 transition-colors" />
+                  <input 
+                    type="text" 
+                    value={document}
+                    onChange={e => setDocument(e.target.value)}
+                    className="pl-12 pr-4 py-4 w-full bg-[#F5F5F7] border border-transparent rounded-2xl outline-none focus:bg-white focus:border-emerald-500/30 focus:ring-4 focus:ring-emerald-500/5 transition-all text-[#1D1D1F] font-semibold text-lg"
+                    placeholder="Ex: 00.000.000/0001-00"
+                  />
+                </div>
+                <p className="text-[10px] text-[#86868B] ml-1 font-medium italic">
+                  Usado para emissão de Notas Fiscais ao assinar a plataforma.
                 </p>
               </div>
 

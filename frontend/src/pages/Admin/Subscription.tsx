@@ -12,6 +12,8 @@ export default function Subscription() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
+  const [document, setDocument] = useState('');
+  const [showDocInput, setShowDocInput] = useState(false);
 
   const fetchStatus = async () => {
     try {
@@ -25,9 +27,23 @@ export default function Subscription() {
   };
 
   const handleUpgrade = async (cycle: 'MONTHLY' | 'YEARLY' = 'MONTHLY') => {
+    if (!data?.company?.has_external_id && !data?.company?.has_document) {
+      if (!showDocInput) {
+        setShowDocInput(true);
+        return;
+      }
+      if (!document.trim()) {
+        toast.error('Por favor, preencha o CPF ou CNPJ para avançar.');
+        return;
+      }
+    }
+
     try {
       setSubscribing(true);
-      const res = await axios.post('/billing/subscribe', { cycle });
+      const res = await axios.post('/billing/subscribe', { 
+        cycle, 
+        document: document.trim() || undefined 
+      });
       
       if (res.data.paymentLink) {
         toast.success('Link de pagamento gerado! Redirecionando...');
@@ -96,13 +112,31 @@ export default function Subscription() {
       </div>
       
       {!active && (
-        <Button 
-          onClick={() => handleUpgrade('MONTHLY')} 
-          disabled={subscribing}
-          className="w-full h-10 rounded-xl font-black text-[10px] uppercase tracking-widest bg-slate-900 border-none hover:bg-black text-white"
-        >
-          {subscribing ? 'Processando...' : 'Migrar para Pro'}
-        </Button>
+        <div className="space-y-3">
+          {showDocInput && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-2"
+            >
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest drop-shadow-sm">CPF ou CNPJ (Obrigatório)</label>
+              <input 
+                type="text" 
+                value={document}
+                onChange={e => setDocument(e.target.value)}
+                placeholder="Ex: 00.000.000/0001-00"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-slate-900"
+              />
+            </motion.div>
+          )}
+          <Button 
+            onClick={() => handleUpgrade('MONTHLY')} 
+            disabled={subscribing}
+            className="w-full h-10 rounded-xl font-black text-[10px] uppercase tracking-widest bg-slate-900 border-none hover:bg-black text-white"
+          >
+            {subscribing ? 'Processando...' : (showDocInput ? 'Confirmar e Assinar' : 'Migrar para Pro')}
+          </Button>
+        </div>
       )}
     </div>
   );
