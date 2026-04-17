@@ -83,8 +83,7 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
     company_id: userProfile.company_id,
     user_id: userProfile.id,
     receipt_url: receipt_url,
-    status: 'pending',
-    payment_method: 'reimbursement'
+    status: 'pending'
   };
 
   // 2. Validation
@@ -106,7 +105,7 @@ export const processExpense = async (input: { imageBase64: string, cost_center_i
 
   // 4. Insight (Async optimization)
   try {
-    const insight = await insightAgent.analyze(savedExpense);
+    const insight = await insightAgent.generate(savedExpense, []);
     console.log('4. Insight:', insight);
   } catch (e) {
     console.warn('Insight failed, silent fail:', e);
