@@ -156,5 +156,4 @@ export function ExpenseDetailModal({ isOpen, onClose, expense }: ExpenseDetailMo
       </div>
     </Modal>
   );
-  );
 }
