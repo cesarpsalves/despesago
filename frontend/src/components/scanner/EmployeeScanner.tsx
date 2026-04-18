@@ -225,15 +225,27 @@ export function EmployeeScanner() {
                     type="text"
                     placeholder="Documento vazio (CNPJ/CPF)"
                     className={`w-full h-14 bg-[#F5F5F7] border rounded-2xl px-6 font-medium text-[#1D1D1F] focus:ring-2 focus:ring-emerald-500 transition-all ${
-                      reviewData.document && reviewData.document.replace(/\D/g, '').length !== 11 && reviewData.document.replace(/\D/g, '').length !== 14
-                        ? 'border-amber-400 focus:ring-amber-500 bg-amber-50'
+                      reviewData.document 
+                        ? (validateDocument(reviewData.document) 
+                            ? 'border-emerald-200' 
+                            : reviewData.document.replace(/\D/g, '').length === 11 || reviewData.document.replace(/\D/g, '').length === 14
+                              ? 'border-red-400 focus:ring-red-500 bg-red-50'
+                              : 'border-amber-400 focus:ring-amber-500 bg-amber-50')
                         : 'border-transparent'
                     }`}
                     value={reviewData.document}
                     onChange={e => setReviewData({...reviewData, document: formatCNPJ_CPF(e.target.value)})}
                   />
-                  {reviewData.document && reviewData.document.replace(/\D/g, '').length !== 11 && reviewData.document.replace(/\D/g, '').length !== 14 && (
-                    <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest ml-1 mt-1">Formato Incompleto</p>
+                  {reviewData.document && (
+                    <div className="flex items-center gap-1.5 ml-1 mt-1">
+                      {validateDocument(reviewData.document) ? (
+                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Documento Válido</p>
+                      ) : (reviewData.document.replace(/\D/g, '').length === 11 || reviewData.document.replace(/\D/g, '').length === 14) ? (
+                        <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest">Documento Falso/Inválido</p>
+                      ) : (
+                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Formato Incompleto</p>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -321,8 +333,12 @@ export function EmployeeScanner() {
                   <input 
                     type="text" 
                     className={`w-full h-14 bg-[#F5F5F7] border rounded-2xl px-6 font-medium transition-all ${
-                      manualData.document && manualData.document.replace(/\D/g, '').length !== 11 && manualData.document.replace(/\D/g, '').length !== 14
-                        ? 'border-amber-400 focus:ring-amber-500 bg-amber-50' 
+                      manualData.document 
+                        ? (validateDocument(manualData.document) 
+                            ? 'border-emerald-200' 
+                            : manualData.document.replace(/\D/g, '').length === 11 || manualData.document.replace(/\D/g, '').length === 14
+                              ? 'border-red-400 bg-red-50' 
+                              : 'border-amber-400 bg-amber-50')
                         : 'border-transparent'
                     }`}
                     value={manualData.document} 
@@ -447,4 +463,45 @@ function formatCNPJ_CPF(value: string): string {
     .replace(/\.(\d{3})(\d)/, '.$1/$2')
     .replace(/(\d{4})(\d)/, '$1-$2')
     .substring(0, 18);
+}
+
+function validateDocument(doc: string): boolean {
+  const v = doc.replace(/\D/g, '');
+  if (v.length === 11) return isValidCPF(v);
+  if (v.length === 14) return isValidCNPJ(v);
+  return false;
+}
+
+function isValidCPF(cpf: string): boolean {
+  if (/^(\d)\1+$/.test(cpf)) return false;
+  let sum = 0;
+  for (let i = 1; i <= 9; i++) sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+  let rev = (sum * 10) % 11;
+  if (rev === 10 || rev === 11) rev = 0;
+  if (rev !== parseInt(cpf.substring(9, 10))) return false;
+  sum = 0;
+  for (let i = 1; i <= 10; i++) sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+  rev = (sum * 10) % 11;
+  if (rev === 10 || rev === 11) rev = 0;
+  return rev === parseInt(cpf.substring(10, 11));
+}
+
+function isValidCNPJ(cnpj: string): boolean {
+  if (/^(\d)\1+$/.test(cnpj)) return false;
+  let t = cnpj.length - 2;
+  let d = cnpj.substring(0, t);
+  let p = cnpj.substring(t);
+  const calc = (n: string) => {
+    let s = 0;
+    let w = n.length - 7;
+    for (let i = n.length; i >= 1; i--) {
+      s += parseInt(n.charAt(n.length - i)) * w--;
+      if (w < 2) w = 9;
+    }
+    const r = s % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  const d1 = calc(d);
+  const d2 = calc(d + d1);
+  return d1 === parseInt(p.charAt(0)) && d2 === parseInt(p.charAt(1));
 }
