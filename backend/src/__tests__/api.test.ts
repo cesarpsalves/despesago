@@ -3,21 +3,39 @@ import request from 'supertest';
 import app from '../app.js';
 
 // Mock do Supabase para evitar chamadas reais ao banco durante integração
-vi.mock('../shared/db/supabaseClient.js', () => ({
-  createScopedClient: () => ({
-    from: () => ({
-      select: () => ({
+// Mock do Supabase para evitar chamadas reais ao banco durante integração
+const mockSupabase = {
+  from: () => ({
+    select: () => ({
+      eq: () => ({
         order: () => ({
-          limit: () => Promise.resolve({ data: [], error: null })
+          limit: () => ({
+            single: () => Promise.resolve({ data: { company_id: 'test-co', id: 'test-user', plan: 'pro', status: 'active' }, error: null }),
+            then: (cb: any) => cb({ data: [], error: null })
+          }),
+          single: () => Promise.resolve({ data: { plan: 'pro', status: 'active' }, error: null })
+        }),
+        single: () => Promise.resolve({ data: { company_id: 'test-co' }, error: null }),
+        limit: () => ({
+          single: () => Promise.resolve({ data: { plan: 'pro' }, error: null })
         })
       }),
-      insert: () => ({
-        select: () => ({
-          single: () => Promise.resolve({ data: { id: 'test-123' }, error: null })
-        })
+      single: () => Promise.resolve({ data: { id: 'test-user', company_id: 'test-co' }, error: null }),
+      order: () => ({
+        limit: () => Promise.resolve({ data: [], error: null })
+      })
+    }),
+    insert: () => ({
+      select: () => ({
+        single: () => Promise.resolve({ data: { id: 'test-123' }, error: null })
       })
     })
   })
+};
+
+vi.mock('../shared/db/supabaseClient.js', () => ({
+  createScopedClient: () => mockSupabase,
+  supabaseAdmin: mockSupabase
 }));
 
 describe('Backend API Integration', () => {
